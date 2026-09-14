@@ -1,0 +1,140 @@
+# Labels for the LBP project
+# This file is used to define the labels for the repository
+
+labels:
+  # Type
+  - name: type: feature
+    color: 1f883d
+    description: A new feature or functionality
+  - name: type: infra
+    color: 0969da
+    description: Infrastructure-related tasks
+  - name: type: chore
+    color: 8250df
+    description: Maintenance or chore tasks
+  - name: type: security
+    color: d1242f
+    description: Security-related tasks
+  - name: type: docs
+    color: 6e7781
+    description: Documentation tasks
+  - name: type: bug
+    color: d1242f
+    description: Bug fixes
+
+  # Priority
+  - name: priority: P0 (bloquant)
+    color: b60205
+    description: Blocking priority
+  - name: priority: P1 (haute)
+    color: d93f0b
+    description: High priority
+  - name: priority: P2 (moyenne)
+    color: fbca04
+    description: Medium priority
+  - name: priority: P3 (basse)
+    color: c2e0c6
+    description: Low priority
+
+  # Epic
+  - name: epic: infrastructure-setup
+    color: 0e8a16
+    description: Infrastructure setup epic
+  - name: epic: modele-de-donnees-supabase
+    color: 0e8a16
+    description: Supabase data model epic
+  - name: epic: authentification-comptes
+    color: 0e8a16
+    description: Authentication and accounts epic
+  - name: epic: api-server-actions-next-js
+    color: 0e8a16
+    description: API and server actions epic
+  - name: epic: frontend-web-pages-fonctionnelles
+    color: 0e8a16
+    description: Functional web pages epic
+  - name: epic: pwa-progressive-web-app
+    color: 0e8a16
+    description: Progressive Web App epic
+  - name: epic: onboarding-guide-driver-js
+    color: 0e8a16
+    description: Onboarding guide epic
+  - name: epic: automatisations
+    color: 0e8a16
+    description: Automations epic
+  - name: epic: securite-rgpd-qualite
+    color: 0e8a16
+    description: Security, GDPR, and quality epic
+  - name: epic: deploiement-recette
+    color: 0e8a16
+    description: Deployment and testing epic
+  - name: epic: backlog-hors-perimetre
+    color: 0e8a16
+    description: Backlog out of scope epic
+
+  # Area
+  - name: area:a11y
+    color: c5def5
+    description: Accessibility
+  - name: area:auth
+    color: c5def5
+    description: Authentication
+  - name: area:automation
+    color: c5def5
+    description: Automation
+  - name: area:backend
+    color: c5def5
+    description: Backend
+  - name: area:ci-cd
+    color: c5def5
+    description: CI/CD
+  - name: area:database
+    color: c5def5
+    description: Database
+  - name: area:design
+    color: c5def5
+    description: Design
+  - name: area:docker
+    color: c5def5
+    description: Docker
+  - name: area:docs
+    color: c5def5
+    description: Documentation
+  - name: area:frontend
+    color: c5def5
+    description: Frontend
+  - name: area:onboarding
+    color: c5def5
+    description: Onboarding
+  - name: area:ops
+    color: c5def5
+    description: Operations
+  - name: area:pwa
+    color: c5def5
+    description: Progressive Web App
+  - name: area:qa
+    color: c5def5
+    description: Quality Assurance
+  - name: area:rgpd
+    color: c5def5
+    description: GDPR
+  - name: area:search
+    color: c5def5
+    description: Search
+  - name: area:security
+    color: c5def5
+    description: Security
+  - name: area:setup
+    color: c5def5
+    description: Setup
+  - name: area:storage
+    color: c5def5
+    description: Storage
+  - name: area:supabase
+    color: c5def5
+    description: Supabase
+  - name: area:testing
+    color: c5def5
+    description: Testing
+  - name: area:veille
+    color: c5def5
+    description: Watch/Monitoring
