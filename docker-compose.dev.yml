@@ -1,0 +1,23 @@
+services:
+  web:
+    build:
+      context: .
+      target: deps
+    # Turbopack (bundler par défaut de `next dev`) ne détecte pas fiablement
+    # les changements de fichiers à travers un volume Docker monté depuis
+    # l'hôte sur cette configuration (Docker Desktop + Windows/OneDrive) :
+    # on retombe sur webpack, dont le polling (voir DOCKER_DEV ci-dessous et
+    # next.config.ts) est éprouvé pour ce cas d'usage.
+    command: node_modules/.bin/next dev --webpack
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      DOCKER_DEV: "true"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/packages/shared/node_modules
+      - /app/.next

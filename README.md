@@ -22,6 +22,22 @@ Ouvrir [http://localhost:3000](http://localhost:3000).
 `npm install` installe aussi les hooks Git locaux (voir
 [Contribuer](#contribuer) ci-dessous) via le script `prepare`.
 
+## Démarrage avec Docker
+
+```bash
+docker compose -f docker-compose.dev.yml up
+```
+
+Ouvrir [http://localhost:3000](http://localhost:3000) — le rechargement à
+chaud fonctionne sur les fichiers modifiés depuis l'hôte. Le conteneur de
+développement utilise webpack plutôt que Turbopack (voir
+[`docs/adr/0003-docker-dev-utilise-webpack.md`](docs/adr/0003-docker-dev-utilise-webpack.md)
+pour la raison).
+
+L'image de production (`Dockerfile`, build standalone Next.js) se construit
+avec `docker build .` : elle ne contient pas les dépendances de
+développement et tourne avec un utilisateur non privilégié.
+
 ## Scripts disponibles
 
 | Script                 | Effet                                                 |
