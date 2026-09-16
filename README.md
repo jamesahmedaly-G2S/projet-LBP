@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LBP — Livre Blanc de la Paie
 
-## Getting Started
+Application web du Livre Blanc de la Paie : Next.js (App Router) +
+Supabase. Voir [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) pour
+l'architecture cible et [`docs/G2S-LBP-01.md`](docs/G2S-LBP-01.md) pour le
+cahier technique de gouvernance.
 
-First, run the development server:
+## Prérequis
+
+- Node.js 20 ou supérieur
+- npm 10 ou supérieur
+
+## Démarrage
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvrir [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`npm install` installe aussi les hooks Git locaux (voir
+[Contribuer](#contribuer) ci-dessous) via le script `prepare`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts disponibles
 
-## Learn More
+| Script                 | Effet                                                 |
+| ---------------------- | ----------------------------------------------------- |
+| `npm run dev`          | Serveur de développement Next.js                      |
+| `npm run build`        | Build de production                                   |
+| `npm run start`        | Sert le build de production                           |
+| `npm run lint`         | ESLint sur tout le dépôt                              |
+| `npm run format`       | Reformate le dépôt avec Prettier                      |
+| `npm run format:check` | Vérifie le formatage sans le modifier (utilisé en CI) |
 
-To learn more about Next.js, take a look at the following resources:
+## Structure du dépôt
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+.
+├── app/            # Next.js App Router — pages, routes API (app/api/**/route.ts), Server Actions
+├── packages/
+│   └── shared/     # Workspace npm @lbp/shared — schémas Zod et types partagés
+├── docs/
+│   ├── ARCHITECTURE.md    # Architecture cible détaillée
+│   ├── G2S-LBP-01.md      # Cahier technique de gouvernance
+│   ├── front/              # Spécification du prototype existant
+│   └── adr/                # Décisions d'architecture (ADR)
+└── .github/workflows/      # CI
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ce dépôt est un unique workspace npm (`workspaces` dans `package.json`) :
+`packages/*` regroupe le code destiné à être partagé au-delà de
+l'application Next.js elle-même (mobile en phase ultérieure). Le code
+propre à l'application vit dans `app/`.
 
-## Deploy on Vercel
+## Contribuer
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Convention de nommage des branches et des commits (Conventional Commits),
+hooks Git, et process de décision d'architecture : voir
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
