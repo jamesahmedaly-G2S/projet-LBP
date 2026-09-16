@@ -12,7 +12,12 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:diff": "supabase db diff",
+    "migration:new": "supabase migration new"
   },
   "dependencies": {
     "next": "16.3.4",
@@ -32,6 +37,7 @@
     "husky": "^9",
     "lint-staged": "^15",
     "prettier": "^3",
+    "supabase": "^2.117.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
