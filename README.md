@@ -40,14 +40,24 @@ développement et tourne avec un utilisateur non privilégié.
 
 ## Scripts disponibles
 
-| Script                 | Effet                                                 |
-| ---------------------- | ----------------------------------------------------- |
-| `npm run dev`          | Serveur de développement Next.js                      |
-| `npm run build`        | Build de production                                   |
-| `npm run start`        | Sert le build de production                           |
-| `npm run lint`         | ESLint sur tout le dépôt                              |
-| `npm run format`       | Reformate le dépôt avec Prettier                      |
-| `npm run format:check` | Vérifie le formatage sans le modifier (utilisé en CI) |
+| Script                   | Effet                                                 |
+| ------------------------ | ----------------------------------------------------- |
+| `npm run dev`            | Serveur de développement Next.js                      |
+| `npm run build`          | Build de production                                   |
+| `npm run start`          | Sert le build de production                           |
+| `npm run lint`           | ESLint sur tout le dépôt                              |
+| `npm run format`         | Reformate le dépôt avec Prettier                      |
+| `npm run format:check`   | Vérifie le formatage sans le modifier (utilisé en CI) |
+| `npm run supabase:start` | Démarre le stack Supabase local (Docker)              |
+| `npm run supabase:stop`  | Arrête le stack Supabase local                        |
+| `npm run db:reset`       | Recrée la base locale et rejoue toutes les migrations |
+| `npm run migration:new`  | Crée un nouveau fichier de migration horodaté         |
+
+## Base de données (Supabase)
+
+Migrations SQL versionnées dans `supabase/migrations/`. Procédure complète
+(créer une migration, la tester en local, la déployer sur staging puis
+production) : voir [`docs/supabase/MIGRATIONS.md`](docs/supabase/MIGRATIONS.md).
 
 ## Structure du dépôt
 
@@ -60,7 +70,10 @@ développement et tourne avec un utilisateur non privilégié.
 │   ├── ARCHITECTURE.md    # Architecture cible détaillée
 │   ├── G2S-LBP-01.md      # Cahier technique de gouvernance
 │   ├── front/              # Spécification du prototype existant
-│   └── adr/                # Décisions d'architecture (ADR)
+│   ├── adr/                # Décisions d'architecture (ADR)
+│   └── supabase/           # Procédure de migration
+├── supabase/
+│   └── migrations/         # Migrations SQL versionnées
 └── .github/workflows/      # CI
 ```
 
