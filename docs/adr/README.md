@@ -15,8 +15,9 @@ reste lisible.
 
 ## Index
 
-| #                                                  | Titre                                                               | Statut  |
-| -------------------------------------------------- | ------------------------------------------------------------------- | ------- |
-| [0001](0001-stack-nextjs-supabase-vercel.md)       | Stack Next.js (App Router) + Supabase + Vercel                      | Proposé |
-| [0002](0002-packages-partages-pour-schemas-zod.md) | Package partagé `packages/shared` pour les schémas Zod transverses  | Accepté |
-| [0003](0003-docker-dev-utilise-webpack.md)         | Le conteneur de développement Docker utilise webpack, pas Turbopack | Accepté |
+| #                                                             | Titre                                                               | Statut  |
+| ------------------------------------------------------------- | ------------------------------------------------------------------- | ------- |
+| [0001](0001-stack-nextjs-supabase-vercel.md)                  | Stack Next.js (App Router) + Supabase + Vercel                      | Proposé |
+| [0002](0002-packages-partages-pour-schemas-zod.md)            | Package partagé `packages/shared` pour les schémas Zod transverses  | Accepté |
+| [0003](0003-docker-dev-utilise-webpack.md)                    | Le conteneur de développement Docker utilise webpack, pas Turbopack | Accepté |
+| [0004](0004-baseline-schema-reel-et-conventions-anglaises.md) | Baseline du schéma réel, conventions de nommage en anglais          | Accepté |
