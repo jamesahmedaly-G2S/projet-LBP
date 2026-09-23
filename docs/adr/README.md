@@ -21,3 +21,4 @@ reste lisible.
 | [0002](0002-packages-partages-pour-schemas-zod.md)            | Package partagé `packages/shared` pour les schémas Zod transverses  | Accepté |
 | [0003](0003-docker-dev-utilise-webpack.md)                    | Le conteneur de développement Docker utilise webpack, pas Turbopack | Accepté |
 | [0004](0004-baseline-schema-reel-et-conventions-anglaises.md) | Baseline du schéma réel, conventions de nommage en anglais          | Accepté |
+| [0005](0005-integration-supabase-auth-nextjs.md)              | Intégration Supabase Auth dans l'app Next.js (AUTH-01)              | Accepté |
