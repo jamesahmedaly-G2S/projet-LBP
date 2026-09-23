@@ -14,6 +14,8 @@ cahier technique de gouvernance.
 
 ```bash
 npm install
+cp .env.example .env.local   # renseigner NEXT_PUBLIC_SUPABASE_ANON_KEY (npm run supabase:start l'affiche)
+npm run supabase:start       # stack Supabase local (Docker) — requis pour l'authentification
 npm run dev
 ```
 
@@ -59,11 +61,23 @@ Migrations SQL versionnées dans `supabase/migrations/`. Procédure complète
 (créer une migration, la tester en local, la déployer sur staging puis
 production) : voir [`docs/supabase/MIGRATIONS.md`](docs/supabase/MIGRATIONS.md).
 
+## Authentification
+
+Supabase Auth via `@supabase/ssr`. `proxy.ts` (racine — remplace
+`middleware.ts`, déprécié en Next.js 16) rafraîchit la session sur chaque
+requête. `lib/auth/session.ts` expose `requireSession()`/`requireRole()`
+pour les Route Handlers et Server Actions. Détail et raisons des choix :
+[`docs/adr/0005-integration-supabase-auth-nextjs.md`](docs/adr/0005-integration-supabase-auth-nextjs.md).
+
 ## Structure du dépôt
 
 ```
 .
 ├── app/            # Next.js App Router — pages, routes API (app/api/**/route.ts), Server Actions
+├── lib/
+│   ├── auth/       # requireSession()/requireRole()/withRole()
+│   └── supabase/   # Clients Supabase (serveur, proxy)
+├── proxy.ts        # Rafraichit la session Supabase sur chaque requete
 ├── packages/
 │   └── shared/     # Workspace npm @lbp/shared — schémas Zod et types partagés
 ├── docs/
