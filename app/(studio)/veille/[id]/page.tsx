@@ -23,7 +23,9 @@ export default async function VeilleEntryPage({ params }: { params: Promise<{ id
 
   const { data: entry } = await supabase
     .from("legal_monitoring")
-    .select("id, source, title, text_date, summary, impact, status, created_at")
+    .select(
+      "id, source, text_type, title, text_date, publication_date, effective_date, link, summary, impact, status, created_at",
+    )
     .eq("id", id)
     .single();
 
@@ -61,7 +63,15 @@ export default async function VeilleEntryPage({ params }: { params: Promise<{ id
       </div>
       <p className="mt-1 text-sm text-zinc-500">
         {entry.source}
-        {entry.text_date && ` · ${new Date(entry.text_date).toLocaleDateString("fr-FR")}`}
+        {entry.text_type && ` · ${entry.text_type}`}
+      </p>
+      <p className="mt-0.5 text-xs text-zinc-500">
+        {entry.text_date &&
+          `Date du texte : ${new Date(entry.text_date).toLocaleDateString("fr-FR")}`}
+        {entry.publication_date &&
+          ` · Publication : ${new Date(entry.publication_date).toLocaleDateString("fr-FR")}`}
+        {entry.effective_date &&
+          ` · Entrée en vigueur : ${new Date(entry.effective_date).toLocaleDateString("fr-FR")}`}
       </p>
 
       <Card className="mt-6">
@@ -70,6 +80,16 @@ export default async function VeilleEntryPage({ params }: { params: Promise<{ id
           <p className="mt-2 text-xs text-zinc-500">
             Impact pressenti : <span className="italic">{entry.impact}</span>
           </p>
+        )}
+        {entry.link && (
+          <a
+            href={entry.link}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 block text-xs text-blue-600 hover:underline"
+          >
+            Voir le texte officiel ↗
+          </a>
         )}
         <div className="mt-3">
           <AnalyzeButton legalMonitoringId={entry.id} />

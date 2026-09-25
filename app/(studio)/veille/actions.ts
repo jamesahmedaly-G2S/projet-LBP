@@ -22,8 +22,12 @@ export async function createLegalMonitoring(
   await requireAdmin();
 
   const source = formData.get("source");
+  const textType = formData.get("text_type");
   const title = formData.get("title");
   const textDate = formData.get("text_date");
+  const publicationDate = formData.get("publication_date");
+  const effectiveDate = formData.get("effective_date");
+  const link = formData.get("link");
   const summary = formData.get("summary");
   const impact = formData.get("impact");
 
@@ -31,13 +35,20 @@ export async function createLegalMonitoring(
     return "Source et titre sont obligatoires.";
   }
 
+  const str = (v: FormDataEntryValue | null) =>
+    typeof v === "string" && v.trim() ? v.trim() : null;
+
   const supabase = await createClient();
   const { error } = await supabase.from("legal_monitoring").insert({
     source: source.trim(),
+    text_type: str(textType),
     title: title.trim(),
-    text_date: typeof textDate === "string" && textDate ? textDate : null,
-    summary: typeof summary === "string" && summary.trim() ? summary.trim() : null,
-    impact: typeof impact === "string" && impact.trim() ? impact.trim() : null,
+    text_date: str(textDate),
+    publication_date: str(publicationDate),
+    effective_date: str(effectiveDate),
+    link: str(link),
+    summary: str(summary),
+    impact: str(impact),
   });
 
   if (error) {

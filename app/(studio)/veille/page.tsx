@@ -10,8 +10,10 @@ import RunConnectorsButton from "./RunConnectorsButton";
 interface MonitoringRow {
   id: string;
   source: string;
+  text_type: string | null;
   title: string;
   text_date: string | null;
+  effective_date: string | null;
   summary: string | null;
   impact: string | null;
   link: string | null;
@@ -26,7 +28,9 @@ export default async function VeillePage() {
 
   const { data: entries } = await supabase
     .from("legal_monitoring")
-    .select("id, source, title, text_date, summary, impact, link, status, created_at")
+    .select(
+      "id, source, text_type, title, text_date, effective_date, summary, impact, link, status, created_at",
+    )
     .order("created_at", { ascending: false })
     .returns<MonitoringRow[]>();
 
@@ -66,8 +70,11 @@ export default async function VeillePage() {
                   </Link>
                   <p className="mt-0.5 text-xs text-zinc-500">
                     {entry.source}
+                    {entry.text_type && ` · ${entry.text_type}`}
                     {entry.text_date &&
                       ` · ${new Date(entry.text_date).toLocaleDateString("fr-FR")}`}
+                    {entry.effective_date &&
+                      ` · en vigueur le ${new Date(entry.effective_date).toLocaleDateString("fr-FR")}`}
                   </p>
                 </div>
                 <Badge tone={getMonitoringStatusTone(entry.status)}>
