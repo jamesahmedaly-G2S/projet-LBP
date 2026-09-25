@@ -19,9 +19,11 @@
 
 ---
 
-## STU-AFFECT-02 — UI "Pourquoi cette fiche est présente ?"
+## STU-AFFECT-02 — UI "Pourquoi cette fiche est présente ?" ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-AFFECT-01**
+**Réalisé** : `app/(studio)/_components/AffectationList.tsx` (réutilisable, badges par origine, fiches retirées manuellement affichées séparément barrées), intégré dans `/clients/[id]`.
+**Vérifié** : test réel — ALPHA/`REM-DEMO-004` affiche bien ses 3 origines simultanément (Référentiel + Convention collective + Ajout manuel G2S), pas seulement la première.
 
 **Contexte** : "chaque fiche affectée à un client doit afficher 'Pourquoi cette fiche est présente ?' avec les causes applicables" (§7.4) — exigence de transparence explicite du dossier.
 
