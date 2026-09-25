@@ -38,9 +38,10 @@ Migrations Supabase locales, appliquées uniquement sur l'instance locale de cet
 
 ---
 
-## STU-DATA-03 — Migration questionnaire maître
+## STU-DATA-03 — Migration questionnaire maître ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-01**
+**Réalisé** : `supabase/migrations/20260925093726_questionnaire_maitre_studio.sql`, vérifié par tests manuels (question conditionnelle, impact déclenchant une fiche, FK de condition invalide rejetée).
 
 **Contexte** : le questionnaire (§7) déclenche l'affectation de fiches selon les réponses, avec des questions conditionnelles.
 
