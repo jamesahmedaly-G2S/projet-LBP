@@ -144,6 +144,10 @@ export async function updateSheetContent(
 // (jamais de retour à la page blanche), nouveau numéro de version, statut
 // draft. Ne touche jamais l'ancienne version : c'est elle que l'historique
 // affichera comme "version précédente".
+// STU-VEILLE-03 : `legal_monitoring_id` optionnel — quand l'appel vient
+// d'une entrée de veille qualifiée, trace l'origine sur la version créée
+// (traçabilité de bout en bout, y compris une fois publiée) et redirige
+// directement vers la fiche plutôt que de revenir sur la veille.
 export async function createNewVersion(
   _prevState: string | null,
   formData: FormData,
@@ -151,6 +155,7 @@ export async function createNewVersion(
   const session = await requireAdmin();
 
   const masterSheetId = formData.get("master_sheet_id");
+  const legalMonitoringId = formData.get("legal_monitoring_id");
   if (typeof masterSheetId !== "string") {
     return "Fiche introuvable.";
   }
@@ -177,6 +182,8 @@ export async function createNewVersion(
     status: "draft",
     content: current.content,
     author_id: session.userId,
+    legal_monitoring_id:
+      typeof legalMonitoringId === "string" && legalMonitoringId ? legalMonitoringId : null,
   });
 
   if (insertError) {
@@ -187,6 +194,10 @@ export async function createNewVersion(
 
   revalidatePath(`/referentiel/${masterSheetId}`);
   revalidatePath(`/referentiel/${masterSheetId}/historique`);
+
+  if (typeof legalMonitoringId === "string" && legalMonitoringId) {
+    redirect(`/referentiel/${masterSheetId}`);
+  }
   return null;
 }
 
@@ -262,7 +273,7 @@ export async function transitionSheetVersion(
 
   const { data: version, error: fetchError } = await supabase
     .from("sheet_versions")
-    .select("id, master_sheet_id, layer_kind, ccn_idcc, company_id, status")
+    .select("id, master_sheet_id, layer_kind, ccn_idcc, company_id, status, legal_monitoring_id")
     .eq("id", versionId)
     .single();
 
@@ -338,6 +349,18 @@ export async function transitionSheetVersion(
         impacted.map((company) => ({ sheet_version_id: version.id, company_id: company.id })),
         { onConflict: "sheet_version_id,company_id" },
       );
+    }
+
+    // STU-VEILLE-03 : la veille d'origine ne passe à "traitée" qu'à la
+    // publication réelle, jamais à la préparation de la version (§10 —
+    // "une nouvelle version est préparée sans toucher à la version
+    // publiée", donc pas de statut final avant que ce soit effectif).
+    if (version.legal_monitoring_id) {
+      await supabase
+        .from("legal_monitoring")
+        .update({ status: "processed" })
+        .eq("id", version.legal_monitoring_id);
+      revalidatePath(`/veille/${version.legal_monitoring_id}`);
     }
   }
 

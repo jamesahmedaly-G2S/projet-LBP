@@ -34,9 +34,11 @@
 
 ---
 
-## STU-VEILLE-03 — Lien veille → nouvelle version
+## STU-VEILLE-03 — Lien veille → nouvelle version ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-VEILLE-02, STU-WORKFLOW-01**
+**Réalisé** : `createNewVersion()` (STU-WORKFLOW-04) étendu avec un `legal_monitoring_id` optionnel, tracé sur la version créée. `PrepareVersionButton.tsx` sur l'entrée de veille qualifiée, redirige vers la fiche. `transitionSheetVersion()` fait passer `legal_monitoring.status` à `processed` uniquement au moment réel où le statut cible est `published` (jamais à la préparation — la veille reste "Qualifiée" tant que la version n'est pas effectivement publiée, cohérent avec "sans toucher à la version publiée", §10). Traçabilité ajoutée dans l'historique de fiche : chaque version affiche un lien "Origine : veille — [titre]" quand `legal_monitoring_id` est renseigné.
+**Vérifié** : test réel bout en bout — entrée de veille créée, qualifiée sur une fiche existante déjà publiée (`REM-DEMO-004`), "Préparer une nouvelle version" crée bien la version 2 en brouillon et redirige vers la fiche ; parcours complet jusqu'à publication (réutilise le workflow existant) ; la veille passe à "Traitée" seulement après cette publication réelle ; l'historique de la fiche affiche le lien d'origine vers l'entrée de veille, qui ramène bien dessus au clic.
 
 **Contexte** : "Une nouvelle version de la fiche est préparée sans toucher à la version publiée" (§10) ; traçabilité complète attendue de bout en bout.
 

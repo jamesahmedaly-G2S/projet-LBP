@@ -6,6 +6,7 @@ import { getMonitoringStatusLabel, getMonitoringStatusTone } from "@/lib/studio/
 import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
 import QualificationForms from "./QualificationForms";
+import PrepareVersionButton from "./PrepareVersionButton";
 
 interface QualificationRow {
   master_sheet_id: string;
@@ -88,6 +89,15 @@ export default async function VeilleEntryPage({ params }: { params: Promise<{ id
               ({qualification.master_sheets?.code})
             </span>
           </p>
+
+          {entry.status === "linked" && (
+            <div className="mt-3">
+              <PrepareVersionButton
+                legalMonitoringId={entry.id}
+                masterSheetId={qualification.master_sheet_id}
+              />
+            </div>
+          )}
         </Card>
       )}
 
