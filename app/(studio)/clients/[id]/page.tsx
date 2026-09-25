@@ -4,11 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 import CcnSection from "./CcnSection";
 import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
+import { AffectationList } from "../../_components/AffectationList";
+import { getCompanyAffectations } from "@/lib/studio/affectations";
 
-// Page volontairement minimale pour l'instant : seule la section CCN
-// (STU-CCN-02) est câblée. Identité, établissements, offre, utilisateurs,
-// questionnaire, fiches affectées, historique et bloc "Suivi annuel"
-// restent à construire en STU-CLIENT-02, sur cette même route.
+// Page volontairement minimale pour l'instant : CCN (STU-CCN-02) et fiches
+// affectées (STU-AFFECT-02) sont câblées. Identité, établissements, offre,
+// utilisateurs, questionnaire, historique et bloc "Suivi annuel" restent à
+// construire en STU-CLIENT-02, sur cette même route.
 export default async function ClientPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
@@ -24,9 +26,10 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
     notFound();
   }
 
-  const [{ data: catalog }, { data: companyCcns }] = await Promise.all([
+  const [{ data: catalog }, { data: companyCcns }, affectations] = await Promise.all([
     supabase.from("ccn_catalog").select("idcc, name").order("name"),
     supabase.from("company_ccns").select("ccn_idcc").eq("company_id", id),
+    getCompanyAffectations(supabase, id),
   ]);
 
   return (
@@ -43,6 +46,13 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
           catalog={catalog ?? []}
           initialSelected={(companyCcns ?? []).map((row) => row.ccn_idcc)}
         />
+      </Card>
+
+      <Card className="mt-6">
+        <h2 className="mb-3 text-lg font-semibold text-zinc-800">
+          Fiches affectées — pourquoi ces fiches sont présentes
+        </h2>
+        <AffectationList affectations={affectations} />
       </Card>
     </main>
   );

@@ -1,5 +1,17 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+/** Libellés des 4 origines calculées par la vue (§7.3 du dossier). */
+export const ORIGIN_LABELS: Record<string, string> = {
+  base: "Référentiel",
+  questionnaire: "Questionnaire",
+  ccn: "Convention collective",
+  manual: "Ajout manuel G2S",
+};
+
+export function getOriginLabel(origin: string): string {
+  return ORIGIN_LABELS[origin] ?? origin;
+}
+
 export interface CompanyAffectation {
   masterSheetId: string;
   code: string;
