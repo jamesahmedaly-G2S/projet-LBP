@@ -158,7 +158,10 @@ export async function renameMasterSheet(
 // couche/clé vers "historized" (jamais deux versions publiées en même
 // temps pour une même clé — cohérent avec les index uniques partiels de
 // STU-DATA-02), puis tient à jour master_sheets.status pour la couche rg
-// (dénormalisation documentée dans STU-DATA-01).
+// (dénormalisation documentée dans STU-DATA-01). `motif` (colonne
+// existante depuis STU-DATA-02, jusqu'ici jamais écrite) est optionnel :
+// WorkflowActions (fiche) ne le fournit pas, l'écran de contrôle
+// (STU-WORKFLOW-02) l'exige côté formulaire.
 export async function transitionSheetVersion(
   _prevState: string | null,
   formData: FormData,
@@ -167,6 +170,7 @@ export async function transitionSheetVersion(
 
   const versionId = formData.get("version_id");
   const target = formData.get("target_status");
+  const motif = formData.get("motif");
 
   if (typeof versionId !== "string" || typeof target !== "string") {
     return "Version ou statut cible manquant.";
@@ -222,6 +226,7 @@ export async function transitionSheetVersion(
     .update({
       status: targetStatus,
       published_at: targetStatus === "published" ? new Date().toISOString() : undefined,
+      ...(typeof motif === "string" && motif.trim() ? { motif: motif.trim() } : {}),
     })
     .eq("id", version.id);
 
@@ -237,5 +242,6 @@ export async function transitionSheetVersion(
   }
 
   revalidatePath(`/referentiel/${version.master_sheet_id}`);
+  revalidatePath("/referentiel/controle");
   return null;
 }

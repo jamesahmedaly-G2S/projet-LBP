@@ -19,9 +19,11 @@
 
 ---
 
-## STU-WORKFLOW-02 — Écran de contrôle/validation G2S
+## STU-WORKFLOW-02 — Écran de contrôle/validation G2S ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-WORKFLOW-01**
+**Réalisé** : `app/(studio)/referentiel/controle/page.tsx` — file d'attente sur `sheet_versions.status = 'review'` (toutes fiches/couches), avec fiche, code, couche (`lib/studio/layer-kind.ts`, nouveau), version, auteur et motif précédent. `ControlActions.tsx` — un seul formulaire, deux boutons `name="target_status"` (comportement natif du submitter HTML, pas de duplication du champ motif). `transitionSheetVersion()` étendu pour écrire dans la colonne `motif` (existante depuis STU-DATA-02, jamais utilisée jusqu'ici) quand elle est fournie. Lien "Contrôle G2S (N)" ajouté en haut de `/referentiel` pour la découvrabilité (pas d'onglet nav dédié dans les 10 sections du dossier).
+**Vérifié** : test réel navigateur — 2 fiches de test en `review` créées en base, contrôlées via les vrais boutons : "Valider" → statut `valid` + motif enregistré ; "Renvoyer en brouillon" → statut `draft` + motif enregistré, disparaît de la file. Compteur `/referentiel` (requête directe sur `sheet_versions`, pas sur `master_sheets.status` qui ne reflète que la couche `rg`) synchronisé après chaque action. Un premier test avec sélecteur CSS imprécis (`div.border, div`) avait donné un faux négatif sur le rejet — revérifié avec un sélecteur scopé sur la carte, confirmé correct en base (`sheet_versions.status`/`motif`).
 
 **Contexte** : "G2S contrôle la proposition et peut ajouter ou retirer manuellement des fiches" (§6) ; "Statut À vérifier puis Validé" (§10 veille).
 
