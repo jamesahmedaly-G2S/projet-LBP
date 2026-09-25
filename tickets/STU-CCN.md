@@ -2,9 +2,10 @@
 
 ---
 
-## STU-CCN-01 — Catalogue CCN (recherche nom/IDCC)
+## STU-CCN-01 — Catalogue CCN (recherche nom/IDCC) ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-01**
+**Réalisé** : `app/(studio)/_components/CcnMultiSelect.tsx` — composant contrôlé (`selected`/`onChange`), pas de dépendance à une page précise, réutilisable tel quel. Vérifié fonctionnellement via son intégration dans STU-CCN-02 (recherche + sélection multiple testées en conditions réelles).
 
 **Contexte** : "Prévoir une sélection multiple, avec recherche par nom et IDCC" (§7.2).
 
