@@ -52,7 +52,7 @@ export function createMinistereTravailConnector(
       const xml = await response.text();
       const items = parseRssItems(xml).slice(0, MAX_ITEMS);
 
-      const { inserted, error } = await insertNewItems(supabase, LABEL, items);
+      const { inserted, insertedItems, error } = await insertNewItems(supabase, LABEL, items);
       if (error) {
         return {
           key: "ministere-travail",
@@ -70,6 +70,7 @@ export function createMinistereTravailConnector(
         status: "ok",
         itemsFound: items.length,
         itemsInserted: inserted,
+        insertedItems,
       };
     },
   };

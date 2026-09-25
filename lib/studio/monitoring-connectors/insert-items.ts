@@ -4,6 +4,7 @@ import { toDateOnly } from "./rss";
 
 export interface InsertResult {
   inserted: number;
+  insertedItems: { source: string; title: string; link: string | null }[];
   error: string | null;
 }
 
@@ -20,14 +21,14 @@ export async function insertNewItems(
   source: string,
   items: RssItem[],
 ): Promise<InsertResult> {
-  if (items.length === 0) return { inserted: 0, error: null };
+  if (items.length === 0) return { inserted: 0, insertedItems: [], error: null };
 
   const links = items.map((item) => item.link);
   const { data: existing, error: readError } = await supabase
     .from("legal_monitoring")
     .select("link")
     .in("link", links);
-  if (readError) return { inserted: 0, error: readError.message };
+  if (readError) return { inserted: 0, insertedItems: [], error: readError.message };
 
   const existingLinks = new Set((existing ?? []).map((row) => row.link));
 
@@ -41,9 +42,13 @@ export async function insertNewItems(
       summary: item.description,
     }));
 
-  if (toInsert.length === 0) return { inserted: 0, error: null };
+  if (toInsert.length === 0) return { inserted: 0, insertedItems: [], error: null };
 
   const { error } = await supabase.from("legal_monitoring").insert(toInsert);
-  if (error) return { inserted: 0, error: error.message };
-  return { inserted: toInsert.length, error: null };
+  if (error) return { inserted: 0, insertedItems: [], error: error.message };
+  return {
+    inserted: toInsert.length,
+    insertedItems: toInsert.map((i) => ({ source: i.source, title: i.title, link: i.link })),
+    error: null,
+  };
 }

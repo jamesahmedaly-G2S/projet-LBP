@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { runAllConnectors } from "@/lib/studio/monitoring-connectors";
+import { runAllConnectorsAndNotify } from "@/lib/studio/monitoring-connectors";
 
 /**
  * STU-VEILLE-04 (AUTOMATION-01, #85) : route cron, aucune session requise —
@@ -23,10 +23,11 @@ export async function POST(request: Request) {
   }
 
   const supabase = createServiceRoleClient();
-  const results = await runAllConnectors(supabase);
+  const { results, notification } = await runAllConnectorsAndNotify(supabase);
 
   return NextResponse.json({
     ranAt: new Date().toISOString(),
     results,
+    notification,
   });
 }

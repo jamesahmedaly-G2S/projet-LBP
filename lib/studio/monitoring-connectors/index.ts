@@ -3,6 +3,7 @@ import type { ConnectorResult } from "./types";
 import { createMinistereTravailConnector } from "./ministere-travail";
 import { createHtmlScrapingConnectors } from "./html-scraping";
 import { createOtherSourceConnectors } from "./other-sources";
+import { sendVeilleNotification, type NotificationResult } from "../monitoring-notifications";
 
 export type { ConnectorResult, ConnectorStatus, MonitoringConnector } from "./types";
 
@@ -27,4 +28,22 @@ export async function runAllConnectors(
 ): Promise<ConnectorResult[]> {
   const connectors = getMonitoringConnectors(supabase);
   return Promise.all(connectors.map((connector) => connector.run()));
+}
+
+/**
+ * Comme `runAllConnectors`, mais envoie en plus la notification
+ * e-mail/SMS (Pauline, CR 10/09 — étape explicitement attendue du circuit
+ * de bout en bout) quand au moins une entrée a réellement été insérée.
+ * Séparée de `runAllConnectors` pour que les appelants qui ne veulent pas
+ * de notification (ex. futurs tests) puissent continuer à utiliser la
+ * fonction simple.
+ */
+export async function runAllConnectorsAndNotify(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: SupabaseClient<any, any, any>,
+): Promise<{ results: ConnectorResult[]; notification: NotificationResult }> {
+  const results = await runAllConnectors(supabase);
+  const newItems = results.flatMap((r) => r.insertedItems ?? []);
+  const notification = await sendVeilleNotification(newItems);
+  return { results, notification };
 }
