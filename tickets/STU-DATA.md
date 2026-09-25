@@ -103,9 +103,10 @@ Migrations Supabase locales, appliquées uniquement sur l'instance locale de cet
 
 ---
 
-## STU-DATA-07 — Vue sécurisée client_sheet_content
+## STU-DATA-07 — Vue sécurisée client_sheet_content ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-02, STU-DATA-05, STU-DATA-06**
+**Réalisé** : `supabase/migrations/20260925104238_vue_client_sheet_content.sql`. Vérifié par tests avec sessions simulées (admin vs client) : accès direct à `sheet_versions` bloqué pour un client (0 ligne), `client_sheet_content` ne montre que rg + ccn publiés autorisés par le palier, admin voit tout y compris brouillons.
 **Note** : filtre les couches `ent`/`proc` via `offer_tiers.includes_agreements` (existant), même logique que STU-DATA-05 pour `ccn`/`includes_cba` — pas de nouvelle colonne sur `offer_tiers`.
 
 **Contexte** : le client ne doit jamais voir de contenu non publié, ni une couche que son offre n'inclut (principe déjà appliqué à l'ancien modèle, à reconduire ici — condition de réussite non négociable du cahier de gouvernance).
