@@ -1,0 +1,73 @@
+# STU-WORKFLOW — Versioning & publication
+
+---
+
+## STU-WORKFLOW-01 — Transitions des 7 statuts
+
+**Priorité : Must** · **Dépendances : STU-DATA-02**
+
+**Contexte** : `Brouillon → À vérifier → Validé → Programmé → Publié → Historisé → Archivé` (§9) — le client ne voit que la version publiée.
+
+**À faire** : logique de transition (Server Actions) appliquant les enchaînements valides uniquement (pas de saut direct brouillon→publié), avec vérification que la transition vers `published` respecte les index uniques (une seule version publiée par couche/clé).
+
+**Critères d'acceptation**
+
+- Une tentative de transition invalide (ex. `draft` → `published` directement) est refusée avec un message explicite.
+- Publier une nouvelle version bascule automatiquement l'ancienne version publiée de la même couche/clé vers `historized`.
+
+---
+
+## STU-WORKFLOW-02 — Écran de contrôle/validation G2S
+
+**Priorité : Must** · **Dépendances : STU-WORKFLOW-01**
+
+**Contexte** : "G2S contrôle la proposition et peut ajouter ou retirer manuellement des fiches" (§6) ; "Statut À vérifier puis Validé" (§10 veille).
+
+**À faire** : liste des versions en attente de contrôle (`review`), avec action valider/renvoyer en brouillon et champ motif.
+
+**Critères d'acceptation**
+
+- Le tableau de bord (STU-DASH-01) compte correctement les "Validations en attente" à partir de cet écran.
+
+---
+
+## STU-WORKFLOW-03 — Publication (immédiate/programmée) + impacts
+
+**Priorité : Must** · **Dépendances : STU-WORKFLOW-01, STU-AFFECT-01**
+
+**Contexte** : "Une publication peut être immédiate ou programmée" (§9) ; "Toute modification doit recalculer les impacts avant publication" et "Le Studio doit toujours permettre de savoir 'qui verra quoi' avant de publier" (§12).
+
+**À faire** : écran de publication affichant, avant confirmation, la liste des sociétés impactées (calculée via `company_sheet_affectations`/CCN), avec option de programmation (`scheduled_at`).
+
+**Critères d'acceptation**
+
+- Impossible de publier sans avoir vu l'aperçu des clients impactés au préalable.
+- Une publication programmée reste en statut `scheduled` jusqu'à l'échéance, sans être visible côté client avant.
+
+---
+
+## STU-WORKFLOW-04 — Historique de version
+
+**Priorité : Must** · **Dépendances : STU-WORKFLOW-03**
+
+**Contexte** : scénario E — "consulter version actuelle et version précédente, voir auteur, date, motif et clients diffusés".
+
+**À faire** : écran d'historique par fiche/couche, listant chaque version avec auteur, date, motif, statut, et liste des sociétés réceptrices (`sheet_version_recipients`).
+
+**Critères d'acceptation**
+
+- On peut retrouver, pour n'importe quelle fiche publiée au moins deux fois, le contenu exact de la version précédente.
+
+---
+
+## STU-WORKFLOW-05 — Surlignage des modifications côté client
+
+**Priorité : Could** · **Dépendances : STU-WORKFLOW-04**
+
+**Contexte** : amélioration UX mentionnée dans les CR antérieurs (surlignage jaune des passages modifiés) — non indispensable pour dérouler les scénarios A-F.
+
+**À faire** : calcul de diff entre version publiée et version précédente, rendu visuel côté LBP Client.
+
+**Critères d'acceptation**
+
+- Reporté si le temps manque avant le 15/10 — ne bloque aucun scénario de démonstration.
