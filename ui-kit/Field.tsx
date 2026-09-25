@@ -1,0 +1,59 @@
+import type {
+  InputHTMLAttributes,
+  ReactNode,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
+} from "react";
+
+const CONTROL_CLASSES =
+  "rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
+
+function Wrapper({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+      {label}
+      {children}
+    </label>
+  );
+}
+
+// ui-kit : label + champ toujours ensemble, même style de bordure/focus
+// partout (au lieu de le redéfinir dans chaque formulaire du Studio).
+export function TextField({
+  label,
+  className = "",
+  ...props
+}: { label: string } & InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <Wrapper label={label}>
+      <input className={`${CONTROL_CLASSES} ${className}`} {...props} />
+    </Wrapper>
+  );
+}
+
+export function TextAreaField({
+  label,
+  className = "",
+  ...props
+}: { label: string } & TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <Wrapper label={label}>
+      <textarea className={`${CONTROL_CLASSES} ${className}`} {...props} />
+    </Wrapper>
+  );
+}
+
+export function SelectField({
+  label,
+  className = "",
+  children,
+  ...props
+}: { label: string } & SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <Wrapper label={label}>
+      <select className={`${CONTROL_CLASSES} bg-white ${className}`} {...props}>
+        {children}
+      </select>
+    </Wrapper>
+  );
+}

@@ -20,3 +20,21 @@ export const WORKFLOW_STATUS_LABELS: Record<WorkflowStatus, string> = {
 export function getWorkflowStatusLabel(status: string): string {
   return WORKFLOW_STATUS_LABELS[status as WorkflowStatus] ?? status;
 }
+
+/** Teinte de badge (ui-kit/Badge) associée à chaque statut, même source partout. */
+export const WORKFLOW_STATUS_TONES: Record<
+  WorkflowStatus,
+  "neutral" | "blue" | "green" | "amber" | "red"
+> = {
+  draft: "neutral",
+  review: "amber",
+  valid: "blue",
+  scheduled: "blue",
+  published: "green",
+  historized: "neutral",
+  archived: "red",
+};
+
+export function getWorkflowStatusTone(status: string) {
+  return WORKFLOW_STATUS_TONES[status as WorkflowStatus] ?? "neutral";
+}

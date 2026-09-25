@@ -3,6 +3,8 @@
 import { useActionState } from "react";
 import { updateSheetContent } from "../actions";
 import type { SheetContent } from "@/lib/studio/placeholder-content";
+import { TextAreaField } from "@/ui-kit/Field";
+import { Button } from "@/ui-kit/Button";
 
 const FIELDS: { key: keyof SheetContent; label: string }[] = [
   { key: "essentiel", label: "L'essentiel à retenir" },
@@ -26,26 +28,14 @@ export default function EditContentForm({
       <input type="hidden" name="version_id" value={versionId} />
 
       {FIELDS.map(({ key, label }) => (
-        <label key={key} className="flex flex-col gap-1 text-sm text-zinc-700">
-          {label}
-          <textarea
-            name={key}
-            defaultValue={content[key]}
-            rows={3}
-            className="rounded border border-zinc-300 px-3 py-2 text-sm"
-          />
-        </label>
+        <TextAreaField key={key} label={label} name={key} defaultValue={content[key]} rows={3} />
       ))}
 
       {message && <p className="text-sm text-zinc-600">{message}</p>}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="mt-2 w-fit rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-      >
+      <Button type="submit" variant="primary" disabled={pending} className="mt-1 w-fit">
         {pending ? "Enregistrement..." : "Enregistrer"}
-      </button>
+      </Button>
     </form>
   );
 }
