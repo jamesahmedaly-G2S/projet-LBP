@@ -19,9 +19,11 @@
 
 ---
 
-## STU-REF-02 — CRUD fiche maître (métadonnées + couche RG)
+## STU-REF-02 — CRUD fiche maître (métadonnées + couche RG) ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-01, STU-DATA-02**
+**Réalisé** : `app/(studio)/referentiel/nouvelle-fiche/` (formulaire famille/thème/sous-thème cascadant + titre + tags) et `app/(studio)/referentiel/[id]/` (édition des 5 champs de contenu), `lib/studio/placeholder-content.ts` (contenu factice généré à la création), `app/(studio)/referentiel/actions.ts` (Server Actions).
+**Vérifié** : parcours réel navigateur (créer → rediriger vers la fiche → modifier un champ → enregistrer), confirmé en base : `sheet_versions` créée en `draft`/`rg`/v1, champ modifié bien pris en compte, les 4 autres champs gardent leur contenu `[À rédiger]` factice.
 
 **Contexte** : créer/éditer une fiche maître et son contenu de base (régime général) — sans rédiger le contenu juridique détaillé à ce stade (§1, contrainte explicite du dossier).
 
