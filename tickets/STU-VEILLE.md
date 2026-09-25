@@ -18,9 +18,11 @@
 
 ---
 
-## STU-VEILLE-02 — Qualification (fiche existante ou nouvelle fiche)
+## STU-VEILLE-02 — Qualification (fiche existante ou nouvelle fiche) ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-VEILLE-01, STU-REF-01**
+**Réalisé** : `supabase/migrations/20260925195033_qualification_veille_studio.sql` — nouvelle table additive `legal_monitoring_qualifications` (`legal_monitoring.sheet_id` de James référence son ancienne table `sheets`, pas `master_sheets` : inutilisable pour le pivot Studio sans se tromper de modèle, donc table à part comme `company_sheet_overrides`). `app/(studio)/veille/[id]/page.tsx` (détail + qualification) et `QualificationForms.tsx` — les deux chemins (`qualifyWithExistingSheet`/`qualifyWithNewSheet`) rendus **ensemble**, sans bascule qui en cacherait un. Statut `legal_monitoring.status` passe à `linked` dans les deux cas.
+**Vérifié** : test réel navigateur — les deux formulaires bien visibles simultanément sur une entrée `new` ; rattachement à une fiche existante (Assurance chômage) → statut Qualifiée, lien correct, formulaire de qualification disparaît ; création d'une nouvelle fiche depuis la veille → fiche + version `draft` créées, qualification enregistrée, statut Qualifiée. Migration appliquée via `supabase migration up` (pas de reset complet, pour ne pas perdre un compte utilisateur créé entre-temps) ; tous les objets de test nettoyés individuellement ensuite.
 
 **Contexte** : "Le système doit gérer deux scénarios : si une fiche existe, proposer sa mise à jour ; si aucune fiche adaptée n'existe, proposer la création d'une nouvelle fiche" (§9, CR 17/09) — les deux options doivent être proposées, pas une suggestion unique automatique.
 

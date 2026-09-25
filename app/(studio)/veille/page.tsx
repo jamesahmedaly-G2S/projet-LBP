@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getMonitoringStatusLabel, getMonitoringStatusTone } from "@/lib/studio/monitoring-status";
@@ -48,7 +49,12 @@ export default async function VeillePage() {
             <Card key={entry.id}>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-medium text-zinc-800">{entry.title}</p>
+                  <Link
+                    href={`/veille/${entry.id}`}
+                    className="font-medium text-blue-700 hover:underline"
+                  >
+                    {entry.title}
+                  </Link>
                   <p className="mt-0.5 text-xs text-zinc-500">
                     {entry.source}
                     {entry.text_date &&
