@@ -1,9 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { buildPlaceholderContent, type SheetContent } from "@/lib/studio/placeholder-content";
+import { isValidTransition } from "@/lib/studio/workflow-transitions";
+import type { WorkflowStatus } from "@/lib/studio/workflow-status";
 
 // STU-REF-02 : création d'une fiche maître (métadonnées + première version
 // "rg" en brouillon, contenu factice) et édition de ce contenu.
@@ -147,4 +150,92 @@ export async function renameMasterSheet(
   }
 
   return "Titre mis à jour.";
+}
+
+// STU-WORKFLOW-01 : applique une transition de statut sur une version, en
+// respectant le graphe défini dans lib/studio/workflow-transitions.ts.
+// Publier bascule d'abord l'éventuelle version publiée de la même
+// couche/clé vers "historized" (jamais deux versions publiées en même
+// temps pour une même clé — cohérent avec les index uniques partiels de
+// STU-DATA-02), puis tient à jour master_sheets.status pour la couche rg
+// (dénormalisation documentée dans STU-DATA-01).
+export async function transitionSheetVersion(
+  _prevState: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  await requireAdmin();
+
+  const versionId = formData.get("version_id");
+  const target = formData.get("target_status");
+
+  if (typeof versionId !== "string" || typeof target !== "string") {
+    return "Version ou statut cible manquant.";
+  }
+  const targetStatus = target as WorkflowStatus;
+
+  const supabase = await createClient();
+
+  const { data: version, error: fetchError } = await supabase
+    .from("sheet_versions")
+    .select("id, master_sheet_id, layer_kind, ccn_idcc, company_id, status")
+    .eq("id", versionId)
+    .single();
+
+  if (fetchError || !version) {
+    return "Version introuvable.";
+  }
+
+  if (!isValidTransition(version.status as WorkflowStatus, targetStatus)) {
+    return `Transition invalide : "${version.status}" → "${targetStatus}" n'est pas autorisée.`;
+  }
+
+  if (targetStatus === "published") {
+    let siblingQuery = supabase
+      .from("sheet_versions")
+      .select("id")
+      .eq("master_sheet_id", version.master_sheet_id)
+      .eq("layer_kind", version.layer_kind)
+      .eq("status", "published")
+      .neq("id", version.id);
+
+    if (version.layer_kind === "ccn") {
+      siblingQuery = siblingQuery.eq("ccn_idcc", version.ccn_idcc);
+    } else if (version.layer_kind === "ent" || version.layer_kind === "proc") {
+      siblingQuery = siblingQuery.eq("company_id", version.company_id);
+    }
+
+    const { data: sibling } = await siblingQuery.maybeSingle();
+
+    if (sibling) {
+      const { error: historizeError } = await supabase
+        .from("sheet_versions")
+        .update({ status: "historized" })
+        .eq("id", sibling.id);
+      if (historizeError) {
+        return `Erreur lors de l'historisation de l'ancienne version : ${historizeError.message}`;
+      }
+    }
+  }
+
+  const { error: updateError } = await supabase
+    .from("sheet_versions")
+    .update({
+      status: targetStatus,
+      published_at: targetStatus === "published" ? new Date().toISOString() : undefined,
+    })
+    .eq("id", version.id);
+
+  if (updateError) {
+    return `Erreur lors de la transition : ${updateError.message}`;
+  }
+
+  if (version.layer_kind === "rg") {
+    await supabase
+      .from("master_sheets")
+      .update({ status: targetStatus })
+      .eq("id", version.master_sheet_id);
+  }
+
+  revalidatePath(`/referentiel/${version.master_sheet_id}`);
+  return null;
 }

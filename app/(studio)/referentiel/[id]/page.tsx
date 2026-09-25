@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { getWorkflowStatusLabel } from "@/lib/studio/workflow-status";
+import { getWorkflowStatusLabel, type WorkflowStatus } from "@/lib/studio/workflow-status";
 import type { SheetContent } from "@/lib/studio/placeholder-content";
 import EditContentForm from "./EditContentForm";
 import RenameForm from "./RenameForm";
+import WorkflowActions from "./WorkflowActions";
 
 export default async function FichePage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
@@ -21,9 +22,9 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
     notFound();
   }
 
-  // STU-REF-02 se limite à éditer la version "rg" courante (toujours en
-  // brouillon tant que STU-WORKFLOW-01 n'introduit pas les transitions de
-  // statut) : la plus récente par numéro de version.
+  // Toujours la version "rg" la plus récente par numéro de version — après
+  // une publication, l'ancienne devient "historized" (STU-WORKFLOW-01),
+  // celle-ci reste la version courante affichée/éditable.
   const { data: version } = await supabase
     .from("sheet_versions")
     .select("id, content, status, version")
@@ -52,6 +53,9 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
             Contenu de la couche régime général — version {version.version} (
             {getWorkflowStatusLabel(version.status)})
           </p>
+          <div className="mb-4">
+            <WorkflowActions versionId={version.id} status={version.status as WorkflowStatus} />
+          </div>
           <EditContentForm versionId={version.id} content={version.content as SheetContent} />
         </div>
       ) : (
