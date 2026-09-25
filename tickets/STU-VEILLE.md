@@ -50,10 +50,16 @@
 
 ---
 
-## STU-VEILLE-04 — Connecteurs automatiques sources officielles
+## STU-VEILLE-04 — Connecteurs automatiques sources officielles 🟡 Partiellement fait
 
-**Priorité : Won't (ce cycle)** · **Dépendances : —**
+**Priorité : Must** (reclassé le 25/09/2026 à la demande explicite de l'utilisateur — "on fait tout ce qu'on peut faire, je ne veux pas qu'on laisse des trous") · **Dépendances : —**
 
-**Contexte** : déjà ticketé séparément côté James (AUTOMATION-01/02/03, #85-87 — connecteurs 7 sources, analyse IA, route planifiée 10h30). Pas dupliqué ici.
+**Décision (25/09/2026)** : initialement marqué "Won't" en supposant que le travail était déjà couvert côté James. L'utilisateur a demandé de vérifier et de compléter quand même, sur cette branche personnelle, sans jamais toucher au travail réel de James. Les tickets réels **AUTOMATION-01 (#85), AUTOMATION-02 (#86), AUTOMATION-03 (#87)** ont été récupérés sur son repo GitHub pour ne rien inventer :
 
-**À faire** : rien — se coordonner avec ces tickets existants au moment de la réconciliation, ne pas reconstruire en parallèle.
+- **#86** liste les 7 sources exactes : Légifrance/JORF (API PISTE, OAuth2), BOSS, URSSAF, Code du travail numérique, Ministère du travail, Ameli, BOCC. Même côté James, 6 des 7 connecteurs sont encore au stade "sélecteurs de scraping à définir".
+- **#87** demande un vrai appel API Claude (`ANTHROPIC_API_KEY`), schéma JSON documenté (pertinence, type, dates, résumé, impact, thème, mots-clés).
+- **#85** demande une route `POST /api/cron/veille` protégée par secret partagé, déclenchée par un cron externe (docker-compose) à 10h30 heure de Paris.
+
+**Réalisé** : `app/api/cron/veille/route.ts` (secret partagé `VEILLE_CRON_SECRET`, testé réel avec/sans/mauvais secret) ; `lib/studio/monitoring-connectors/` — **1 connecteur réellement fonctionnel** (`ministere-travail.ts`, fetch HTTP réel sur `travail-emploi.gouv.fr/rss.xml`, parseur RSS maison, dédoublonnage sur `link`) et **6 stubs honnêtes** (`other-sources.ts`) expliquant précisément pourquoi chacun ne tourne pas (clé PISTE manquante, ou aucun flux public trouvé/injoignable depuis cet environnement). Bouton "Lancer la détection maintenant" sur `/veille` (déclenchement manuel, même logique que la route cron). Stub honnête équivalent pour l'analyse IA (`lib/studio/monitoring-ai-analysis.ts`, `ANTHROPIC_API_KEY` absente).
+**Non fait — bloqué, pas oublié** : le déclenchement planifié réel à 10h30 (conteneur cron docker-compose) est une préoccupation d'infrastructure de déploiement, absente de ce dépôt local par nature. Légifrance/PISTE et l'analyse IA attendent des clés que l'utilisateur n'a pas fournies (décision explicite du 25/09/2026) — prêts à s'activer, jamais simulés.
+**Vérifié** : test réel via curl — sans secret 401, mauvais secret 401, bon secret 200 avec **10 vrais articles récupérés et insérés** depuis le flux RSS réel du Ministère du travail (contenu réel vérifiable : "Les risques liés aux grues à tour", etc.) ; deuxième exécution → 0 insertion (dédoublonnage confirmé). Les 6 autres connecteurs renvoient leur statut "non configuré" exact. Test réel navigateur : bouton de déclenchement manuel fonctionne, panneau de statut des 7 sources correct, bouton "Analyser avec l'IA" affiche le message honnête de configuration manquante.

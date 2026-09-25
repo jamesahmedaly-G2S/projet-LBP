@@ -5,6 +5,7 @@ import { getMonitoringStatusLabel, getMonitoringStatusTone } from "@/lib/studio/
 import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
 import { LinkButton } from "@/ui-kit/LinkButton";
+import RunConnectorsButton from "./RunConnectorsButton";
 
 interface MonitoringRow {
   id: string;
@@ -13,6 +14,7 @@ interface MonitoringRow {
   text_date: string | null;
   summary: string | null;
   impact: string | null;
+  link: string | null;
   status: string;
   created_at: string;
 }
@@ -24,7 +26,7 @@ export default async function VeillePage() {
 
   const { data: entries } = await supabase
     .from("legal_monitoring")
-    .select("id, source, title, text_date, summary, impact, status, created_at")
+    .select("id, source, title, text_date, summary, impact, link, status, created_at")
     .order("created_at", { ascending: false })
     .returns<MonitoringRow[]>();
 
@@ -38,6 +40,13 @@ export default async function VeillePage() {
           + Nouvelle entrée
         </LinkButton>
       </div>
+
+      <Card className="mt-6">
+        <h2 className="mb-2 text-sm font-medium text-zinc-600">
+          Connecteurs automatiques (7 sources officielles)
+        </h2>
+        <RunConnectorsButton />
+      </Card>
 
       {rows.length === 0 ? (
         <Card className="mt-6">
@@ -70,6 +79,16 @@ export default async function VeillePage() {
                 <p className="mt-1 text-xs text-zinc-500">
                   Impact : <span className="italic">{entry.impact}</span>
                 </p>
+              )}
+              {entry.link && (
+                <a
+                  href={entry.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-1 block text-xs text-blue-600 hover:underline"
+                >
+                  Source d&apos;origine ↗
+                </a>
               )}
             </Card>
           ))}

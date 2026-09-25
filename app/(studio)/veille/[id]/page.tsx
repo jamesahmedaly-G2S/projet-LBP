@@ -7,6 +7,7 @@ import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
 import QualificationForms from "./QualificationForms";
 import PrepareVersionButton from "./PrepareVersionButton";
+import AnalyzeButton from "./AnalyzeButton";
 
 interface QualificationRow {
   master_sheet_id: string;
@@ -70,6 +71,9 @@ export default async function VeilleEntryPage({ params }: { params: Promise<{ id
             Impact pressenti : <span className="italic">{entry.impact}</span>
           </p>
         )}
+        <div className="mt-3">
+          <AnalyzeButton legalMonitoringId={entry.id} />
+        </div>
       </Card>
 
       {qualification && (
