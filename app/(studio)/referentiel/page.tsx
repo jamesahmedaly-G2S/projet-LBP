@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkflowStatusLabel } from "@/lib/studio/workflow-status";
@@ -72,7 +73,15 @@ export default async function ReferentielPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold text-zinc-900">Référentiel maître</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-zinc-900">Référentiel maître</h1>
+        <Link
+          href="/referentiel/nouvelle-fiche"
+          className="rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white"
+        >
+          + Nouvelle fiche
+        </Link>
+      </div>
 
       <div className="mt-6 flex flex-col gap-8">
         {(families ?? []).map((family) => (
@@ -114,12 +123,11 @@ function SheetList({ sheets }: { sheets: MasterSheetRow[] }) {
   return (
     <ul className="mt-2 flex flex-col gap-1 pl-4">
       {sheets.map((sheet) => (
-        <li
-          key={sheet.id}
-          className="flex items-center justify-between gap-3 text-sm text-zinc-600"
-        >
-          <span>{sheet.title}</span>
-          <span className="rounded-full border border-zinc-300 px-2 py-0.5 text-xs whitespace-nowrap">
+        <li key={sheet.id} className="flex items-center justify-between gap-3 text-sm">
+          <Link href={`/referentiel/${sheet.id}`} className="text-zinc-600 hover:underline">
+            {sheet.title}
+          </Link>
+          <span className="rounded-full border border-zinc-300 px-2 py-0.5 text-xs whitespace-nowrap text-zinc-600">
             {getWorkflowStatusLabel(sheet.status)}
           </span>
         </li>
