@@ -68,13 +68,16 @@
 
 ---
 
-## STU-WORKFLOW-05 — Surlignage des modifications côté client
+## STU-WORKFLOW-05 — Surlignage des modifications côté client 🟡 Partiellement fait
 
 **Priorité : Could** · **Dépendances : STU-WORKFLOW-04**
+**Réalisé** : `lib/studio/content-diff.ts` — `diffText()` (diff mot-à-mot par LCS, reconstruction exacte garantie), `diffSheetContent()` (les 5 champs d'une fiche), `getPublishedContentDiff()` (résout version publiée + version précédente immédiate même couche/clé, `null` si publiée une seule fois — pas d'erreur, cas normal).
+**Non fait — bloqué, pas oublié** : le rendu visuel. Aucune page "LBP Client" n'existe encore dans ce projet (STU-OFFER-01 et STU-CLIENT-04, non faits) pour l'afficher — construire cet écran dépasserait la portée de ce ticket. Décision prise avec l'utilisateur (2026-09-25) : la logique seule, testée, maintenant ; le branchement visuel est référencé explicitement dans STU-OFFER-01 et STU-CLIENT-04 pour ne pas rester un angle mort silencieux une fois ces écrans construits.
+**Vérifié** : tests réels contre des vraies lignes publiées en base (`tsx`, `getPublishedContentDiff` via client service-role) — mot modifié isolé correctement surligné, reste du texte intact, reconstruction exacte du texte publié à partir des segments, couche jamais publiée deux fois → `null` sans erreur. Plus une suite de cas limites sur `diffText` (identique, ajout, remplacement, texte totalement différent, depuis vide).
 
 **Contexte** : amélioration UX mentionnée dans les CR antérieurs (surlignage jaune des passages modifiés) — non indispensable pour dérouler les scénarios A-F.
 
-**À faire** : calcul de diff entre version publiée et version précédente, rendu visuel côté LBP Client.
+**À faire (restant)** : dans la page LBP Client (STU-OFFER-01) ou le mode visualisation (STU-CLIENT-04), appeler `getPublishedContentDiff()` et rendre chaque `DiffSegment` avec `changed ? "bg-yellow-200" : ""`.
 
 **Critères d'acceptation**
 
