@@ -123,7 +123,9 @@ Migrations Supabase locales, appliquées uniquement sur l'instance locale de cet
 
 ## STU-DATA-08 — Seed de démonstration
 
-**Priorité : Should** · **Dépendances : STU-DATA-01 à 07**
+**Priorité : Should** · **Dépendances : STU-DATA-01 à 07** ✅ Fait
+
+**Réalisé** : `supabase/seed.sql` — ALPHA SAS/BETA GROUPE/GAMMA (reprises de `LBP_V6_Studio.html`), avec CCN, réponses au questionnaire et overrides différents. Vérifié via `company_sheet_affectations` : les 3 sociétés ont des origines et des fiches visibles réellement différentes (ex. `REM-DEMO-004` visible par CCN pour ALPHA et GAMMA mais pas BETA, qui n'a pas cette convention).
 
 **Contexte** : le dossier exige "des données de démonstration suffisamment réalistes pour comprendre le fonctionnement" (§1).
 
