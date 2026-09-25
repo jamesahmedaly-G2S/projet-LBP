@@ -13,23 +13,26 @@ Ancrée sur les 6 scénarios que le dossier Studio exige de pouvoir démontrer (
 
 ## Index des epics
 
-| Epic          | Sujet                                            | Tickets | Fichier                              |
-| ------------- | ------------------------------------------------ | ------- | ------------------------------------ |
-| STU-DATA      | Fondations base de données (schéma Studio)       | 8       | [STU-DATA.md](STU-DATA.md)           |
-| STU-REF       | Référentiel maître (familles/thèmes/fiches)      | 5       | [STU-REF.md](STU-REF.md)             |
-| STU-CCN       | Multi-CCN                                        | 3       | [STU-CCN.md](STU-CCN.md)             |
-| STU-QUEST     | Questionnaire maître                             | 3       | [STU-QUEST.md](STU-QUEST.md)         |
-| STU-AFFECT    | Moteur d'affectation                             | 3       | [STU-AFFECT.md](STU-AFFECT.md)       |
-| STU-WORKFLOW  | Versioning & publication (7 statuts)             | 5       | [STU-WORKFLOW.md](STU-WORKFLOW.md)   |
-| STU-VEILLE    | Veille connectée au référentiel                  | 4       | [STU-VEILLE.md](STU-VEILLE.md)       |
-| STU-INTERVIEW | Entretiens annuels clients                       | 2       | [STU-INTERVIEW.md](STU-INTERVIEW.md) |
-| STU-CLIENT    | Gestion clients (assistant + fiche + vue client) | 4       | [STU-CLIENT.md](STU-CLIENT.md)       |
-| STU-DASH      | Tableau de bord Studio                           | 2       | [STU-DASH.md](STU-DASH.md)           |
-| STU-DESIGN    | Identité visuelle Studio                         | 2       | [STU-DESIGN.md](STU-DESIGN.md)       |
-| STU-OFFER     | Offres et droits de contenu par couche           | 2       | [STU-OFFER.md](STU-OFFER.md)         |
-| STU-QUIZ      | Quiz rattachés au référentiel maître             | 2       | [STU-QUIZ.md](STU-QUIZ.md)           |
+| Epic          | Sujet                                                    | Tickets | Fichier                              |
+| ------------- | -------------------------------------------------------- | ------- | ------------------------------------ |
+| STU-DATA      | Fondations base de données (schéma Studio)               | 8       | [STU-DATA.md](STU-DATA.md)           |
+| STU-REF       | Référentiel maître (familles/thèmes/fiches)              | 5       | [STU-REF.md](STU-REF.md)             |
+| STU-CCN       | Multi-CCN                                                | 3       | [STU-CCN.md](STU-CCN.md)             |
+| STU-QUEST     | Questionnaire maître                                     | 3       | [STU-QUEST.md](STU-QUEST.md)         |
+| STU-AFFECT    | Moteur d'affectation                                     | 3       | [STU-AFFECT.md](STU-AFFECT.md)       |
+| STU-WORKFLOW  | Versioning & publication (7 statuts)                     | 5       | [STU-WORKFLOW.md](STU-WORKFLOW.md)   |
+| STU-VEILLE    | Veille connectée au référentiel                          | 4       | [STU-VEILLE.md](STU-VEILLE.md)       |
+| STU-INTERVIEW | Entretiens annuels clients                               | 2       | [STU-INTERVIEW.md](STU-INTERVIEW.md) |
+| STU-CLIENT    | Gestion clients (assistant + fiche + vue client)         | 4       | [STU-CLIENT.md](STU-CLIENT.md)       |
+| STU-DASH      | Tableau de bord Studio                                   | 2       | [STU-DASH.md](STU-DASH.md)           |
+| STU-DESIGN    | Identité visuelle Studio                                 | 2       | [STU-DESIGN.md](STU-DESIGN.md)       |
+| STU-OFFER     | Offres et droits de contenu par couche                   | 2       | [STU-OFFER.md](STU-OFFER.md)         |
+| STU-QUIZ      | Quiz rattachés au référentiel maître                     | 2       | [STU-QUIZ.md](STU-QUIZ.md)           |
+| STU-AUTH      | Login minimal (ajouté en cours de route, cf. ci-dessous) | 1       | [STU-AUTH.md](STU-AUTH.md)           |
 
-**Total : 45 tickets.**
+**Total : 46 tickets.**
+
+**Epic ajouté après coup** : STU-AUTH n'était pas prévu au départ (le login était supposé couvert côté James, AUTH-07/08/09). Sans lui, aucune revue visuelle manuelle des écrans Studio n'était possible — corrigé dès que le besoin s'est fait sentir, en gardant un périmètre minimal (email/mot de passe, pas de mot de passe oublié ni de design).
 
 ## Séquencement recommandé
 
