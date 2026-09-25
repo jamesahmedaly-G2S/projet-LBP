@@ -31,12 +31,18 @@ export default function WorkflowActions({
           <button
             type="submit"
             disabled={pending}
-            className="rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-700 disabled:opacity-50"
+            aria-busy={pending}
+            className="rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-700 disabled:cursor-wait disabled:opacity-50"
           >
             → {getWorkflowStatusLabel(next)}
           </button>
         </form>
       ))}
+      {pending && (
+        <span className="text-xs text-zinc-500" role="status">
+          Enregistrement en cours...
+        </span>
+      )}
       {error && <span className="text-xs text-red-600">{error}</span>}
     </div>
   );
