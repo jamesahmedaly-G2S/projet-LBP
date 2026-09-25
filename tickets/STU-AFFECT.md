@@ -2,9 +2,11 @@
 
 ---
 
-## STU-AFFECT-01 — Calcul des affectations
+## STU-AFFECT-01 — Calcul des affectations ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-05**
+**Réalisé** : `lib/studio/affectations.ts` (`getCompanyAffectations()`) — deux requêtes (vue + `master_sheets`) plutôt qu'un embed PostgREST, qui ne fonctionne pas sur une vue sans FK déclarée.
+**Vérifié** : via son premier usage réel dans STU-AFFECT-02 (pas de comportement isolé à tester — c'est une fonction de lecture pure consommée ailleurs).
 
 **Contexte** : les 5 origines d'affectation (§7.3) — base, questionnaire, CCN, offre, manuel — doivent être exposées à l'application sans recalcul manuel ni duplication du référentiel par client.
 
