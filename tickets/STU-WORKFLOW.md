@@ -2,9 +2,11 @@
 
 ---
 
-## STU-WORKFLOW-01 — Transitions des 7 statuts
+## STU-WORKFLOW-01 — Transitions des 7 statuts ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-02**
+**Réalisé** : `lib/studio/workflow-transitions.ts` (graphe pur des transitions valides), `transitionSheetVersion()` dans `app/(studio)/referentiel/actions.ts` (bascule l'ancienne version publiée de la même couche/clé vers `historized`, tient à jour `master_sheets.status` pour la couche `rg`), `WorkflowActions.tsx` (boutons générés depuis le graphe).
+**Vérifié** : 3 scénarios réels via navigateur — transition invalide `draft → published` (contournement de l'UI simulé) refusée avec message exact ; chemin complet `draft → review → valid → published` via les vrais boutons ; publication d'une 2e version historise automatiquement la 1re (vérifié en base : jamais deux `published` simultanées, `master_sheets.status` synchronisé).
 
 **Contexte** : `Brouillon → À vérifier → Validé → Programmé → Publié → Historisé → Archivé` (§9) — le client ne voit que la version publiée.
 
