@@ -13,7 +13,7 @@ const SECTIONS: { label: string; href?: string }[] = [
   { label: "Clients", href: "/clients" },
   { label: "Référentiel", href: "/referentiel" },
   { label: "Questionnaires" },
-  { label: "Affectations" },
+  { label: "Affectations", href: "/affectations" },
   { label: "Publications" },
   { label: "Veille & mises à jour" },
   { label: "Entretiens" },

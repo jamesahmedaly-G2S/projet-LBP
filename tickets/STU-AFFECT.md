@@ -52,9 +52,11 @@
 
 ---
 
-## STU-AFFECT-04 — Vue globale des affectations (onglet dédié)
+## STU-AFFECT-04 — Vue globale des affectations (onglet dédié) ✅ Fait
 
 **Priorité : Must** (ajouté après coup — l'onglet "Affectations" de la navigation Studio n'avait aucun écran propre, l'info n'existant que noyée dans chaque fiche client) · **Dépendances : STU-AFFECT-01, STU-CCN-02**
+**Réalisé** : `app/(studio)/affectations/page.tsx` — sélecteur de société (`?company=<id>`, première société par défaut) + `getCompanyAffectations()` + `AffectationList` réutilisé en lecture seule (pas de `companyId` passé, donc pas de boutons Retirer/Ajouter — l'édition reste sur la fiche client, STU-AFFECT-03, pour éviter deux endroits qui modifient la même donnée). Lien nav "Affectations" activé dans `StudioNav.tsx`.
+**Vérifié** : test réel navigateur (session GoTrue réelle) — le lien de nav est cliquable ; `/affectations?company=<ALPHA>` et `/clients/<ALPHA>` affichent des lignes de fiches strictement identiques (mêmes badges d'origine, même ordre), idem pour BETA côté "Retirées manuellement" (origine automatique conservée visible dans les deux écrans) ; confirmé qu'aucun bouton Retirer/Ajouter n'apparaît sur la vue globale (lecture seule voulue).
 
 **Contexte** : onglet "Affectations" (§3 du dossier) — "Règles reliant profil client, réponses, CCN, offre et fiches". STU-AFFECT-02 met cette information dans la fiche client (une société à la fois) ; il manque une vue transverse pour parcourir les règles sans ouvrir chaque société une par une.
 
