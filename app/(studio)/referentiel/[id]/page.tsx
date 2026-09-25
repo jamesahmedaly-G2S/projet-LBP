@@ -12,8 +12,10 @@ import EditContentForm from "./EditContentForm";
 import RenameForm from "./RenameForm";
 import WorkflowActions from "./WorkflowActions";
 import PublishPanel from "./PublishPanel";
+import NewVersionButton from "./NewVersionButton";
 import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
+import { LinkButton } from "@/ui-kit/LinkButton";
 
 export default async function FichePage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
@@ -62,6 +64,13 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
         <Badge tone={getWorkflowStatusTone(sheet.status)}>
           {getWorkflowStatusLabel(sheet.status)}
         </Badge>
+        <LinkButton
+          href={`/referentiel/${sheet.id}/historique`}
+          variant="secondary"
+          className="text-xs"
+        >
+          Historique
+        </LinkButton>
       </div>
 
       {version ? (
@@ -86,7 +95,11 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
               <WorkflowActions versionId={version.id} status={version.status as WorkflowStatus} />
             )}
           </div>
-          <EditContentForm versionId={version.id} content={version.content as SheetContent} />
+          {["published", "historized", "archived"].includes(version.status) ? (
+            <NewVersionButton masterSheetId={sheet.id} />
+          ) : (
+            <EditContentForm versionId={version.id} content={version.content as SheetContent} />
+          )}
         </Card>
       ) : (
         <p className="mt-6 text-sm text-red-600">

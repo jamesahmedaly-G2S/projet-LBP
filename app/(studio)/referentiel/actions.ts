@@ -105,6 +105,23 @@ export async function updateSheetContent(
     return "Version introuvable.";
   }
 
+  const supabase = await createClient();
+
+  // STU-WORKFLOW-04 : une version déjà diffusée ne doit plus jamais changer
+  // de contenu en place — sinon "consulter le contenu exact de la version
+  // précédente" (§ scénario E) deviendrait faux. Vérifié côté serveur, pas
+  // seulement en cachant le formulaire (createNewVersion() est le seul
+  // chemin pour modifier après publication).
+  const { data: existing } = await supabase
+    .from("sheet_versions")
+    .select("status")
+    .eq("id", versionId)
+    .single();
+
+  if (existing && ["published", "historized", "archived"].includes(existing.status)) {
+    return "Cette version est déjà diffusée : créez une nouvelle version pour la modifier.";
+  }
+
   const content: SheetContent = {
     essentiel: String(formData.get("essentiel") ?? ""),
     comprendre: String(formData.get("comprendre") ?? ""),
@@ -113,7 +130,6 @@ export async function updateSheetContent(
     vigilance: String(formData.get("vigilance") ?? ""),
   };
 
-  const supabase = await createClient();
   const { error } = await supabase.from("sheet_versions").update({ content }).eq("id", versionId);
 
   if (error) {
@@ -121,6 +137,57 @@ export async function updateSheetContent(
   }
 
   return "Enregistré.";
+}
+
+// STU-WORKFLOW-04 : seul moyen de faire évoluer le contenu d'une fiche déjà
+// publiée — copie le contenu de la version courante comme point de départ
+// (jamais de retour à la page blanche), nouveau numéro de version, statut
+// draft. Ne touche jamais l'ancienne version : c'est elle que l'historique
+// affichera comme "version précédente".
+export async function createNewVersion(
+  _prevState: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const session = await requireAdmin();
+
+  const masterSheetId = formData.get("master_sheet_id");
+  if (typeof masterSheetId !== "string") {
+    return "Fiche introuvable.";
+  }
+
+  const supabase = await createClient();
+
+  const { data: current, error: fetchError } = await supabase
+    .from("sheet_versions")
+    .select("version, content")
+    .eq("master_sheet_id", masterSheetId)
+    .eq("layer_kind", "rg")
+    .order("version", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (fetchError || !current) {
+    return "Version courante introuvable.";
+  }
+
+  const { error: insertError } = await supabase.from("sheet_versions").insert({
+    master_sheet_id: masterSheetId,
+    layer_kind: "rg",
+    version: current.version + 1,
+    status: "draft",
+    content: current.content,
+    author_id: session.userId,
+  });
+
+  if (insertError) {
+    return `Erreur lors de la création de la nouvelle version : ${insertError.message}`;
+  }
+
+  await supabase.from("master_sheets").update({ status: "draft" }).eq("id", masterSheetId);
+
+  revalidatePath(`/referentiel/${masterSheetId}`);
+  revalidatePath(`/referentiel/${masterSheetId}/historique`);
+  return null;
 }
 
 // STU-REF-03 : renommer une fiche ne touche jamais son `code` (identifiant

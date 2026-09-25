@@ -52,9 +52,11 @@
 
 ---
 
-## STU-WORKFLOW-04 — Historique de version
+## STU-WORKFLOW-04 — Historique de version ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-WORKFLOW-03**
+**Réalisé** : `app/(studio)/referentiel/[id]/historique/page.tsx` — toutes les versions d'une fiche (toutes couches, tous statuts), avec auteur, date, motif, statut, sociétés réceptrices (`sheet_version_recipients`) et contenu complet repliable (`<details>`). **Écart nécessaire découvert en testant** : rien n'empêchait jusqu'ici de modifier le contenu d'une version déjà publiée en place (`EditContentForm` toujours affiché, aucune vérification serveur) — ce qui aurait rendu "consulter le contenu exact de la version précédente" impossible à garantir. Corrigé : `updateSheetContent()` refuse désormais toute modification sur une version `published`/`historized`/`archived` (vérifié côté serveur, pas juste caché côté UI) ; nouvelle action `createNewVersion()` — seul chemin pour faire évoluer une fiche diffusée, copie le contenu courant comme point de départ, nouveau numéro de version, statut `draft` ; `NewVersionButton.tsx` remplace le formulaire d'édition une fois la version verrouillée.
+**Vérifié** : test réel bout en bout — fiche créée via le vrai formulaire, publiée (v1), contenu verrouillé confirmé (formulaire absent), "Créer une nouvelle version" → v2 en brouillon avec le contenu de v1 copié comme point de départ, modifiée puis republiée (historise v1 automatiquement, STU-WORKFLOW-01) ; `/historique` affiche bien v1 (Historisé, contenu original exact) et v2 (Publié, contenu modifié exact), toutes deux avec leurs sociétés réceptrices. Refus serveur sur version verrouillée re-testé directement via le vrai formulaire (formulaire temporairement réaffiché pour le test, retiré ensuite) : message de refus confirmé.
 
 **Contexte** : scénario E — "consulter version actuelle et version précédente, voir auteur, date, motif et clients diffusés".
 
