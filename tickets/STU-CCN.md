@@ -37,7 +37,7 @@
 
 ## STU-CCN-03 — Édition de la couche CCN d'une fiche
 
-**Priorité : Must** · **Dépendances : STU-DATA-02, STU-REF-02**
+**Priorité : Must** · **Dépendances : STU-DATA-02, STU-REF-02, STU-WORKFLOW-01, STU-WORKFLOW-03** (dépendance corrigée : les critères d'acceptation supposent la publication et `sheet_version_recipients`, pas encore construites — reporté après STU-WORKFLOW)
 
 **Contexte** : scénario C ("modifier uniquement la couche Syntec... n'impacter que les clients Syntec concernés").
 
