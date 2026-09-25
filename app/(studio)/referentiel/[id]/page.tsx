@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getWorkflowStatusLabel } from "@/lib/studio/workflow-status";
 import type { SheetContent } from "@/lib/studio/placeholder-content";
 import EditContentForm from "./EditContentForm";
+import RenameForm from "./RenameForm";
 
 export default async function FichePage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
@@ -34,9 +35,12 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <p className="text-sm text-zinc-500">{sheet.code}</p>
+      <p className="text-sm text-zinc-500">
+        Identifiant stable : <span className="font-mono">{sheet.code}</span> (ne change jamais, y
+        compris après renommage)
+      </p>
       <div className="mt-1 flex items-center gap-3">
-        <h1 className="text-2xl font-semibold text-zinc-900">{sheet.title}</h1>
+        <RenameForm sheetId={sheet.id} title={sheet.title} />
         <span className="rounded-full border border-zinc-300 px-2 py-0.5 text-xs">
           {getWorkflowStatusLabel(sheet.status)}
         </span>
