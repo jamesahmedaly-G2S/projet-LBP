@@ -52,7 +52,7 @@
 
 **Contexte** : scénario F — "afficher le LBP exactement tel que le client le voit, avec un bandeau persistant... et un bouton 'Retour au LBP Studio'" (§5.3).
 
-**À faire** : depuis la fiche client, bouton ouvrant la vue client réelle (celle branchée sur `client_sheet_content`) pour la société concernée, avec bandeau persistant "MODE VISUALISATION CLIENT — Vous consultez actuellement le LBP de [Entreprise]" et retour en un clic.
+**À faire** : depuis la fiche client, bouton ouvrant la vue client réelle (celle branchée sur `client_sheet_content`) pour la société concernée, avec bandeau persistant "MODE VISUALISATION CLIENT — Vous consultez actuellement le LBP de [Entreprise]" et retour en un clic. Si STU-OFFER-01 n'a pas encore branché le surlignage des modifications (STU-WORKFLOW-05), le faire ici au plus tard — ce mode est le premier endroit où G2S verrait concrètement si le surlignage manque.
 
 **Critères d'acceptation**
 
