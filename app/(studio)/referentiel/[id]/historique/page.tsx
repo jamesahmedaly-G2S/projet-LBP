@@ -30,7 +30,9 @@ interface HistoryRow {
   published_at: string | null;
   scheduled_at: string | null;
   content: SheetContent;
+  legal_monitoring_id: string | null;
   profiles: { full_name: string } | null;
+  legal_monitoring: { title: string } | null;
   sheet_version_recipients: { companies: { company_name: string } | null }[];
 }
 
@@ -58,7 +60,7 @@ export default async function HistoriquePage({ params }: { params: Promise<{ id:
   const { data: versions } = await supabase
     .from("sheet_versions")
     .select(
-      "id, layer_kind, version, status, motif, created_at, published_at, scheduled_at, content, profiles(full_name), sheet_version_recipients(companies(company_name))",
+      "id, layer_kind, version, status, motif, created_at, published_at, scheduled_at, content, legal_monitoring_id, profiles(full_name), legal_monitoring(title), sheet_version_recipients(companies(company_name))",
     )
     .eq("master_sheet_id", id)
     .order("layer_kind")
@@ -108,6 +110,17 @@ export default async function HistoriquePage({ params }: { params: Promise<{ id:
                     {row.motif && (
                       <p className="mt-1 text-xs text-zinc-500">
                         Motif : <span className="italic">{row.motif}</span>
+                      </p>
+                    )}
+                    {row.legal_monitoring_id && (
+                      <p className="mt-1 text-xs text-zinc-500">
+                        Origine :{" "}
+                        <Link
+                          href={`/veille/${row.legal_monitoring_id}`}
+                          className="text-blue-700 hover:underline"
+                        >
+                          veille — {row.legal_monitoring?.title ?? "(entrée introuvable)"}
+                        </Link>
                       </p>
                     )}
                   </div>
