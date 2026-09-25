@@ -42,3 +42,18 @@
 **Critères d'acceptation**
 
 - Retirer manuellement une fiche normalement affectée par le questionnaire la masque côté client, mais l'origine automatique reste visible côté Studio (STU-AFFECT-02) — la règle initiale n'est jamais supprimée, seulement surchargée.
+
+---
+
+## STU-AFFECT-04 — Vue globale des affectations (onglet dédié)
+
+**Priorité : Must** (ajouté après coup — l'onglet "Affectations" de la navigation Studio n'avait aucun écran propre, l'info n'existant que noyée dans chaque fiche client) · **Dépendances : STU-AFFECT-01, STU-CCN-02**
+
+**Contexte** : onglet "Affectations" (§3 du dossier) — "Règles reliant profil client, réponses, CCN, offre et fiches". STU-AFFECT-02 met cette information dans la fiche client (une société à la fois) ; il manque une vue transverse pour parcourir les règles sans ouvrir chaque société une par une.
+
+**À faire** : écran `/affectations` — sélection d'une société (réutilise la liste de STU-DESIGN-00b), puis affichage de `company_sheet_affectations` pour cette société avec, pour chaque fiche, ses origines — même donnée que STU-AFFECT-02, présentée en vue consolidée plutôt qu'imbriquée dans la fiche client.
+
+**Critères d'acceptation**
+
+- Accessible depuis la navigation Studio (plus grisé).
+- Les origines affichées pour une société donnée sont identiques à celles vues depuis sa fiche client (STU-AFFECT-02) — aucune divergence entre les deux vues, une seule requête source (`company_sheet_affectations`).

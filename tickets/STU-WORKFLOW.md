@@ -73,3 +73,18 @@
 **Critères d'acceptation**
 
 - Reporté si le temps manque avant le 15/10 — ne bloque aucun scénario de démonstration.
+
+---
+
+## STU-WORKFLOW-06 — Vue globale des publications (onglet dédié)
+
+**Priorité : Must** (ajouté après coup — l'onglet "Publications" de la navigation Studio n'avait aucun écran propre) · **Dépendances : STU-WORKFLOW-03, STU-WORKFLOW-04**
+
+**Contexte** : onglet "Publications" (§3 du dossier) — "Contenus validés, programmés, publiés, clients concernés, historique de diffusion". STU-WORKFLOW-03/04 gèrent la publication et l'historique _par fiche_ ; il manque une vue transverse listant les versions récemment validées/programmées/publiées toutes fiches confondues.
+
+**À faire** : écran `/publications` — liste des `sheet_versions` en statut `valid`, `scheduled` ou `published`, triée par date, avec fiche, couche, auteur, motif, et (pour les publiées) les sociétés réceptrices via `sheet_version_recipients`.
+
+**Critères d'acceptation**
+
+- Accessible depuis la navigation Studio.
+- Une version publiée via l'écran fiche (STU-WORKFLOW-01/03) apparaît sans délai dans cette liste — pas de duplication de données, requête directe sur `sheet_versions`.

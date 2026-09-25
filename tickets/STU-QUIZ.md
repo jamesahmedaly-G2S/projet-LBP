@@ -27,3 +27,18 @@
 **Critères d'acceptation**
 
 - Reporté sans risque si le temps manque — le quiz reste fonctionnel sans cette explication, juste moins pédagogique.
+
+---
+
+## STU-QUIZ-03 — Écran d'administration des quiz (onglet dédié)
+
+**Priorité : Must** (ajouté après coup — l'onglet "Quiz & formations" n'avait aucun écran, STU-QUIZ-01 ne couvre que le mécanisme de rattachement) · **Dépendances : STU-QUIZ-01**
+
+**Contexte** : onglet "Quiz & formations" (§3 du dossier) — "gérer les quiz par thème et les CTA de formation associés".
+
+**À faire** : écran `/quiz` — liste des `quizzes` existants (titre, thème/fiche rattaché, statut publié), formulaire de création/édition (titre, thème ou fiche, contenu au format `parseQuiz()`, publié oui/non).
+
+**Critères d'acceptation**
+
+- Accessible depuis la navigation Studio.
+- Un quiz créé ici et rattaché à un thème est bien celui automatiquement proposé sur les fiches de ce thème (cohérence avec STU-QUIZ-01, pas un système parallèle).

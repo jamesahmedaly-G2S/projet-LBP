@@ -13,26 +13,31 @@ Ancrée sur les 6 scénarios que le dossier Studio exige de pouvoir démontrer (
 
 ## Index des epics
 
-| Epic          | Sujet                                                    | Tickets | Fichier                              |
-| ------------- | -------------------------------------------------------- | ------- | ------------------------------------ |
-| STU-DATA      | Fondations base de données (schéma Studio)               | 8       | [STU-DATA.md](STU-DATA.md)           |
-| STU-REF       | Référentiel maître (familles/thèmes/fiches)              | 5       | [STU-REF.md](STU-REF.md)             |
-| STU-CCN       | Multi-CCN                                                | 3       | [STU-CCN.md](STU-CCN.md)             |
-| STU-QUEST     | Questionnaire maître                                     | 3       | [STU-QUEST.md](STU-QUEST.md)         |
-| STU-AFFECT    | Moteur d'affectation                                     | 3       | [STU-AFFECT.md](STU-AFFECT.md)       |
-| STU-WORKFLOW  | Versioning & publication (7 statuts)                     | 5       | [STU-WORKFLOW.md](STU-WORKFLOW.md)   |
-| STU-VEILLE    | Veille connectée au référentiel                          | 4       | [STU-VEILLE.md](STU-VEILLE.md)       |
-| STU-INTERVIEW | Entretiens annuels clients                               | 2       | [STU-INTERVIEW.md](STU-INTERVIEW.md) |
-| STU-CLIENT    | Gestion clients (assistant + fiche + vue client)         | 4       | [STU-CLIENT.md](STU-CLIENT.md)       |
-| STU-DASH      | Tableau de bord Studio                                   | 2       | [STU-DASH.md](STU-DASH.md)           |
-| STU-DESIGN    | Identité visuelle Studio                                 | 2       | [STU-DESIGN.md](STU-DESIGN.md)       |
-| STU-OFFER     | Offres et droits de contenu par couche                   | 2       | [STU-OFFER.md](STU-OFFER.md)         |
-| STU-QUIZ      | Quiz rattachés au référentiel maître                     | 2       | [STU-QUIZ.md](STU-QUIZ.md)           |
-| STU-AUTH      | Login minimal (ajouté en cours de route, cf. ci-dessous) | 1       | [STU-AUTH.md](STU-AUTH.md)           |
+| Epic          | Sujet                                            | Tickets | Fichier                              |
+| ------------- | ------------------------------------------------ | ------- | ------------------------------------ |
+| STU-DATA      | Fondations base de données (schéma Studio)       | 8       | [STU-DATA.md](STU-DATA.md)           |
+| STU-REF       | Référentiel maître (familles/thèmes/fiches)      | 5       | [STU-REF.md](STU-REF.md)             |
+| STU-CCN       | Multi-CCN                                        | 3       | [STU-CCN.md](STU-CCN.md)             |
+| STU-QUEST     | Questionnaire maître                             | 3       | [STU-QUEST.md](STU-QUEST.md)         |
+| STU-AFFECT    | Moteur d'affectation                             | 4       | [STU-AFFECT.md](STU-AFFECT.md)       |
+| STU-WORKFLOW  | Versioning & publication (7 statuts)             | 6       | [STU-WORKFLOW.md](STU-WORKFLOW.md)   |
+| STU-VEILLE    | Veille connectée au référentiel                  | 4       | [STU-VEILLE.md](STU-VEILLE.md)       |
+| STU-INTERVIEW | Entretiens annuels clients                       | 2       | [STU-INTERVIEW.md](STU-INTERVIEW.md) |
+| STU-CLIENT    | Gestion clients (assistant + fiche + vue client) | 4       | [STU-CLIENT.md](STU-CLIENT.md)       |
+| STU-DASH      | Tableau de bord Studio                           | 2       | [STU-DASH.md](STU-DASH.md)           |
+| STU-DESIGN    | Identité visuelle Studio                         | 4       | [STU-DESIGN.md](STU-DESIGN.md)       |
+| STU-OFFER     | Offres et droits de contenu par couche           | 2       | [STU-OFFER.md](STU-OFFER.md)         |
+| STU-QUIZ      | Quiz rattachés au référentiel maître             | 3       | [STU-QUIZ.md](STU-QUIZ.md)           |
+| STU-AUTH      | Login minimal (ajouté en cours de route)         | 1       | [STU-AUTH.md](STU-AUTH.md)           |
+| STU-ADMIN     | Administration Studio (ajouté en cours de route) | 1       | [STU-ADMIN.md](STU-ADMIN.md)         |
 
-**Total : 46 tickets.**
+**Total : 52 tickets.**
 
-**Epic ajouté après coup** : STU-AUTH n'était pas prévu au départ (le login était supposé couvert côté James, AUTH-07/08/09). Sans lui, aucune revue visuelle manuelle des écrans Studio n'était possible — corrigé dès que le besoin s'est fait sentir, en gardant un périmètre minimal (email/mot de passe, pas de mot de passe oublié ni de design).
+**Epics ajoutés après coup** :
+
+- **STU-AUTH** : le login était supposé couvert côté James (AUTH-07/08/09). Sans lui, aucune revue visuelle manuelle des écrans Studio n'était possible.
+- **STU-ADMIN** : l'onglet "Administration" de la navigation (§3 du dossier) n'avait aucun ticket nulle part — trou complet, corrigé.
+- **STU-AFFECT-04, STU-WORKFLOW-06, STU-QUIZ-03** : les onglets "Affectations", "Publications" et "Quiz & formations" de la navigation n'avaient chacun aucun écran dédié ticketé (seulement des vues imbriquées ailleurs, ou le mécanisme technique seul) — ajoutés pour que chaque section de la navigation Studio ait un chemin réel vers un écran, conformément à la consigne de ne rien laisser de côté.
 
 ## Séquencement recommandé
 
