@@ -35,9 +35,11 @@
 
 ---
 
-## STU-WORKFLOW-03 — Publication (immédiate/programmée) + impacts
+## STU-WORKFLOW-03 — Publication (immédiate/programmée) + impacts ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-WORKFLOW-01, STU-AFFECT-01**
+**Réalisé** : `lib/studio/publication-impact.ts` (`getImpactedCompanies()` — rg → toutes sociétés, ccn → sociétés ayant cette CCN et dont le palier l'inclut, ent/proc → la société propriétaire si son palier l'inclut ; recalculé côté serveur, jamais transmis par le client) ; `PublishPanel.tsx` remplace `WorkflowActions` pour les statuts `valid`/`scheduled` — aucun bouton de publication n'existe dans le DOM tant que l'aperçu n'a pas été ouvert (gate structurel) ; `transitionSheetVersion()` étendu pour valider/persister `scheduled_at` (date future obligatoire) et écrire `sheet_version_recipients` au moment réel où le statut passe à `published` (couvre `valid→published` et `scheduled→published`, un seul endroit).
+**Vérifié** : test réel navigateur — aucun bouton "Publier" présent avant ouverture de l'aperçu ; publication immédiate d'une fiche `rg` → aperçu liste les 3 sociétés seedées, `sheet_version_recipients` peuplé pour les 3 après clic ; programmation à une date future → statut reste `scheduled`, `scheduled_at` persisté, aucun `sheet_version_recipients` créé tant que non publiée ; date passée refusée avec message explicite. Couches `ccn`/`ent` (sans écran d'auteur — STU-CCN-03 non fait) vérifiées directement via `getImpactedCompanies()` contre les données seedées réelles (`tsx`, client service-role) : CCN 1486 (Syntec) → ALPHA + GAMMA, pas BETA (n'a pas cette CCN) ; couche `ent` exclut ALPHA (palier 2, `includes_agreements=false`) et inclut BETA (palier 3).
 
 **Contexte** : "Une publication peut être immédiate ou programmée" (§9) ; "Toute modification doit recalculer les impacts avant publication" et "Le Studio doit toujours permettre de savoir 'qui verra quoi' avant de publier" (§12).
 

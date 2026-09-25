@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { buildPlaceholderContent, type SheetContent } from "@/lib/studio/placeholder-content";
 import { isValidTransition } from "@/lib/studio/workflow-transitions";
 import type { WorkflowStatus } from "@/lib/studio/workflow-status";
+import { getImpactedCompanies } from "@/lib/studio/publication-impact";
 
 // STU-REF-02 : création d'une fiche maître (métadonnées + première version
 // "rg" en brouillon, contenu factice) et édition de ce contenu.
@@ -171,11 +172,24 @@ export async function transitionSheetVersion(
   const versionId = formData.get("version_id");
   const target = formData.get("target_status");
   const motif = formData.get("motif");
+  const scheduledAtRaw = formData.get("scheduled_at");
 
   if (typeof versionId !== "string" || typeof target !== "string") {
     return "Version ou statut cible manquant.";
   }
   const targetStatus = target as WorkflowStatus;
+
+  let scheduledAt: string | null = null;
+  if (targetStatus === "scheduled") {
+    if (typeof scheduledAtRaw !== "string" || !scheduledAtRaw) {
+      return "Une date de programmation est requise.";
+    }
+    const parsed = new Date(scheduledAtRaw);
+    if (Number.isNaN(parsed.getTime()) || parsed.getTime() <= Date.now()) {
+      return "La date de programmation doit être dans le futur.";
+    }
+    scheduledAt = parsed.toISOString();
+  }
 
   const supabase = await createClient();
 
@@ -226,6 +240,7 @@ export async function transitionSheetVersion(
     .update({
       status: targetStatus,
       published_at: targetStatus === "published" ? new Date().toISOString() : undefined,
+      scheduled_at: targetStatus === "scheduled" ? scheduledAt : undefined,
       ...(typeof motif === "string" && motif.trim() ? { motif: motif.trim() } : {}),
     })
     .eq("id", version.id);
@@ -239,6 +254,24 @@ export async function transitionSheetVersion(
       .from("master_sheets")
       .update({ status: targetStatus })
       .eq("id", version.master_sheet_id);
+  }
+
+  // STU-WORKFLOW-03 : "qui a reçu quoi" recalculé au moment réel de la
+  // publication (jamais transmis par le client) — couvre aussi bien
+  // valid -> published (immédiate) que scheduled -> published (échéance
+  // atteinte), un seul endroit qui écrit sheet_version_recipients.
+  if (targetStatus === "published") {
+    const impacted = await getImpactedCompanies(supabase, {
+      layerKind: version.layer_kind,
+      ccnIdcc: version.ccn_idcc,
+      companyId: version.company_id,
+    });
+    if (impacted.length > 0) {
+      await supabase.from("sheet_version_recipients").upsert(
+        impacted.map((company) => ({ sheet_version_id: version.id, company_id: company.id })),
+        { onConflict: "sheet_version_id,company_id" },
+      );
+    }
   }
 
   revalidatePath(`/referentiel/${version.master_sheet_id}`);
