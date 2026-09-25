@@ -35,9 +35,12 @@
 
 ---
 
-## STU-AFFECT-03 — Ajout/retrait manuel G2S avec motif
+## STU-AFFECT-03 — Ajout/retrait manuel G2S avec motif ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-05**
+**Réalisé** : `setSheetOverride`/`clearSheetOverride` (`app/(studio)/clients/actions.ts`, upsert sur `company_sheet_overrides`, motif obligatoire) ; `AddOverrideForm` (nouveau) pour l'ajout, `AffectationList` étendu (`companyId` optionnel) pour le retrait/la restauration inline.
+**Vérifié** : test réel navigateur (session GoTrue réelle, pas de simulation) — GAMMA (aucun override initial) : ajout manuel de "Assurance chômage" → badges `Référentiel` + `Ajout manuel G2S`, fiche disparaît du menu déroulant d'ajout ; retrait de "Titres-restaurant" avec motif → bascule dans "Retirées manuellement", origines automatiques (`Référentiel`, `Questionnaire`) toujours affichées à côté du badge `Retirée`. BETA/`REM-DEMO-002` (retrait seedé) : "Annuler le retrait" → la fiche revient dans la liste visible avec ses origines d'origine. Confirmé en base (`company_sheet_overrides`) et en rendu DOM après navigation fraîche.
+**Note de conception découverte pendant le test** : l'origine `base` de la vue `company_sheet_affectations` (STU-DATA-05) est inconditionnelle pour toute fiche publiée/toute société — le filtre "fiches disponibles à ajouter" ne peut donc pas exclure les fiches déjà affectées par une origine automatique (la liste serait alors vide en permanence, ce qui contredirait le seed lui-même où REM-DEMO-004 cumule `base`+`ccn`+`manual` pour ALPHA). Le filtre exclut uniquement les fiches ayant déjà un override `add` actif.
 
 **Contexte** : "G2S doit toujours pouvoir ajouter ou retirer manuellement une fiche. Conserver la trace de cette surcharge manuelle et de la règle automatique initiale" (§7.4).
 
