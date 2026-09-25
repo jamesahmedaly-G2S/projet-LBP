@@ -70,9 +70,11 @@ Migrations Supabase locales, appliquées uniquement sur l'instance locale de cet
 
 ---
 
-## STU-DATA-05 — Migration moteur d'affectation
+## STU-DATA-05 — Migration moteur d'affectation ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-01, STU-DATA-02, STU-DATA-03**
+**Réalisé** : `supabase/migrations/20260925102419_moteur_affectation_studio.sql`. Inclut aussi `company_ccns` (avancé depuis STU-CCN-02, prérequis technique de la vue — voir note dans STU-CCN.md). Vérifié par tests manuels avec simulation de session admin (réponse questionnaire → origine immédiate, retrait manuel → traçabilité conservée).
+**Écart au plan initial** : la vue réutilise `offer_tiers.includes_cba` (colonne existante de James) comme équivalent de "la couche CCN est incluse dans le palier", au lieu d'une colonne `includes_ccn` qui aurait nécessité de toucher sa table. Voir STU-DATA-06 ci-dessous, revu pour la même raison.
 
 **Contexte** : les 5 origines d'affectation (§7.3) doivent être reconstituables sans dupliquer le référentiel par client.
 
@@ -85,24 +87,25 @@ Migrations Supabase locales, appliquées uniquement sur l'instance locale de cet
 
 ---
 
-## STU-DATA-06 — Migration offres révisées
+## STU-DATA-06 — Offres : revu, ne touche plus `offer_tiers`
 
 **Priorité : Must** · **Dépendances : aucune**
 
-**Contexte** : les offres réelles (LBP Essentiel/Métier/Entreprise/Signature, tarif annuel, quota d'utilisateurs) diffèrent du modèle initial à 2 booléens.
+**Contexte révisé** : le plan initial ("recréer `offer_tiers`") violerait la consigne de ne jamais modifier ce que James a mis en place — cette table existe déjà, seedée avec 4 lignes, référencée par `companies.offer_tier` et par `check_and_increment_chat_quota()`. On ne la touche pas, ni en destructif ni en additif.
 
-**À faire** : recréer `offer_tiers` avec `price_amount`/`price_period`/`included_users`/`extra_user_price`/`is_custom_quote`/`includes_ccn`/`includes_ent`/`includes_proc`, seed avec les 4 offres réelles.
+**À faire** : rien côté base de données — `offer_tiers.includes_cba` et `includes_agreements` font déjà le travail (réutilisés dans STU-DATA-05 et STU-DATA-07). Reste uniquement un travail d'**affichage** : faire correspondre les 4 lignes existantes (`Le Socle`/`La Branche`/`Le Référentiel`/`Le Sur-mesure`, prix HT/mois) au vocabulaire Studio (`LBP Essentiel`/`LBP Métier`/`LBP Entreprise`/`LBP Signature`, prix annuel) **au niveau du front uniquement** (table de correspondance dans le code, pas en base) — ticket déplacé vers STU-OFFER.
 
 **Critères d'acceptation**
 
-- Les 4 offres et leurs flags de couches correspondent exactement à `OFFRE_LAYERS` de la maquette (`LBP_V6_Studio.html`).
-- Aucune notion de "palier 1 à 5" ou de prix mensuel résiduel de l'ancien modèle ne subsiste.
+- Aucune migration SQL sur `offer_tiers` dans ce ticket.
+- Le mapping d'affichage est centralisé à un seul endroit (DRY), pas dupliqué dans plusieurs composants.
 
 ---
 
 ## STU-DATA-07 — Vue sécurisée client_sheet_content
 
 **Priorité : Must** · **Dépendances : STU-DATA-02, STU-DATA-05, STU-DATA-06**
+**Note** : filtre les couches `ent`/`proc` via `offer_tiers.includes_agreements` (existant), même logique que STU-DATA-05 pour `ccn`/`includes_cba` — pas de nouvelle colonne sur `offer_tiers`.
 
 **Contexte** : le client ne doit jamais voir de contenu non publié, ni une couche que son offre n'inclut (principe déjà appliqué à l'ancien modèle, à reconduire ici — condition de réussite non négociable du cahier de gouvernance).
 
