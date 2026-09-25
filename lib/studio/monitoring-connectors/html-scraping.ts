@@ -129,7 +129,11 @@ function createScrapingConnector(
       const html = await response.text();
       const items = extractItems(html, source);
 
-      const { inserted, error } = await insertNewItems(supabase, source.label, items);
+      const { inserted, insertedItems, error } = await insertNewItems(
+        supabase,
+        source.label,
+        items,
+      );
       if (error) {
         return {
           key: source.key,
@@ -147,6 +151,7 @@ function createScrapingConnector(
         status: "ok",
         itemsFound: items.length,
         itemsInserted: inserted,
+        insertedItems,
       };
     },
   };

@@ -5,7 +5,11 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { buildPlaceholderContent } from "@/lib/studio/placeholder-content";
-import { runAllConnectors, type ConnectorResult } from "@/lib/studio/monitoring-connectors";
+import {
+  runAllConnectorsAndNotify,
+  type ConnectorResult,
+} from "@/lib/studio/monitoring-connectors";
+import type { NotificationResult } from "@/lib/studio/monitoring-notifications";
 import { analyzeMonitoringEntry, type AiAnalysisResult } from "@/lib/studio/monitoring-ai-analysis";
 
 // STU-VEILLE-01 : saisie manuelle d'une évolution réglementaire, sur la
@@ -185,12 +189,15 @@ export async function qualifyWithNewSheet(
 // authentifiée (requireAdmin) plutôt que le secret partagé, pour un test
 // réel sans attendre l'ordonnanceur externe. Aucune entrée simulée : les
 // connecteurs non configurés remontent leur statut tel quel.
-export async function runConnectorsNow(): Promise<ConnectorResult[]> {
+export async function runConnectorsNow(): Promise<{
+  results: ConnectorResult[];
+  notification: NotificationResult;
+}> {
   await requireAdmin();
   const supabase = await createClient();
-  const results = await runAllConnectors(supabase);
+  const { results, notification } = await runAllConnectorsAndNotify(supabase);
   revalidatePath("/veille");
-  return results;
+  return { results, notification };
 }
 
 // STU-VEILLE-04 (AUTOMATION-03, #87) : déclenchement manuel de l'analyse

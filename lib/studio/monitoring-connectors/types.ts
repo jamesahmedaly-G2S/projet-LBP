@@ -13,6 +13,7 @@ export interface ConnectorResult {
   status: ConnectorStatus;
   itemsFound: number;
   itemsInserted: number;
+  insertedItems?: { source: string; title: string; link: string | null }[];
   message?: string;
 }
 
