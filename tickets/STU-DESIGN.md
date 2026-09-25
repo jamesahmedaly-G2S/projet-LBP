@@ -16,6 +16,18 @@
 
 ---
 
+## STU-DESIGN-00b — Navigation Studio (aperçu, liens désactivés pour l'existant) ✅ Fait
+
+**Priorité : Should** · **Dépendances : STU-DESIGN-00**
+
+**Contexte** : suite explicite du chantier design — poursuivre au-delà de STU-DESIGN-00 sans construire la navigation complète (STU-DESIGN-01) tant que la plupart des 10 sections du dossier n'ont pas d'écran.
+
+**Réalisé** : `StudioNav.tsx` (les 10 sections du §3, seules "Clients" et "Référentiel" sont des liens réels, les autres des `<span>` grisés non cliquables), page `app/(studio)/clients/page.tsx` (liste minimale, sans le code couleur d'échéance qui reste à STU-CLIENT-03), mise en évidence de la section active via `usePathname()`.
+
+**Vérifié** : navigation réelle Clients → ALPHA fonctionnelle (URL confirmée), section active correctement stylée (`font-medium text-white`) vérifié par inspection directe du DOM rendu — pas seulement visuellement, une capture d'écran seule prêtait à confusion sur la subtilité blue-100/white ; section "Tableau de bord" confirmée non cliquable (aucun `<a>` généré).
+
+---
+
 ## STU-DESIGN-01 — Charte bleu Studio + navigation dédiée
 
 **Priorité : Should** · **Dépendances : aucune**
