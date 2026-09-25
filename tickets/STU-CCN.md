@@ -19,9 +19,10 @@
 
 ## STU-CCN-02 — Sélection multi-CCN sur la société
 
-**Priorité : Must** · **Dépendances : STU-CCN-01, STU-DATA-01**
+**Priorité : Must** · **Dépendances : STU-CCN-01, STU-DATA-05**
+**Note** : la table `company_ccns` et ses policies existent déjà — créées dans STU-DATA-05 (prérequis technique de `company_sheet_affectations`). Ce ticket ne porte plus que sur le composant d'interface.
 
-**Contexte** : "Une entreprise peut relever de plusieurs CCN" (§7.2) — table `company_ccns` déjà conçue en base.
+**Contexte** : "Une entreprise peut relever de plusieurs CCN" (§7.2) — table `company_ccns` déjà en base.
 
 **À faire** : brancher le composant STU-CCN-01 sur `company_ccns` dans l'assistant de création (STU-CLIENT-01) et la fiche client (STU-CLIENT-02), écriture réservée à G2S (`is_admin()`).
 
