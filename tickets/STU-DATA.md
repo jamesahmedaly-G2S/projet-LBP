@@ -87,9 +87,10 @@ Migrations Supabase locales, appliquées uniquement sur l'instance locale de cet
 
 ---
 
-## STU-DATA-06 — Offres : revu, ne touche plus `offer_tiers`
+## STU-DATA-06 — Offres : revu, ne touche plus `offer_tiers` ✅ Fait
 
 **Priorité : Must** · **Dépendances : aucune**
+**Réalisé** : `lib/studio/offer-tiers.ts` — aucune migration SQL, mapping centralisé, vérifié fonctionnellement (`tsx`) : noms/prix Studio par palier + dérivation des couches depuis `includes_cba`/`includes_agreements`.
 
 **Contexte révisé** : le plan initial ("recréer `offer_tiers`") violerait la consigne de ne jamais modifier ce que James a mis en place — cette table existe déjà, seedée avec 4 lignes, référencée par `companies.offer_tier` et par `check_and_increment_chat_quota()`. On ne la touche pas, ni en destructif ni en additif.
 
