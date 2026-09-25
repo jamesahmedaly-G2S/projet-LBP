@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import NewSheetForm from "./NewSheetForm";
+import { Card } from "@/ui-kit/Card";
 
 export default async function NouvelleFichePage() {
   await requireAdmin();
@@ -14,9 +15,9 @@ export default async function NouvelleFichePage() {
 
   return (
     <main className="mx-auto max-w-md px-6 py-10">
-      <h1 className="text-2xl font-semibold text-zinc-900">Nouvelle fiche maître</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-zinc-900">Nouvelle fiche maître</h1>
 
-      <div className="mt-6">
+      <Card>
         <NewSheetForm
           families={(families ?? []).map((f) => ({ id: f.id, name: f.name, parentId: null }))}
           themes={(themes ?? []).map((t) => ({ id: t.id, name: t.name, parentId: t.family_id }))}
@@ -26,7 +27,7 @@ export default async function NouvelleFichePage() {
             parentId: s.theme_id,
           }))}
         />
-      </div>
+      </Card>
     </main>
   );
 }

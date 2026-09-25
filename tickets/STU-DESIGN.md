@@ -2,6 +2,20 @@
 
 ---
 
+## STU-DESIGN-00 — Passe légère : ui-kit minimal + accent bleu ✅ Fait
+
+**Priorité : Must** (ajouté en cours de route, à la demande explicite — les écrans construits sans aucun style structurant nuisaient à la lisibilité du travail en cours) · **Dépendances : aucune**
+
+**Contexte** : ni le plein périmètre de STU-DESIGN-01 (navigation à 10 onglets — prématurée, la plupart des onglets n'ont pas encore d'écran) ni son report en toute fin de séquence n'étaient tenables : les écrans STU-REF/STU-CCN/STU-WORKFLOW construits jusqu'ici (Tailwind brut, sans composants partagés) étaient illisibles à l'usage.
+
+**Réalisé** : `ui-kit/Button.tsx`, `LinkButton.tsx`, `Card.tsx`, `Field.tsx` (TextField/TextAreaField/SelectField), `Badge.tsx` (dès maintenant, conformément à `ARCHITECTURE.md` §4 qui prévoit ce dossier dès la phase 1) ; accent bleu Studio (`blue-600`/`blue-900`) sur boutons primaires et en-tête ; `app/(studio)/layout.tsx` (en-tête minimal "LBP STUDIO", pas de navigation complète) ; refactorisation de tous les écrans existants (login, référentiel, nouvelle fiche, fiche, société) pour utiliser ces composants au lieu de classes dupliquées.
+
+**Non fait (reste à STU-DESIGN-01)** : navigation à 10 onglets, port de `lib/design-tokens.ts`, différenciation visuelle poussée avec le LBP Client (qui n'existe pas encore côté écrans).
+
+**Vérifié** : capture d'écran des 5 écrans (login, référentiel, nouvelle fiche, fiche, société), aucune erreur console, lint/typecheck propres.
+
+---
+
 ## STU-DESIGN-01 — Charte bleu Studio + navigation dédiée
 
 **Priorité : Should** · **Dépendances : aucune**

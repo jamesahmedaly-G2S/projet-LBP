@@ -39,10 +39,10 @@ export default function CcnMultiSelect({
         placeholder="Rechercher par nom ou IDCC..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="rounded border border-zinc-300 px-3 py-2 text-sm"
+        className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
       />
 
-      <ul className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded border border-zinc-200 p-2">
+      <ul className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded-md border border-zinc-200 p-2">
         {filtered.length === 0 && <li className="text-sm text-zinc-400">Aucun résultat.</li>}
         {filtered.map((ccn) => (
           <li key={ccn.idcc}>

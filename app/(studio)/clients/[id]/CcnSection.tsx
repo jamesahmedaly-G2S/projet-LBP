@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import CcnMultiSelect, { type CcnOption } from "../../_components/CcnMultiSelect";
 import { updateCompanyCcns } from "../actions";
+import { Button } from "@/ui-kit/Button";
 
 export default function CcnSection({
   companyId,
@@ -27,14 +28,9 @@ export default function CcnSection({
   return (
     <div className="flex flex-col gap-3">
       <CcnMultiSelect catalog={catalog} selected={selected} onChange={setSelected} />
-      <button
-        type="button"
-        onClick={save}
-        disabled={pending}
-        className="w-fit rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-      >
+      <Button type="button" variant="primary" onClick={save} disabled={pending} className="w-fit">
         {pending ? "Enregistrement..." : "Enregistrer les CCN"}
-      </button>
+      </Button>
       {message && <p className="text-sm text-zinc-600">{message}</p>}
     </div>
   );

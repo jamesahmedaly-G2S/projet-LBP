@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { transitionSheetVersion } from "../actions";
 import { ALLOWED_TRANSITIONS } from "@/lib/studio/workflow-transitions";
 import { getWorkflowStatusLabel, type WorkflowStatus } from "@/lib/studio/workflow-status";
+import { Button } from "@/ui-kit/Button";
 
 // STU-WORKFLOW-01 : un bouton par transition valide depuis le statut
 // courant — le graphe (lib/studio/workflow-transitions.ts) est l'unique
@@ -28,14 +29,15 @@ export default function WorkflowActions({
         <form action={formAction} key={next}>
           <input type="hidden" name="version_id" value={versionId} />
           <input type="hidden" name="target_status" value={next} />
-          <button
+          <Button
             type="submit"
+            variant="secondary"
             disabled={pending}
             aria-busy={pending}
-            className="rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-700 disabled:cursor-wait disabled:opacity-50"
+            className="text-xs"
           >
             → {getWorkflowStatusLabel(next)}
-          </button>
+          </Button>
         </form>
       ))}
       {pending && (

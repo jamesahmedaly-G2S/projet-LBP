@@ -1,11 +1,17 @@
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { getWorkflowStatusLabel, type WorkflowStatus } from "@/lib/studio/workflow-status";
+import {
+  getWorkflowStatusLabel,
+  getWorkflowStatusTone,
+  type WorkflowStatus,
+} from "@/lib/studio/workflow-status";
 import type { SheetContent } from "@/lib/studio/placeholder-content";
 import EditContentForm from "./EditContentForm";
 import RenameForm from "./RenameForm";
 import WorkflowActions from "./WorkflowActions";
+import { Card } from "@/ui-kit/Card";
+import { Badge } from "@/ui-kit/Badge";
 
 export default async function FichePage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
@@ -42,22 +48,26 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
       </p>
       <div className="mt-1 flex items-center gap-3">
         <RenameForm sheetId={sheet.id} title={sheet.title} />
-        <span className="rounded-full border border-zinc-300 px-2 py-0.5 text-xs">
+        <Badge tone={getWorkflowStatusTone(sheet.status)}>
           {getWorkflowStatusLabel(sheet.status)}
-        </span>
+        </Badge>
       </div>
 
       {version ? (
-        <div className="mt-6">
-          <p className="mb-3 text-sm text-zinc-500">
-            Contenu de la couche régime général — version {version.version} (
-            {getWorkflowStatusLabel(version.status)})
-          </p>
-          <div className="mb-4">
+        <Card className="mt-6">
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-sm text-zinc-500">
+              Contenu de la couche régime général — version {version.version}
+            </p>
+            <Badge tone={getWorkflowStatusTone(version.status)}>
+              {getWorkflowStatusLabel(version.status)}
+            </Badge>
+          </div>
+          <div className="mb-5">
             <WorkflowActions versionId={version.id} status={version.status as WorkflowStatus} />
           </div>
           <EditContentForm versionId={version.id} content={version.content as SheetContent} />
-        </div>
+        </Card>
       ) : (
         <p className="mt-6 text-sm text-red-600">
           Aucune version régime général trouvée pour cette fiche.
