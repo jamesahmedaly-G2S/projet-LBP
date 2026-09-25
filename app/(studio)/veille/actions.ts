@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { buildPlaceholderContent } from "@/lib/studio/placeholder-content";
+import { runAllConnectors, type ConnectorResult } from "@/lib/studio/monitoring-connectors";
+import { analyzeMonitoringEntry, type AiAnalysisResult } from "@/lib/studio/monitoring-ai-analysis";
 
 // STU-VEILLE-01 : saisie manuelle d'une évolution réglementaire, sur la
 // table `legal_monitoring` de James (baseline_schema_reel.sql) — réutilisée
@@ -165,4 +167,34 @@ export async function qualifyWithNewSheet(
 
   revalidatePath("/veille");
   redirect(`/veille/${legalMonitoringId}`);
+}
+
+// STU-VEILLE-04 : déclenchement manuel des connecteurs depuis le Studio —
+// même logique que la route cron (AUTOMATION-01/#85), mais via une action
+// authentifiée (requireAdmin) plutôt que le secret partagé, pour un test
+// réel sans attendre l'ordonnanceur externe. Aucune entrée simulée : les
+// connecteurs non configurés remontent leur statut tel quel.
+export async function runConnectorsNow(): Promise<ConnectorResult[]> {
+  await requireAdmin();
+  const supabase = await createClient();
+  const results = await runAllConnectors(supabase);
+  revalidatePath("/veille");
+  return results;
+}
+
+// STU-VEILLE-04 (AUTOMATION-03, #87) : déclenchement manuel de l'analyse
+// IA sur une entrée — stub honnête tant qu'ANTHROPIC_API_KEY n'est pas
+// configurée (voir lib/studio/monitoring-ai-analysis.ts).
+export async function analyzeEntryWithAi(legalMonitoringId: string): Promise<AiAnalysisResult> {
+  await requireAdmin();
+  const supabase = await createClient();
+
+  const { data: entry } = await supabase
+    .from("legal_monitoring")
+    .select("title, summary")
+    .eq("id", legalMonitoringId)
+    .single();
+
+  const rawText = [entry?.title, entry?.summary].filter(Boolean).join("\n\n");
+  return analyzeMonitoringEntry(rawText);
 }
