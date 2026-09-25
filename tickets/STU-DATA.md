@@ -54,9 +54,10 @@ Migrations Supabase locales, appliquées uniquement sur l'instance locale de cet
 
 ---
 
-## STU-DATA-04 — Migration entretiens & réponses entreprise
+## STU-DATA-04 — Migration entretiens & réponses entreprise ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-01, STU-DATA-03**
+**Réalisé** : `supabase/migrations/20260925100539_entretiens_et_reponses_entreprise.sql`, vérifié par tests manuels (historique avant/après entretien, vue `company_current_answers`).
 
 **Contexte** : nécessaire pour le scénario D (entretien annuel) — historiser les réponses au questionnaire dans le temps, par entretien.
 
