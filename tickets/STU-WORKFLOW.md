@@ -85,9 +85,11 @@
 
 ---
 
-## STU-WORKFLOW-06 — Vue globale des publications (onglet dédié)
+## STU-WORKFLOW-06 — Vue globale des publications (onglet dédié) ✅ Fait
 
 **Priorité : Must** (ajouté après coup — l'onglet "Publications" de la navigation Studio n'avait aucun écran propre) · **Dépendances : STU-WORKFLOW-03, STU-WORKFLOW-04**
+**Réalisé** : `app/(studio)/publications/page.tsx` — requête directe sur `sheet_versions` (statuts `valid`/`scheduled`/`published`), triée par la date la plus pertinente selon le statut (`published_at` ?? `scheduled_at` ?? `created_at`), avec fiche, couche, auteur, motif, et sociétés réceptrices (`sheet_version_recipients`) pour les publiées. Onglet nav "Publications" activé.
+**Vérifié** : test réel navigateur — lien de nav cliquable et fonctionnel ; 3 fiches de test (validée/programmée/publiée) toutes affichées avec le bon statut, motif et destinataires (`ALPHA SAS`+`BETA GROUPE`, pas `GAMMA` — vérifié avec un sélecteur scopé à la bonne carte après un premier faux négatif dû à une recherche de texte non scopée) ; une fiche publiée via l'écran fiche (workflow complet) apparaît dans cette liste sans étape supplémentaire, confirmant l'absence de duplication de données.
 
 **Contexte** : onglet "Publications" (§3 du dossier) — "Contenus validés, programmés, publiés, clients concernés, historique de diffusion". STU-WORKFLOW-03/04 gèrent la publication et l'historique _par fiche_ ; il manque une vue transverse listant les versions récemment validées/programmées/publiées toutes fiches confondues.
 

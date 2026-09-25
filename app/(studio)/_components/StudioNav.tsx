@@ -14,7 +14,7 @@ const SECTIONS: { label: string; href?: string }[] = [
   { label: "Référentiel", href: "/referentiel" },
   { label: "Questionnaires" },
   { label: "Affectations", href: "/affectations" },
-  { label: "Publications" },
+  { label: "Publications", href: "/publications" },
   { label: "Veille & mises à jour" },
   { label: "Entretiens" },
   { label: "Quiz & formations" },
