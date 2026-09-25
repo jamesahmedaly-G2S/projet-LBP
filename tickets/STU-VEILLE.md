@@ -2,9 +2,11 @@
 
 ---
 
-## STU-VEILLE-01 — Saisie manuelle d'une évolution réglementaire
+## STU-VEILLE-01 — Saisie manuelle d'une évolution réglementaire ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-01**
+**Réalisé** : `app/(studio)/veille/page.tsx` (liste) et `/veille/nouvelle` (formulaire) — écrivent directement sur `legal_monitoring`, table réelle de James (`baseline_schema_reel.sql`), réutilisée telle quelle : aucune migration, RLS (`legal_monitoring_admin_all`) et grants déjà en place. `lib/studio/monitoring-status.ts` pour les libellés de `regulatory_status` (new/linked/processed — le dossier dit "qualifiée" là où la colonne dit "linked", vocabulaire différent pour le même état, colonne non renommée). Onglet nav "Veille & mises à jour" activé.
+**Vérifié** : test réel navigateur — création d'une entrée via le vrai formulaire, apparaît immédiatement dans la liste avec statut "Nouvelle" (défaut `new` de la colonne) ; validation HTML5 bloque la soumission sans source/titre ; confirmé en base que `master_sheets` (6 lignes, inchangé) n'est touché en rien par la création d'une entrée de veille.
 
 **Contexte** : étape 1 "Détection" de la chaîne (§10) — en l'absence des connecteurs automatiques (hors périmètre, cf. STU-VEILLE-04), la détection reste manuelle pour cette livraison.
 
