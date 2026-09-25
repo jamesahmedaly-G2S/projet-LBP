@@ -45,29 +45,41 @@ export default async function ReferentielPage() {
 
   const supabase = await createClient();
 
-  const [{ data: families }, { data: themes }, { data: subthemes }, { data: sheets }] =
-    await Promise.all([
-      supabase
-        .from("master_families")
-        .select("id, code, name, display_order")
-        .order("display_order")
-        .returns<MasterFamilyRow[]>(),
-      supabase
-        .from("master_themes")
-        .select("id, code, name, family_id, display_order")
-        .order("display_order")
-        .returns<MasterThemeRow[]>(),
-      supabase
-        .from("master_subthemes")
-        .select("id, code, name, theme_id, display_order")
-        .order("display_order")
-        .returns<MasterSubthemeRow[]>(),
-      supabase
-        .from("master_sheets")
-        .select("id, code, title, status, theme_id, subtheme_id")
-        .order("title")
-        .returns<MasterSheetRow[]>(),
-    ]);
+  const [
+    { data: families },
+    { data: themes },
+    { data: subthemes },
+    { data: sheets },
+    { count: reviewCount },
+  ] = await Promise.all([
+    supabase
+      .from("master_families")
+      .select("id, code, name, display_order")
+      .order("display_order")
+      .returns<MasterFamilyRow[]>(),
+    supabase
+      .from("master_themes")
+      .select("id, code, name, family_id, display_order")
+      .order("display_order")
+      .returns<MasterThemeRow[]>(),
+    supabase
+      .from("master_subthemes")
+      .select("id, code, name, theme_id, display_order")
+      .order("display_order")
+      .returns<MasterSubthemeRow[]>(),
+    supabase
+      .from("master_sheets")
+      .select("id, code, title, status, theme_id, subtheme_id")
+      .order("title")
+      .returns<MasterSheetRow[]>(),
+    // Compte sur sheet_versions (toutes couches), pas sur
+    // master_sheets.status qui ne reflète que la couche rg (STU-DATA-01) —
+    // même source que la file de contrôle elle-même (STU-WORKFLOW-02).
+    supabase
+      .from("sheet_versions")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "review"),
+  ]);
 
   const sheetsOfTheme = (themeId: string, subthemeId: string | null) =>
     (sheets ?? []).filter(
@@ -78,9 +90,14 @@ export default async function ReferentielPage() {
     <main className="mx-auto max-w-4xl px-6 py-10">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-zinc-900">Référentiel maître</h1>
-        <LinkButton href="/referentiel/nouvelle-fiche" variant="primary">
-          + Nouvelle fiche
-        </LinkButton>
+        <div className="flex items-center gap-3">
+          <LinkButton href="/referentiel/controle" variant="secondary">
+            Contrôle G2S{reviewCount ? ` (${reviewCount})` : ""}
+          </LinkButton>
+          <LinkButton href="/referentiel/nouvelle-fiche" variant="primary">
+            + Nouvelle fiche
+          </LinkButton>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-col gap-6">
