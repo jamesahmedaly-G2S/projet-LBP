@@ -118,3 +118,33 @@ export async function updateSheetContent(
 
   return "Enregistré.";
 }
+
+// STU-REF-03 : renommer une fiche ne touche jamais son `code` (identifiant
+// stable) - master_question_impacts et company_sheet_overrides référencent
+// l'id/le code, jamais le titre, donc aucune affectation n'est cassée par
+// un renommage.
+export async function renameMasterSheet(
+  _prevState: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  await requireAdmin();
+
+  const sheetId = formData.get("sheet_id");
+  const title = formData.get("title");
+
+  if (typeof sheetId !== "string" || typeof title !== "string" || !title.trim()) {
+    return "Titre requis.";
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("master_sheets")
+    .update({ title: title.trim() })
+    .eq("id", sheetId);
+
+  if (error) {
+    return `Erreur lors du renommage : ${error.message}`;
+  }
+
+  return "Titre mis à jour.";
+}

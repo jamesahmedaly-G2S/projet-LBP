@@ -36,9 +36,11 @@
 
 ---
 
-## STU-REF-03 — Garantie d'identifiant stable
+## STU-REF-03 — Garantie d'identifiant stable ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-REF-02**
+**Réalisé** : `RenameForm.tsx` + `renameMasterSheet()` (met à jour uniquement `title`, jamais `code`), `code` affiché en lecture seule sur la fiche.
+**Vérifié** : test bout en bout — fiche `REM-DEMO-004` avec un override manuel actif (ALPHA), renommée via le vrai formulaire dans le navigateur ; après renommage, `code` inchangé, `company_sheet_overrides` intact, `company_sheet_affectations` renvoie toujours exactement `{base,ccn,manual}` pour ALPHA sur cette fiche.
 
 **Contexte** : "un changement de titre ne doit jamais casser les affectations" (§8) — déjà garanti en base par `code` séparé de `title`, ce ticket couvre la validation côté interface.
 
