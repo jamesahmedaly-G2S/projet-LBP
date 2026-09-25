@@ -1,13 +1,18 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ConnectorResult } from "./types";
 import { createMinistereTravailConnector } from "./ministere-travail";
+import { createHtmlScrapingConnectors } from "./html-scraping";
 import { createOtherSourceConnectors } from "./other-sources";
 
 export type { ConnectorResult, ConnectorStatus, MonitoringConnector } from "./types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getMonitoringConnectors(supabase: SupabaseClient<any, any, any>) {
-  return [createMinistereTravailConnector(supabase), ...createOtherSourceConnectors()];
+  return [
+    createMinistereTravailConnector(supabase),
+    ...createHtmlScrapingConnectors(supabase),
+    ...createOtherSourceConnectors(),
+  ];
 }
 
 /**

@@ -183,18 +183,23 @@ export async function runConnectorsNow(): Promise<ConnectorResult[]> {
 }
 
 // STU-VEILLE-04 (AUTOMATION-03, #87) : déclenchement manuel de l'analyse
-// IA sur une entrée — stub honnête tant qu'ANTHROPIC_API_KEY n'est pas
-// configurée (voir lib/studio/monitoring-ai-analysis.ts).
+// IA sur une entrée — appel réel gardé derrière ANTHROPIC_API_KEY (voir
+// lib/studio/monitoring-ai-analysis.ts).
 export async function analyzeEntryWithAi(legalMonitoringId: string): Promise<AiAnalysisResult> {
   await requireAdmin();
   const supabase = await createClient();
 
   const { data: entry } = await supabase
     .from("legal_monitoring")
-    .select("title, summary")
+    .select("source, title, summary, link, text_date")
     .eq("id", legalMonitoringId)
     .single();
 
   const rawText = [entry?.title, entry?.summary].filter(Boolean).join("\n\n");
-  return analyzeMonitoringEntry(rawText);
+  return analyzeMonitoringEntry({
+    source: entry?.source ?? "inconnue",
+    link: entry?.link ?? null,
+    publishedAt: entry?.text_date ?? null,
+    rawText,
+  });
 }
