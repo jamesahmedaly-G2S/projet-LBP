@@ -126,6 +126,7 @@ Migrations Supabase locales, appliquées uniquement sur l'instance locale de cet
 **Priorité : Should** · **Dépendances : STU-DATA-01 à 07** ✅ Fait
 
 **Réalisé** : `supabase/seed.sql` — ALPHA SAS/BETA GROUPE/GAMMA (reprises de `LBP_V6_Studio.html`), avec CCN, réponses au questionnaire et overrides différents. Vérifié via `company_sheet_affectations` : les 3 sociétés ont des origines et des fiches visibles réellement différentes (ex. `REM-DEMO-004` visible par CCN pour ALPHA et GAMMA mais pas BETA, qui n'a pas cette convention).
+**Correctif (trouvé en vérifiant STU-REF-01)** : les comptes `auth.users` du seed n'étaient pas de vrais comptes GoTrue — un `INSERT` SQL minimal (id/email/raw_user_meta_data) ne suffit pas : il manquait la ligne `auth.identities` correspondante et des colonnes token (`confirmation_token` etc.) que GoTrue exige non-NULL en Go même si la colonne SQL est nullable. Un vrai login échouait avec `500 Database error querying schema`. Corrigé pour répliquer exactement la forme d'un utilisateur créé via l'API Admin (constatée en créant puis inspectant un utilisateur de test), avec mot de passe de démo `Demo1234!` pour les 4 comptes. Login réel vérifié (`POST /auth/v1/token?grant_type=password` → 200).
 
 **Contexte** : le dossier exige "des données de démonstration suffisamment réalistes pour comprendre le fonctionnement" (§1).
 

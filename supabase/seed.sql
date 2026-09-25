@@ -81,13 +81,49 @@ insert into company_ccns (company_id, ccn_idcc) values
   ('a1000000-0000-0000-0000-000000000003', '1486');
 
 -- --- Utilisateurs de démonstration ---
+-- Un simple INSERT dans auth.users ne suffit pas : GoTrue ignore ces
+-- comptes tant qu'ils n'ont pas exactement la forme d'un utilisateur créé
+-- via l'API (instance_id/aud/role/confirmed_at + une ligne auth.identities
+-- correspondante) -- constaté en essayant de se connecter avec un compte
+-- seedé "à la main" pour vérifier STU-REF-01. Mot de passe de démo commun :
+-- Demo1234! (uniquement en local, jamais en staging/production).
 -- handle_new_user() (migration de James) crée automatiquement le profil
 -- (company_id + full_name) depuis raw_user_meta_data ; on complète ensuite.
-insert into auth.users (id, email, raw_user_meta_data) values
-  ('a2000000-0000-0000-0000-000000000001', 'c.moreau@alpha.fr', jsonb_build_object('company_id', 'a1000000-0000-0000-0000-000000000001', 'full_name', 'Camille Moreau')),
-  ('a2000000-0000-0000-0000-000000000002', 's.bakkali@beta.fr', jsonb_build_object('company_id', 'a1000000-0000-0000-0000-000000000002', 'full_name', 'Sonia Bakkali')),
-  ('a2000000-0000-0000-0000-000000000003', 'm.lefevre@gamma.fr', jsonb_build_object('company_id', 'a1000000-0000-0000-0000-000000000003', 'full_name', 'Marc Lefèvre')),
-  ('a2000000-0000-0000-0000-000000000099', 'pauline@groupe-2s.com', jsonb_build_object('full_name', 'Pauline Letourneur'));
+-- GoTrue scanne confirmation_token/recovery_token/... en Go string (non
+-- nullable) meme si la colonne SQL est nullable : NULL y fait echouer
+-- toute authentification avec "converting NULL to string is unsupported"
+-- (constate en testant un vrai login avec ce seed).
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password,
+  email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+  confirmation_token, recovery_token, email_change_token_new, email_change,
+  phone_change, phone_change_token, email_change_token_current, reauthentication_token,
+  created_at, updated_at
+)
+select
+  '00000000-0000-0000-0000-000000000000', u.id, 'authenticated', 'authenticated', u.email,
+  crypt('Demo1234!', gen_salt('bf')),
+  now(),
+  '{"provider":"email","providers":["email"]}'::jsonb, u.meta,
+  '', '', '', '', '', '', '', '',
+  now(), now()
+from (values
+  ('a2000000-0000-0000-0000-000000000001'::uuid, 'c.moreau@alpha.fr', jsonb_build_object('company_id', 'a1000000-0000-0000-0000-000000000001', 'full_name', 'Camille Moreau')),
+  ('a2000000-0000-0000-0000-000000000002'::uuid, 's.bakkali@beta.fr', jsonb_build_object('company_id', 'a1000000-0000-0000-0000-000000000002', 'full_name', 'Sonia Bakkali')),
+  ('a2000000-0000-0000-0000-000000000003'::uuid, 'm.lefevre@gamma.fr', jsonb_build_object('company_id', 'a1000000-0000-0000-0000-000000000003', 'full_name', 'Marc Lefèvre')),
+  ('a2000000-0000-0000-0000-000000000099'::uuid, 'pauline@groupe-2s.com', jsonb_build_object('full_name', 'Pauline Letourneur'))
+) as u(id, email, meta);
+
+insert into auth.identities (id, provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+select
+  gen_random_uuid(), u.id::text, u.id,
+  jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true, 'phone_verified', false),
+  'email', now(), now(), now()
+from auth.users u
+where u.id in (
+  'a2000000-0000-0000-0000-000000000001', 'a2000000-0000-0000-0000-000000000002',
+  'a2000000-0000-0000-0000-000000000003', 'a2000000-0000-0000-0000-000000000099'
+);
 
 update profiles set job_title = 'Directrice RH', status = 'active' where id = 'a2000000-0000-0000-0000-000000000001';
 update profiles set job_title = 'DRH', status = 'active' where id = 'a2000000-0000-0000-0000-000000000002';
