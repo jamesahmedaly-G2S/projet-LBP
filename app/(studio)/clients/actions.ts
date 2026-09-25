@@ -44,3 +44,73 @@ export async function updateCompanyCcns(
   revalidatePath(`/clients/${companyId}`);
   return null;
 }
+
+// STU-AFFECT-03 : ajout/retrait manuel sur company_sheet_overrides. Un motif
+// est obligatoire (§7.4 du dossier — traçabilité de la surcharge). `upsert`
+// sur la contrainte unique (company_id, master_sheet_id) : re-soumettre
+// change l'action (ex. passer d'un retrait à un ajout) sans dupliquer la
+// ligne.
+export async function setSheetOverride(
+  _prevState: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const session = await requireAdmin();
+
+  const companyId = formData.get("company_id");
+  const masterSheetId = formData.get("master_sheet_id");
+  const action = formData.get("action");
+  const reason = formData.get("reason");
+
+  if (
+    typeof companyId !== "string" ||
+    typeof masterSheetId !== "string" ||
+    (action !== "add" && action !== "remove") ||
+    typeof reason !== "string" ||
+    !reason.trim()
+  ) {
+    return "Société, fiche, action et motif sont obligatoires.";
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("company_sheet_overrides").upsert(
+    {
+      company_id: companyId,
+      master_sheet_id: masterSheetId,
+      action,
+      reason: reason.trim(),
+      created_by: session.userId,
+    },
+    { onConflict: "company_id,master_sheet_id" },
+  );
+
+  if (error) {
+    return `Erreur : ${error.message}`;
+  }
+
+  revalidatePath(`/clients/${companyId}`);
+  revalidatePath("/affectations");
+  return null;
+}
+
+// Revient à la règle automatique (supprime la surcharge manuelle).
+export async function clearSheetOverride(
+  companyId: string,
+  masterSheetId: string,
+): Promise<string | null> {
+  await requireAdmin();
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("company_sheet_overrides")
+    .delete()
+    .eq("company_id", companyId)
+    .eq("master_sheet_id", masterSheetId);
+
+  if (error) {
+    return `Erreur : ${error.message}`;
+  }
+
+  revalidatePath(`/clients/${companyId}`);
+  revalidatePath("/affectations");
+  return null;
+}
