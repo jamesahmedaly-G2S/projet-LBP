@@ -18,10 +18,12 @@
 
 ---
 
-## STU-CCN-02 — Sélection multi-CCN sur la société
+## STU-CCN-02 — Sélection multi-CCN sur la société ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-CCN-01, STU-DATA-05**
 **Note** : la table `company_ccns` et ses policies existent déjà — créées dans STU-DATA-05 (prérequis technique de `company_sheet_affectations`). Ce ticket ne porte plus que sur le composant d'interface.
+**Réalisé** : `app/(studio)/clients/[id]/page.tsx` (page société minimale — seule la section CCN est câblée pour l'instant, le reste attend STU-CLIENT-02), `CcnSection.tsx` + `updateCompanyCcns()` (diff add/remove sur `company_ccns`, écriture admin uniquement).
+**Vérifié** : test réel navigateur — BETA (CCN 3043 seule) n'a pas la couche CCN de `REM-DEMO-004` (Syntec/1486) ; après avoir coché "Syntec" et enregistré via l'écran, `company_sheet_affectations` bascule immédiatement à `{base,ccn}` pour cette fiche, sans étape de recalcul séparée.
 
 **Contexte** : "Une entreprise peut relever de plusieurs CCN" (§7.2) — table `company_ccns` déjà en base.
 
