@@ -21,9 +21,10 @@ Migrations Supabase locales, appliquées uniquement sur l'instance locale de cet
 
 ---
 
-## STU-DATA-02 — Migration versioning & workflow
+## STU-DATA-02 — Migration versioning & workflow ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-01**
+**Réalisé** : `supabase/migrations/20260925091323_versioning_workflow_studio.sql`, contraintes vérifiées par tests manuels (rejet couche/scope invalide, unicité version publiée).
 
 **Contexte** : chaque fiche a 4 couches (`rg`/`ccn`/`ent`/`proc`) versionnées indépendamment, avec un cycle de vie à 7 statuts (§9).
 
