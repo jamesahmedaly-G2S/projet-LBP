@@ -7,9 +7,11 @@ import {
   type WorkflowStatus,
 } from "@/lib/studio/workflow-status";
 import type { SheetContent } from "@/lib/studio/placeholder-content";
+import { getImpactedCompanies } from "@/lib/studio/publication-impact";
 import EditContentForm from "./EditContentForm";
 import RenameForm from "./RenameForm";
 import WorkflowActions from "./WorkflowActions";
+import PublishPanel from "./PublishPanel";
 import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
 
@@ -33,12 +35,21 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
   // celle-ci reste la version courante affichée/éditable.
   const { data: version } = await supabase
     .from("sheet_versions")
-    .select("id, content, status, version")
+    .select("id, content, status, version, layer_kind, ccn_idcc, company_id, scheduled_at")
     .eq("master_sheet_id", id)
     .eq("layer_kind", "rg")
     .order("version", { ascending: false })
     .limit(1)
     .single();
+
+  const impactedCompanies =
+    version && (version.status === "valid" || version.status === "scheduled")
+      ? await getImpactedCompanies(supabase, {
+          layerKind: version.layer_kind,
+          ccnIdcc: version.ccn_idcc,
+          companyId: version.company_id,
+        })
+      : [];
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
@@ -64,7 +75,16 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
             </Badge>
           </div>
           <div className="mb-5">
-            <WorkflowActions versionId={version.id} status={version.status as WorkflowStatus} />
+            {version.status === "valid" || version.status === "scheduled" ? (
+              <PublishPanel
+                versionId={version.id}
+                status={version.status}
+                impactedCompanies={impactedCompanies}
+                scheduledAt={version.scheduled_at}
+              />
+            ) : (
+              <WorkflowActions versionId={version.id} status={version.status as WorkflowStatus} />
+            )}
           </div>
           <EditContentForm versionId={version.id} content={version.content as SheetContent} />
         </Card>
