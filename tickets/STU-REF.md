@@ -2,9 +2,11 @@
 
 ---
 
-## STU-REF-01 — Arborescence Familles → Thèmes → Sous-thèmes → Fiches
+## STU-REF-01 — Arborescence Familles → Thèmes → Sous-thèmes → Fiches ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-01**
+**Réalisé** : `app/(studio)/referentiel/page.tsx` (Server Component, `requireAdmin()`) + `lib/studio/workflow-status.ts` (labels réutilisables). Vérifié de bout en bout avec de vraies sessions HTTP (login GoTrue réel, cookie de session construit et envoyé) : un admin voit les 3 familles + 6 fiches de démo avec leur statut ; un compte `client` authentifié reçoit "Accès refusé" ; un visiteur non authentifié est bloqué.
+**Effet de bord positif** : ce test a révélé que les comptes du seed (STU-DATA-08) n'étaient pas de vrais comptes GoTrue (`INSERT` SQL incomplet — il manquait la ligne `auth.identities` et plusieurs colonnes token non-nullables côté Go). Corrigé dans `supabase/seed.sql` — voir STU-DATA-08.
 
 **Contexte** : onglet "Référentiel" du Studio (§3) — navigation dans la nomenclature maître.
 
