@@ -13,6 +13,18 @@ export interface SheetContent {
   vigilance: string;
 }
 
+/** Libellés des 5 niveaux (§ prototype `--lbp-essentiel`/`--lbp-comprendre`/
+ * ... dans LBP_V6_Studio.html) — source unique, réutilisée par le
+ * formulaire d'édition (Référentiel) et la vue client en lecture seule
+ * (STU-CLIENT-04) : jamais deux listes de libellés qui pourraient diverger. */
+export const SHEET_CONTENT_FIELDS: { key: keyof SheetContent; label: string }[] = [
+  { key: "essentiel", label: "L'essentiel à retenir" },
+  { key: "comprendre", label: "Comprendre la règle" },
+  { key: "maitriser", label: "Maîtriser la règle dans le détail" },
+  { key: "application", label: "Comment l'appliquer concrètement en paie" },
+  { key: "vigilance", label: "Points de vigilance" },
+];
+
 export function buildPlaceholderContent(title: string): SheetContent {
   return {
     essentiel: `[À rédiger] Résumé de "${title}" en 2-3 phrases.`,

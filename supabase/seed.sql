@@ -34,14 +34,37 @@ select gen_random_uuid(), 'COT-DEMO-001', f.id, t.id, 'Assurance chômage', 'pub
 from master_families f join master_themes t on t.family_id = f.id and t.code = 'T-COT-DEMO' where f.code = 'FAM-COT';
 
 -- version rg publiée pour chaque fiche (sinon rien n'est visible, cf. STU-DATA-07)
+-- Les 5 clés de SheetContent (lib/studio/placeholder-content.ts) sont
+-- toutes renseignées — une version publiée avec des clés manquantes
+-- affichait des sections vides sans erreur (repéré lors de STU-CLIENT-04,
+-- la vue client étant le premier écran à rendre les 5 champs en lecture
+-- pure, sans formulaire qui masque l'absence de valeur).
 insert into sheet_versions (master_sheet_id, layer_kind, version, status, content, motif, published_at)
-select id, 'rg'::layer_kind, 1, 'published'::workflow_status, jsonb_build_object('essentiel', 'Contenu de démonstration pour ' || title), 'Version initiale de démonstration', now()
+select id, 'rg'::layer_kind, 1, 'published'::workflow_status,
+  jsonb_build_object(
+    'essentiel', 'Contenu de démonstration pour ' || title,
+    'comprendre', 'Explication de démonstration de la règle générale pour ' || title || '.',
+    'maitriser', 'Détail de démonstration, cas particuliers pour ' || title || '.',
+    'application', 'Application de démonstration en paie pour ' || title || '.',
+    'vigilance', 'Points de vigilance de démonstration pour ' || title || '.'
+  ),
+  'Version initiale de démonstration', now()
 from master_sheets
 where code in ('VIE-DEMO-001', 'REM-DEMO-001', 'REM-DEMO-002', 'REM-DEMO-003', 'REM-DEMO-004', 'COT-DEMO-001');
 
--- couche CCN de démonstration (Syntec) sur la fiche prime d'ancienneté
+-- couche CCN de démonstration (Syntec) sur la fiche prime d'ancienneté —
+-- même convention "contenu de démonstration" que la couche rg ci-dessus,
+-- jamais un texte qui ressemble à une vraie règle Syntec rédigée.
 insert into sheet_versions (master_sheet_id, layer_kind, ccn_idcc, version, status, content, published_at)
-select id, 'ccn'::layer_kind, '1486', 1, 'published'::workflow_status, '{"txt":"specificite Syntec"}'::jsonb, now()
+select id, 'ccn'::layer_kind, '1486', 1, 'published'::workflow_status,
+  jsonb_build_object(
+    'essentiel', 'Contenu de démonstration (complément Syntec) pour ' || title,
+    'comprendre', 'Explication de démonstration (complément Syntec) pour ' || title || '.',
+    'maitriser', 'Détail de démonstration (complément Syntec) pour ' || title || '.',
+    'application', 'Application de démonstration (complément Syntec) pour ' || title || '.',
+    'vigilance', 'Vigilance de démonstration (complément Syntec) pour ' || title || '.'
+  ),
+  now()
 from master_sheets where code = 'REM-DEMO-004';
 
 -- --- Questionnaire maître : les 17 questions réelles de LBP_V6_Studio.html
@@ -85,10 +108,13 @@ union all
 select 'q_oeth', 'oui', id from master_sheets where code = 'COT-DEMO-001';
 
 -- --- Sociétés de démonstration (reprises de CLIENTS dans LBP_V6_Studio.html) ---
-insert into companies (id, company_name, legal_form, headcount, offer_tier) values
-  ('a1000000-0000-0000-0000-000000000001', 'ALPHA SAS', 'SAS', '50 à 249 salariés', 2),
-  ('a1000000-0000-0000-0000-000000000002', 'BETA GROUPE', 'SA', '250 et plus', 3),
-  ('a1000000-0000-0000-0000-000000000003', 'GAMMA', 'SAS', '50 à 249 salariés', 4);
+-- published_at : les 3 clients de démo sont déjà des clients établis
+-- (STU-CLIENT-01/02), pas des configurations en cours — dates reprises de
+-- `createdAt` dans LBP_V6_Studio.html (`CLIENTS`), jamais inventées.
+insert into companies (id, company_name, legal_form, headcount, offer_tier, published_at) values
+  ('a1000000-0000-0000-0000-000000000001', 'ALPHA SAS', 'SAS', '50 à 249 salariés', 2, '2025-02-03'),
+  ('a1000000-0000-0000-0000-000000000002', 'BETA GROUPE', 'SA', '250 et plus', 3, '2024-09-15'),
+  ('a1000000-0000-0000-0000-000000000003', 'GAMMA', 'SAS', '50 à 249 salariés', 4, '2023-06-20');
 
 insert into establishments (company_id, name, address) values
   ('a1000000-0000-0000-0000-000000000001', 'Siège — Paris', '24 rue de la Paix, 75002 Paris'),
