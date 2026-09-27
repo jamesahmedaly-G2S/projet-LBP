@@ -115,7 +115,7 @@ export async function clearSheetOverride(
   return null;
 }
 
-// STU-QUEST-02 : chaque sauvegarde ajoute de nouvelles lignes dans
+// STU-QUEST-02/03 : chaque sauvegarde ajoute de nouvelles lignes dans
 // `company_questionnaire_answers` (historique, STU-DATA-04) — jamais un
 // update en place. `company_current_answers` (vue) retient toujours la
 // plus récente par (société, question). `interview_id` optionnel : absent
@@ -124,6 +124,10 @@ export async function clearSheetOverride(
 // Validation : seules les questions marquées visibles+obligatoires côté
 // client (`required_codes`) sont vérifiées non vides côté serveur — ne
 // fait pas confiance au seul `required` HTML.
+// STU-QUEST-03 (critère d'acceptation) : une réponse reconfirmée à
+// l'identique ne doit générer aucune ligne — comparée à
+// `company_current_answers` avant insertion, seules les valeurs qui
+// diffèrent réellement sont écrites.
 export async function saveCompanyAnswers(
   _prevState: string | null,
   formData: FormData,
@@ -143,36 +147,45 @@ export async function saveCompanyAnswers(
       ? requiredCodesRaw.split(",").filter(Boolean)
       : [];
 
-  const rows: {
-    company_id: string;
-    interview_id: string | null;
-    question_code: string;
-    answer_value: string;
-  }[] = [];
-
+  const submitted = new Map<string, string>();
   for (const [key, value] of formData.entries()) {
     if (!key.startsWith("answer__") || typeof value !== "string") continue;
     const questionCode = key.slice("answer__".length);
     if (!value.trim()) continue;
-    rows.push({
-      company_id: companyId,
-      interview_id: typeof interviewId === "string" && interviewId ? interviewId : null,
-      question_code: questionCode,
-      answer_value: value.trim(),
-    });
+    submitted.set(questionCode, value.trim());
   }
 
-  const answeredCodes = new Set(rows.map((r) => r.question_code));
-  const missing = requiredCodes.filter((code) => !answeredCodes.has(code));
+  const missing = requiredCodes.filter((code) => !submitted.has(code));
   if (missing.length > 0) {
     return `Réponse(s) obligatoire(s) manquante(s) : ${missing.join(", ")}.`;
   }
 
-  if (rows.length === 0) {
+  if (submitted.size === 0) {
     return "Aucune réponse à enregistrer.";
   }
 
   const supabase = await createClient();
+
+  const { data: current } = await supabase
+    .from("company_current_answers")
+    .select("question_code, answer_value")
+    .eq("company_id", companyId)
+    .in("question_code", Array.from(submitted.keys()));
+  const currentByCode = new Map((current ?? []).map((r) => [r.question_code, r.answer_value]));
+
+  const rows = Array.from(submitted.entries())
+    .filter(([code, value]) => currentByCode.get(code) !== value)
+    .map(([code, value]) => ({
+      company_id: companyId,
+      interview_id: typeof interviewId === "string" && interviewId ? interviewId : null,
+      question_code: code,
+      answer_value: value,
+    }));
+
+  if (rows.length === 0) {
+    return "Aucun changement à enregistrer.";
+  }
+
   const { error: insertError } = await supabase.from("company_questionnaire_answers").insert(rows);
 
   if (insertError) {
