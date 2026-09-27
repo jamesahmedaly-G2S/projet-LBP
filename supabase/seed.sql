@@ -44,13 +44,32 @@ insert into sheet_versions (master_sheet_id, layer_kind, ccn_idcc, version, stat
 select id, 'ccn'::layer_kind, '1486', 1, 'published'::workflow_status, '{"txt":"specificite Syntec"}'::jsonb, now()
 from master_sheets where code = 'REM-DEMO-004';
 
--- --- Questionnaire de démonstration (sous-ensemble des 17 questions réelles) ---
-insert into master_questions (code, type, label, required, options, display_order) values
-  ('q_effectif', 'select', 'Effectif de l''entreprise', true, array['Moins de 11', '11 à 49', '50 à 249', '250 et plus'], 1),
-  ('q_tr', 'bool', 'L''entreprise attribue-t-elle des titres-restaurant ?', false, null, 2),
-  ('q_vehicule', 'bool', 'Des véhicules de fonction sont-ils mis à disposition ?', false, null, 3),
-  ('q_teletravail', 'bool', 'L''entreprise pratique-t-elle le télétravail ?', false, null, 4),
-  ('q_apprentis', 'bool', 'L''entreprise emploie-t-elle des apprentis ou des alternants ?', false, null, 5);
+-- --- Questionnaire maître : les 17 questions réelles de LBP_V6_Studio.html
+-- (var QUESTIONS) reprises telles quelles (STU-QUEST-01). Seules celles
+-- dont l'impact correspond à une fiche de démonstration existante ont une
+-- ligne dans master_question_impacts ci-dessous : le référentiel complet
+-- (139 fiches) n'est pas seedé (cf. STU-REF-04), donc la plupart des 17
+-- questions existent et s'affichent correctement (y compris les
+-- conditionnelles) mais ne déclenchent visiblement rien sur ce jeu de
+-- données réduit — fidèle au mécanisme, pas à la profondeur du catalogue.
+insert into master_questions (code, type, label, required, options, condition_question_code, condition_value, display_order) values
+  ('q_ccn', 'ccn', 'Sous quelle(s) convention(s) collective(s) l''entreprise est-elle soumise ?', true, null, null, null, 1),
+  ('q_effectif', 'select', 'Effectif de l''entreprise', true, array['Moins de 11', '11 à 49', '50 à 249', '250 et plus'], null, null, 2),
+  ('q_tr', 'bool', 'L''entreprise attribue-t-elle des titres-restaurant ?', false, null, null, null, 3),
+  ('q_tr_part', 'text', 'Quel est le montant de la participation patronale ?', false, null, 'q_tr', 'oui', 4),
+  ('q_vehicule', 'bool', 'Des véhicules de fonction sont-ils mis à disposition ?', false, null, null, null, 5),
+  ('q_elec', 'bool', 'Ces véhicules sont-ils électriques ?', false, null, 'q_vehicule', 'oui', 6),
+  ('q_logement', 'bool', 'Des logements sont-ils mis à disposition ?', false, null, null, null, 7),
+  ('q_teletravail', 'bool', 'L''entreprise pratique-t-elle le télétravail ?', false, null, null, null, 8),
+  ('q_mobilites', 'bool', 'Le forfait mobilités durables est-il mis en place ?', false, null, null, null, 9),
+  ('q_apprentis', 'bool', 'L''entreprise emploie-t-elle des apprentis ou des alternants ?', false, null, null, null, 10),
+  ('q_nuit', 'bool', 'Y a-t-il du travail de nuit ?', false, null, null, null, 11),
+  ('q_forfait', 'bool', 'Des salariés sont-ils en forfait annuel en jours ?', false, null, null, null, 12),
+  ('q_interessement', 'bool', 'Un accord d''intéressement ou de participation existe-t-il ?', false, null, null, null, 13),
+  ('q_ppv', 'bool', 'La prime de partage de la valeur a-t-elle été versée ?', false, null, null, null, 14),
+  ('q_multi_etab', 'bool', 'L''entreprise compte-t-elle plusieurs établissements ?', false, null, null, null, 15),
+  ('q_dfs', 'bool', 'Une déduction forfaitaire spécifique est-elle appliquée ?', false, null, null, null, 16),
+  ('q_oeth', 'bool', 'L''entreprise est-elle assujettie à l''obligation d''emploi (OETH) ?', false, null, null, null, 17);
 
 insert into master_question_impacts (question_code, answer_value, master_sheet_id)
 select 'q_tr', 'oui', id from master_sheets where code = 'REM-DEMO-001'
@@ -59,7 +78,11 @@ select 'q_vehicule', 'oui', id from master_sheets where code = 'REM-DEMO-002'
 union all
 select 'q_teletravail', 'oui', id from master_sheets where code = 'REM-DEMO-003'
 union all
-select 'q_apprentis', 'oui', id from master_sheets where code = 'VIE-DEMO-001';
+select 'q_apprentis', 'oui', id from master_sheets where code = 'VIE-DEMO-001'
+union all
+select 'q_effectif', '250 et plus', id from master_sheets where code = 'COT-DEMO-001'
+union all
+select 'q_oeth', 'oui', id from master_sheets where code = 'COT-DEMO-001';
 
 -- --- Sociétés de démonstration (reprises de CLIENTS dans LBP_V6_Studio.html) ---
 insert into companies (id, company_name, legal_form, headcount, offer_tier) values

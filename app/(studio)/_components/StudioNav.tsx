@@ -12,7 +12,7 @@ const SECTIONS: { label: string; href?: string }[] = [
   { label: "Tableau de bord" },
   { label: "Clients", href: "/clients" },
   { label: "Référentiel", href: "/referentiel" },
-  { label: "Questionnaires" },
+  { label: "Questionnaires", href: "/questionnaires" },
   { label: "Affectations", href: "/affectations" },
   { label: "Publications", href: "/publications" },
   { label: "Veille & mises à jour", href: "/veille" },
