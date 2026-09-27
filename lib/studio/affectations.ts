@@ -1,15 +1,32 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-/** Libellés des 4 origines calculées par la vue (§7.3 du dossier). */
+/**
+ * Libellés des 6 origines calculées par la vue (§7.3 du dossier — 5
+ * origines attendues par le ticket : base/questionnaire/ccn/offre/manuel ;
+ * + `maj`, absente des tickets mais confirmée dans LBP_V6_Studio.html, la
+ * référence réelle). `offre` était manquante dans la version initiale de
+ * la vue — corrigé le 27/09/2026 après relecture du vrai prototype.
+ */
 export const ORIGIN_LABELS: Record<string, string> = {
   base: "Référentiel",
   questionnaire: "Questionnaire",
   ccn: "Convention collective",
+  offre: "Offre",
   manual: "Ajout manuel G2S",
+  maj: "Mise à jour",
 };
 
 export function getOriginLabel(origin: string): string {
   return ORIGIN_LABELS[origin] ?? origin;
+}
+
+const ORIGIN_TONES: Record<string, "neutral" | "blue" | "green" | "amber" | "red"> = {
+  manual: "amber",
+  maj: "blue",
+};
+
+export function getOriginTone(origin: string): "neutral" | "blue" | "green" | "amber" | "red" {
+  return ORIGIN_TONES[origin] ?? "neutral";
 }
 
 export interface CompanyAffectation {
