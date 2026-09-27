@@ -64,7 +64,7 @@ export default async function ClientHistoriquePage({
     ...(overrides ?? []).map((o) => ({
       date: o.created_at as string,
       title: o.action === "add" ? "Ajout manuel G2S" : "Retrait manuel G2S",
-      detail: `${(o.master_sheets as unknown as { title: string }[] | null)?.[0]?.title ?? ""} — ${o.reason ?? ""}`,
+      detail: `${(o.master_sheets as unknown as { title: string } | null)?.title ?? ""} — ${o.reason ?? ""}`,
       badgeLabel: o.action === "add" ? "Manuel" : "Retiré",
       badgeTone: o.action === "add" ? ("amber" as const) : ("red" as const),
     })),

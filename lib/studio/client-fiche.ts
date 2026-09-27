@@ -36,7 +36,7 @@ export async function getPendingSheetUpdates(
   return (data ?? []).map((row) => ({
     id: row.id as string,
     masterSheetId: row.master_sheet_id as string,
-    title: (row.master_sheets as unknown as { title: string }[] | null)?.[0]?.title ?? "",
+    title: (row.master_sheets as unknown as { title: string } | null)?.title ?? "",
     version: row.version as number,
     status: row.status as string,
     motif: row.motif as string | null,
@@ -72,7 +72,7 @@ export async function getCompanySpecificContent(
   return (data ?? []).map((row) => ({
     id: row.id as string,
     masterSheetId: row.master_sheet_id as string,
-    title: (row.master_sheets as unknown as { title: string }[] | null)?.[0]?.title ?? "",
+    title: (row.master_sheets as unknown as { title: string } | null)?.title ?? "",
     version: row.version as number,
     status: row.status as string,
     updatedAt: row.created_at as string,

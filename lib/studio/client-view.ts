@@ -51,7 +51,7 @@ export async function getVisibleLayersForCompany(
   const ccnNames = new Map(
     (companyCcns ?? []).map((c) => [
       c.ccn_idcc,
-      (c.ccn_catalog as unknown as { name: string }[] | null)?.[0]?.name ?? c.ccn_idcc,
+      (c.ccn_catalog as unknown as { name: string } | null)?.name ?? c.ccn_idcc,
     ]),
   );
 
