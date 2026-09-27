@@ -160,7 +160,8 @@ from (values
   ('a2000000-0000-0000-0000-000000000001'::uuid, 'c.moreau@alpha.fr', jsonb_build_object('company_id', 'a1000000-0000-0000-0000-000000000001', 'full_name', 'Camille Moreau')),
   ('a2000000-0000-0000-0000-000000000002'::uuid, 's.bakkali@beta.fr', jsonb_build_object('company_id', 'a1000000-0000-0000-0000-000000000002', 'full_name', 'Sonia Bakkali')),
   ('a2000000-0000-0000-0000-000000000003'::uuid, 'm.lefevre@gamma.fr', jsonb_build_object('company_id', 'a1000000-0000-0000-0000-000000000003', 'full_name', 'Marc Lefèvre')),
-  ('a2000000-0000-0000-0000-000000000099'::uuid, 'pauline@groupe-2s.com', jsonb_build_object('full_name', 'Pauline Letourneur'))
+  ('a2000000-0000-0000-0000-000000000099'::uuid, 'pauline@groupe-2s.com', jsonb_build_object('full_name', 'Pauline Letourneur')),
+  ('a2000000-0000-0000-0000-000000000098'::uuid, 'nicolas.seck@groupe-2s.com', jsonb_build_object('full_name', 'Nicolas Seck'))
 ) as u(id, email, meta);
 
 insert into auth.identities (id, provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
@@ -171,13 +172,19 @@ select
 from auth.users u
 where u.id in (
   'a2000000-0000-0000-0000-000000000001', 'a2000000-0000-0000-0000-000000000002',
-  'a2000000-0000-0000-0000-000000000003', 'a2000000-0000-0000-0000-000000000099'
+  'a2000000-0000-0000-0000-000000000003', 'a2000000-0000-0000-0000-000000000099',
+  'a2000000-0000-0000-0000-000000000098'
 );
 
 update profiles set job_title = 'Directrice RH', status = 'active' where id = 'a2000000-0000-0000-0000-000000000001';
 update profiles set job_title = 'DRH', status = 'active' where id = 'a2000000-0000-0000-0000-000000000002';
 update profiles set job_title = 'Directeur administratif', status = 'active' where id = 'a2000000-0000-0000-0000-000000000003';
 update profiles set role = 'admin', status = 'active' where id = 'a2000000-0000-0000-0000-000000000099';
+-- Nicolas Seck : référent métier/fonctionnel nommé pour ce projet (avec
+-- James Ahmedaly, cf. G2S-LBP-01.md) — compte perdu deux fois de suite lors
+-- d'un `db:reset` car créé hors seed la première fois ; désormais dans le
+-- seed lui-même pour ne plus jamais dépendre d'une recréation manuelle.
+update profiles set role = 'admin', job_title = 'Référent métier / fonctionnel', status = 'active' where id = 'a2000000-0000-0000-0000-000000000098';
 
 -- --- Réponses au questionnaire (réalisme repris de CLIENTS) ---
 insert into company_questionnaire_answers (company_id, question_code, answer_value) values
