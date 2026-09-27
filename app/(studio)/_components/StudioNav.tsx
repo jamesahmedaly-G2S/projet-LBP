@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 // menu qui pointerait vers des pages inexistantes serait pire qu'un menu
 // incomplet.
 const SECTIONS: { label: string; href?: string }[] = [
-  { label: "Tableau de bord" },
+  { label: "Tableau de bord", href: "/tableau-de-bord" },
   { label: "Clients", href: "/clients" },
   { label: "Référentiel", href: "/referentiel" },
   { label: "Questionnaires", href: "/questionnaires" },

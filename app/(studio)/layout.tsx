@@ -14,7 +14,7 @@ export default function StudioLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-studio-bg">
       <header className="flex flex-wrap items-center justify-between gap-3 bg-studio-navy px-6 py-3">
-        <Link href="/referentiel" className="text-sm font-semibold tracking-wide text-white">
+        <Link href="/tableau-de-bord" className="text-sm font-semibold tracking-wide text-white">
           LBP STUDIO
           <span className="ml-2 font-normal text-studio-navy-muted">Administration G2S</span>
         </Link>

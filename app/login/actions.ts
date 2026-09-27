@@ -28,7 +28,7 @@ export async function login(_prevState: string | null, formData: FormData): Prom
     .eq("id", data.session.user.id)
     .single();
 
-  redirect(profile?.role === "admin" ? "/referentiel" : "/");
+  redirect(profile?.role === "admin" ? "/tableau-de-bord" : "/");
 }
 
 // STU-DESIGN-01 (correctif 27/09/2026) : "Quitter le Studio" — dans le vrai
