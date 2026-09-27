@@ -20,22 +20,25 @@ export default function QualificationForms({
   families,
   themes,
   subthemes,
+  suggested,
 }: {
   legalMonitoringId: string;
   sheets: { id: string; code: string; title: string }[];
   families: Option[];
   themes: Option[];
   subthemes: Option[];
+  suggested?: { familyId: string; themeId: string; subthemeId?: string };
 }) {
   return (
     <div className="flex flex-col gap-6">
       <ExistingSheetForm legalMonitoringId={legalMonitoringId} sheets={sheets} />
-      <div className="border-t border-zinc-100 pt-6">
+      <div className="border-t border-studio-line pt-6">
         <NewSheetForm
           legalMonitoringId={legalMonitoringId}
           families={families}
           themes={themes}
           subthemes={subthemes}
+          suggested={suggested}
         />
       </div>
     </div>
@@ -53,7 +56,7 @@ function ExistingSheetForm({
 
   return (
     <div>
-      <p className="mb-2 text-sm font-medium text-zinc-800">Rattacher à une fiche existante</p>
+      <p className="mb-2 text-sm font-medium text-studio-navy">Rattacher à une fiche existante</p>
       <form action={formAction} className="flex flex-wrap items-end gap-2">
         <input type="hidden" name="legal_monitoring_id" value={legalMonitoringId} />
         <div className="min-w-[260px] flex-1">
@@ -82,15 +85,17 @@ function NewSheetForm({
   families,
   themes,
   subthemes,
+  suggested,
 }: {
   legalMonitoringId: string;
   families: Option[];
   themes: Option[];
   subthemes: Option[];
+  suggested?: { familyId: string; themeId: string; subthemeId?: string };
 }) {
   const [error, formAction, pending] = useActionState(qualifyWithNewSheet, null);
-  const [familyId, setFamilyId] = useState(families[0]?.id ?? "");
-  const [themeId, setThemeId] = useState("");
+  const [familyId, setFamilyId] = useState(suggested?.familyId ?? families[0]?.id ?? "");
+  const [themeId, setThemeId] = useState(suggested?.themeId ?? "");
 
   const themesOfFamily = useMemo(
     () => themes.filter((theme) => theme.parentId === familyId),
@@ -103,7 +108,7 @@ function NewSheetForm({
 
   return (
     <div>
-      <p className="mb-2 text-sm font-medium text-zinc-800">Créer une nouvelle fiche</p>
+      <p className="mb-2 text-sm font-medium text-studio-navy">Créer une nouvelle fiche</p>
       <form action={formAction} className="flex flex-col gap-3">
         <input type="hidden" name="legal_monitoring_id" value={legalMonitoringId} />
 
@@ -141,7 +146,11 @@ function NewSheetForm({
         </SelectField>
 
         {subthemesOfTheme.length > 0 && (
-          <SelectField label="Sous-thème (optionnel)" name="subtheme_id" defaultValue="">
+          <SelectField
+            label="Sous-thème (optionnel)"
+            name="subtheme_id"
+            defaultValue={suggested?.subthemeId ?? ""}
+          >
             <option value="">Aucun</option>
             {subthemesOfTheme.map((subtheme) => (
               <option key={subtheme.id} value={subtheme.id}>

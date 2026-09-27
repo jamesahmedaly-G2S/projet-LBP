@@ -3,11 +3,14 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getMonitoringStatusLabel, getMonitoringStatusTone } from "@/lib/studio/monitoring-status";
+import { suggestTheme } from "@/lib/studio/veille-suggestion";
 import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
 import QualificationForms from "./QualificationForms";
 import PrepareVersionButton from "./PrepareVersionButton";
 import AnalyzeButton from "./AnalyzeButton";
+import AddToCalendarButton from "./AddToCalendarButton";
+import SuggestionBanner from "./SuggestionBanner";
 
 interface QualificationRow {
   master_sheet_id: string;
@@ -45,27 +48,50 @@ export default async function VeilleEntryPage({ params }: { params: Promise<{ id
           supabase.from("master_families").select("id, name").order("display_order"),
           supabase.from("master_themes").select("id, name, family_id").order("display_order"),
           supabase.from("master_subthemes").select("id, name, theme_id").order("display_order"),
-          supabase.from("master_sheets").select("id, code, title").order("title"),
+          supabase
+            .from("master_sheets")
+            .select("id, code, title, theme_id, subtheme_id")
+            .order("title"),
         ])
       : [{ data: null }, { data: null }, { data: null }, { data: null }];
 
+  const themeOptions = (themes ?? []).map((t) => ({
+    id: t.id,
+    name: t.name,
+    parentId: t.family_id,
+  }));
+  const subthemeOptions = (subthemes ?? []).map((s) => ({
+    id: s.id,
+    name: s.name,
+    parentId: s.theme_id,
+  }));
+  const suggestion =
+    entry.status === "new"
+      ? suggestTheme(`${entry.title} ${entry.summary ?? ""}`, themeOptions, subthemeOptions)
+      : null;
+  const matchingSheets = suggestion
+    ? (sheets ?? []).filter(
+        (s) => s.subtheme_id === suggestion.subthemeId || s.theme_id === suggestion.themeId,
+      )
+    : [];
+
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <Link href="/veille" className="text-sm text-blue-700 hover:underline">
+      <Link href="/veille" className="text-sm text-studio-blue hover:underline">
         ← Retour à la veille
       </Link>
 
       <div className="mt-2 flex items-center gap-3">
-        <h1 className="text-2xl font-semibold text-zinc-900">{entry.title}</h1>
+        <h1 className="text-2xl font-semibold text-studio-navy">{entry.title}</h1>
         <Badge tone={getMonitoringStatusTone(entry.status)}>
           {getMonitoringStatusLabel(entry.status)}
         </Badge>
       </div>
-      <p className="mt-1 text-sm text-zinc-500">
+      <p className="mt-1 text-sm text-studio-muted">
         {entry.source}
         {entry.text_type && ` · ${entry.text_type}`}
       </p>
-      <p className="mt-0.5 text-xs text-zinc-500">
+      <p className="mt-0.5 text-xs text-studio-muted">
         {entry.text_date &&
           `Date du texte : ${new Date(entry.text_date).toLocaleDateString("fr-FR")}`}
         {entry.publication_date &&
@@ -75,9 +101,9 @@ export default async function VeilleEntryPage({ params }: { params: Promise<{ id
       </p>
 
       <Card className="mt-6">
-        {entry.summary && <p className="text-sm text-zinc-700">{entry.summary}</p>}
+        {entry.summary && <p className="text-sm text-studio-navy">{entry.summary}</p>}
         {entry.impact && (
-          <p className="mt-2 text-xs text-zinc-500">
+          <p className="mt-2 text-xs text-studio-muted">
             Impact pressenti : <span className="italic">{entry.impact}</span>
           </p>
         )}
@@ -86,30 +112,31 @@ export default async function VeilleEntryPage({ params }: { params: Promise<{ id
             href={entry.link}
             target="_blank"
             rel="noreferrer"
-            className="mt-2 block text-xs text-blue-600 hover:underline"
+            className="mt-2 block text-xs text-studio-blue hover:underline"
           >
             Voir le texte officiel ↗
           </a>
         )}
-        <div className="mt-3">
+        <div className="mt-3 flex flex-wrap gap-4">
           <AnalyzeButton legalMonitoringId={entry.id} />
+          <AddToCalendarButton legalMonitoringId={entry.id} />
         </div>
       </Card>
 
       {qualification && (
         <Card className="mt-6">
-          <h2 className="mb-2 text-sm font-medium text-zinc-600">Qualification</h2>
-          <p className="text-sm text-zinc-700">
+          <h2 className="mb-2 text-sm font-medium text-studio-muted">Qualification</h2>
+          <p className="text-sm text-studio-navy">
             {qualification.is_new_sheet
               ? "Nouvelle fiche créée : "
               : "Rattachée à la fiche existante : "}
             <Link
               href={`/referentiel/${qualification.master_sheet_id}`}
-              className="text-blue-700 hover:underline"
+              className="text-studio-blue hover:underline"
             >
               {qualification.master_sheets?.title}
             </Link>{" "}
-            <span className="font-mono text-xs text-zinc-400">
+            <span className="font-mono text-xs text-studio-muted">
               ({qualification.master_sheets?.code})
             </span>
           </p>
@@ -127,19 +154,27 @@ export default async function VeilleEntryPage({ params }: { params: Promise<{ id
 
       {entry.status === "new" && (
         <Card className="mt-6">
-          <h2 className="mb-3 text-sm font-medium text-zinc-600">
+          <h2 className="mb-3 text-sm font-medium text-studio-muted">
             Qualifier cette entrée — les deux options restent toujours possibles
           </h2>
+          {suggestion && (
+            <SuggestionBanner suggestion={suggestion} matchingSheets={matchingSheets} />
+          )}
           <QualificationForms
             legalMonitoringId={entry.id}
             sheets={sheets ?? []}
             families={(families ?? []).map((f) => ({ id: f.id, name: f.name, parentId: null }))}
-            themes={(themes ?? []).map((t) => ({ id: t.id, name: t.name, parentId: t.family_id }))}
-            subthemes={(subthemes ?? []).map((s) => ({
-              id: s.id,
-              name: s.name,
-              parentId: s.theme_id,
-            }))}
+            themes={themeOptions}
+            subthemes={subthemeOptions}
+            suggested={
+              suggestion
+                ? {
+                    familyId: suggestion.familyId,
+                    themeId: suggestion.themeId,
+                    subthemeId: suggestion.subthemeId,
+                  }
+                : undefined
+            }
           />
         </Card>
       )}

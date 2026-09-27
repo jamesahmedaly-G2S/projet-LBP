@@ -200,6 +200,43 @@ export async function runConnectorsNow(): Promise<{
   return { results, notification };
 }
 
+// STU-VEILLE-01 (correctif 27/09/2026) : port de `veilleToCalendar()`
+// (déjà présent dans LBP_V2-20.html, la version consultée pour
+// STU-VEILLE-01, donc un écart réel et pas une nouveauté hors scope).
+// `calendar_events` est la table réelle de James (scope `personal`,
+// `event_type` 'news') — un rappel personnel pour l'admin qui traite la
+// veille, jamais rattaché à une société (`company_id` reste null).
+export async function addVeilleToCalendar(legalMonitoringId: string): Promise<string | null> {
+  const session = await requireAdmin();
+  const supabase = await createClient();
+
+  const { data: entry } = await supabase
+    .from("legal_monitoring")
+    .select("source, title, link, text_date")
+    .eq("id", legalMonitoringId)
+    .single();
+
+  if (!entry) {
+    return "Entrée de veille introuvable.";
+  }
+
+  const { error } = await supabase.from("calendar_events").insert({
+    profile_id: session.userId,
+    scope: "personal",
+    event_date: entry.text_date ?? new Date().toISOString().slice(0, 10),
+    title: entry.title,
+    event_type: "news",
+    category: entry.source,
+    note: entry.link,
+  });
+
+  if (error) {
+    return `Erreur lors de l'ajout au calendrier : ${error.message}`;
+  }
+
+  return null;
+}
+
 // STU-VEILLE-04 (AUTOMATION-03, #87) : déclenchement manuel de l'analyse
 // IA sur une entrée — appel réel gardé derrière ANTHROPIC_API_KEY (voir
 // lib/studio/monitoring-ai-analysis.ts).

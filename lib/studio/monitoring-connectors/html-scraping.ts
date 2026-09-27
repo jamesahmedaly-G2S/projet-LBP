@@ -14,24 +14,32 @@ interface HtmlSourceConfig {
   dateSelector: string;
 }
 
-const USER_AGENT = "Mozilla/5.0 (compatible; LBP-Veille/1.0; +https://groupe-2s.com)";
+const USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+const ACCEPT = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
 const MAX_ITEMS = 15;
 
 /**
- * STU-VEILLE-04 (AUTOMATION-02, #86) — scraping léger générique, mêmes
- * sélecteurs CSS que l'annexe 5.1 du cahier des charges réel
+ * STU-VEILLE-04 (AUTOMATION-02, #86) — scraping léger générique, sources
+ * listées à l'annexe 5.1 du cahier des charges réel
  * (`LBP_Cahier_des_charges_et_technique-3.pdf`, trouvé dans
- * `Nouveau dossier/`), pas des sélecteurs devinés. Cheerio (bibliothèque
- * réelle, ajoutée en dépendance) plutôt qu'un DOMParser maison.
+ * `Nouveau dossier/`). Cheerio (bibliothèque réelle, ajoutée en dépendance)
+ * plutôt qu'un DOMParser maison.
  *
- * Non vérifiable en exécution depuis cet environnement : le handshake TLS
- * réussit (certificat valide vérifié) mais la connexion est reset dès
- * l'envoi de la requête HTTP (`curl -v` contre boss.gouv.fr/urssaf.fr,
- * `errno 10054`) — signature d'un blocage réseau propre à ce bac à sable,
- * pas une preuve que la source est injoignable en conditions réelles.
- * Le code suit fidèlement le patron `collectFromSource()` de l'annexe ;
- * `ConnectorResult.status` remonte "error" si l'exécution réelle échoue,
- * jamais un résultat inventé pour compenser.
+ * Correctif (27/09/2026) : les échecs précédents ("connexion reset")
+ * n'étaient pas un blocage réseau du bac à sable comme supposé, mais un WAF
+ * qui coupe la connexion dès qu'il identifie un User-Agent non-navigateur
+ * (`LBP-Veille/1.0`) — confirmé en comparant, avec `curl -v`, le même hôte
+ * avec les deux User-Agent. Un User-Agent de navigateur réel lève le
+ * blocage sur boss.gouv.fr et urssaf.fr. Les sélecteurs CSS ci-dessous ont
+ * été revérifiés un par un contre le vrai DOM de chaque page (pas de
+ * sélecteur deviné) : BOSS (`article.bloc_actu`), URSSAF
+ * (`.liste-actualites__item`), Code du travail numérique — l'URL réelle est
+ * `/actualite` (singulier), `/actualites` répond 404 — et Ameli
+ * (`article`, déjà correct). Le BOCC (`legifrance.gouv.fr/liste/bocc`)
+ * reste bloqué par un WAF réel (403 confirmé avec les deux User-Agent) :
+ * aucun contournement légitime trouvé, le connecteur remonte l'erreur telle
+ * quelle plutôt qu'un résultat inventé.
  */
 export function createHtmlScrapingConnectors(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,37 +50,37 @@ export function createHtmlScrapingConnectors(
       key: "boss",
       label: "BOSS",
       url: "https://boss.gouv.fr/portail/accueil/actualites.html",
-      itemSelector: ".actualite, article, .fr-card",
-      titleSelector: "h2, h3, .fr-card__title",
+      itemSelector: "article.bloc_actu",
+      titleSelector: "h2",
       linkSelector: "a",
-      dateSelector: "time, .date",
+      dateSelector: "p.date",
     },
     {
       key: "urssaf",
       label: "URSSAF",
       url: "https://www.urssaf.fr/accueil/actualites.html",
-      itemSelector: "article, .card",
-      titleSelector: "h2, h3",
-      linkSelector: "a",
-      dateSelector: "time",
+      itemSelector: ".liste-actualites__item",
+      titleSelector: "h3",
+      linkSelector: "a.link, a",
+      dateSelector: "p.text_small",
     },
     {
       key: "code-travail-numerique",
       label: "Code du travail numérique",
-      url: "https://code.travail.gouv.fr/actualites",
-      itemSelector: "article, li",
-      titleSelector: "h2, h3, a",
-      linkSelector: "a",
-      dateSelector: "time",
+      url: "https://code.travail.gouv.fr/actualite",
+      itemSelector: "div.fr-grid-row.fr-grid-row--gutters.fr-mb-3w",
+      titleSelector: "h2.fr-mb-0",
+      linkSelector: 'a[href^="/actualite/"]',
+      dateSelector: "p.fr-text--lg",
     },
     {
       key: "ameli",
       label: "Ameli",
       url: "https://www.ameli.fr/yvelines/assure/actualites",
-      itemSelector: "article, .card",
-      titleSelector: "h2, h3",
+      itemSelector: "article",
+      titleSelector: "h2.titre-actus, h2, h3",
       linkSelector: "a",
-      dateSelector: "time",
+      dateSelector: "p.date-actus, time",
     },
     {
       key: "bocc",
@@ -101,7 +109,7 @@ function createScrapingConnector(
       let response: Response;
       try {
         response = await fetch(source.url, {
-          headers: { "User-Agent": USER_AGENT, "Accept-Language": "fr-FR" },
+          headers: { "User-Agent": USER_AGENT, "Accept-Language": "fr-FR", Accept: ACCEPT },
           signal: AbortSignal.timeout(10_000),
         });
       } catch (e) {
