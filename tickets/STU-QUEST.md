@@ -36,9 +36,11 @@
 
 ---
 
-## STU-QUEST-03 — Historique et comparaison des réponses
+## STU-QUEST-03 — Historique et comparaison des réponses ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-QUEST-02, STU-DATA-04**
+**Réalisé** : `lib/studio/answer-comparison.ts` (`computeAnswerComparison()` — distingue "avant" et "pendant l'entretien" uniquement via `interview_id`, jamais une date arbitraire, correct même si l'entretien s'étale sur plusieurs jours) ; `AnswerComparisonTable.tsx` (fond ambré + badge "Modifié" sur les lignes changées) ; page questionnaire étendue avec `?entretien=<id>` pour afficher la comparaison. `saveCompanyAnswers()` (STU-QUEST-02) modifié pour comparer chaque réponse soumise à `company_current_answers` avant insertion — une réponse reconfirmée à l'identique ne génère plus aucune ligne (2ᵉ critère d'acceptation).
+**Vérifié** : test réel navigateur — entretien de test créé (`company_interviews`), page `?entretien=` affiche la comparaison ; modification d'une réponse (véhicule de fonction oui→non) → exactement 1 ligne surlignée "modifiée", les autres réponses (inchangées, ex. apprentis) ni surlignées ni dupliquées en base. Confirmé en base que la logique anti-doublon fonctionne bien pour les nouvelles soumissions (du bruit historique venant des tests d'une session précédente, avant ce correctif, nettoyé par `db:reset`).
 
 **Contexte** : nécessaire au scénario D — "comparer ancien et nouveau questionnaire" lors d'un entretien annuel.
 
