@@ -8,6 +8,8 @@
 **Réalisé** : `lib/studio/affectations.ts` (`getCompanyAffectations()`) — deux requêtes (vue + `master_sheets`) plutôt qu'un embed PostgREST, qui ne fonctionne pas sur une vue sans FK déclarée.
 **Vérifié** : via son premier usage réel dans STU-AFFECT-02 (pas de comportement isolé à tester — c'est une fonction de lecture pure consommée ailleurs).
 
+**Correctif (27/09/2026)** : la vue livrée initialement ne produisait que 4 origines (`base/questionnaire/ccn/manual`) — `offre`, pourtant listée explicitement ci-dessus dans ce ticket, manquait. Trouvé en relisant `LBP_V6_Studio.html` (racine de `LBP_V2/`, jamais consulté avant ce jour) : son moteur `computeAffectation()` ajoute `offre` de façon inconditionnelle à chaque fiche affectée. Une 6ᵉ origine `maj` (mise à jour publiée, absente des tickets mais présente dans cette référence) a été ajoutée en même temps, décision utilisateur. Migration `20260927171850_origines_offre_maj_affectation.sql` (`create or replace view`, additive). Vérifié réel : `offre` présent sur toutes les fiches d'ALPHA ; `maj` apparaît dès qu'une fiche est republiée (testé en republiant temporairement `REM-DEMO-001`, badge "Mise à jour" bleu confirmé en navigateur, puis état restauré).
+
 **Contexte** : les 5 origines d'affectation (§7.3) — base, questionnaire, CCN, offre, manuel — doivent être exposées à l'application sans recalcul manuel ni duplication du référentiel par client.
 
 **À faire** : Server Action / Route Handler exposant `company_sheet_affectations` pour une société donnée, avec la liste des fiches applicables et leurs origines.

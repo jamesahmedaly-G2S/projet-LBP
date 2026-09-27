@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { getOriginLabel, type CompanyAffectation } from "@/lib/studio/affectations";
+import { getOriginLabel, getOriginTone, type CompanyAffectation } from "@/lib/studio/affectations";
 import { Badge } from "@/ui-kit/Badge";
 import { Button } from "@/ui-kit/Button";
 import { setSheetOverride, clearSheetOverride } from "../clients/actions";
@@ -47,7 +47,7 @@ export function AffectationList({
                 <span className="line-through">{a.title}</span>
                 <div className="flex flex-wrap items-center justify-end gap-1">
                   {a.origins.map((origin) => (
-                    <Badge key={origin} tone="neutral">
+                    <Badge key={origin} tone={getOriginTone(origin)}>
                       {getOriginLabel(origin)}
                     </Badge>
                   ))}
@@ -98,7 +98,7 @@ function AffectationRow({
         </Link>
         <div className="flex flex-wrap items-center justify-end gap-1">
           {affectation.origins.map((origin) => (
-            <Badge key={origin} tone={origin === "manual" ? "amber" : "neutral"}>
+            <Badge key={origin} tone={getOriginTone(origin)}>
               {getOriginLabel(origin)}
             </Badge>
           ))}
