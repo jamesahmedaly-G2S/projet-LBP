@@ -2,9 +2,11 @@
 
 ---
 
-## STU-QUEST-01 — CRUD questions (types, conditionnelles, impacts)
+## STU-QUEST-01 — CRUD questions (types, conditionnelles, impacts) ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-03**
+**Réalisé** : `/questionnaires` (liste ordonnée), `/questionnaires/nouvelle` (création), `/questionnaires/[id]` (édition + gestion de `master_question_impacts` : ajout/retrait réponse→fiche). `CheckboxField` ajouté à `ui-kit/Field.tsx` (réutilisable pour "obligatoire" et les futures réponses `bool`, STU-QUEST-02). Seed : les 17 questions réelles de `LBP_V6_Studio.html` (`var QUESTIONS`, racine de `LBP_V2/`) reprises telles quelles (label, type, condition, ordre) — seules celles dont l'impact correspond à une fiche de démonstration existante ont une ligne `master_question_impacts` (référentiel complet non seedé, cf. STU-REF-04).
+**Vérifié** : test réel navigateur — 17 questions affichées, question `q_ccn` (type CCN) et une conditionnelle (`q_tr_part` visible si `q_tr = oui`) confirmées ; ajout d'un impact réel via le formulaire, persistance confirmée en base et par navigation fraîche (un premier test avait donné un faux négatif à cause d'une course de navigation déjà rencontrée plusieurs fois cette session, pas un bug réel — revérifié directement en base et via un DOM fraîchement chargé) ; modification de libellé enregistrée ; création d'une 18ᵉ question réelle via le vrai formulaire, visible immédiatement dans la liste.
 
 **Contexte** : "Le questionnaire doit contenir uniquement des informations utiles pour déterminer l'environnement du client ou déclencher/exclure des contenus" (§7.1), géré exclusivement par G2S.
 

@@ -57,3 +57,23 @@ export function SelectField({
     </Wrapper>
   );
 }
+
+// Case à cocher — libellé à droite plutôt qu'au-dessus (Wrapper ne
+// convient pas pour ce contrôle), même classes de focus que les autres
+// champs.
+export function CheckboxField({
+  label,
+  className = "",
+  ...props
+}: { label: string } & InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <label className="flex items-center gap-2 text-sm font-medium text-zinc-700">
+      <input
+        type="checkbox"
+        className={`h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-1 focus:ring-blue-500 ${className}`}
+        {...props}
+      />
+      {label}
+    </label>
+  );
+}
