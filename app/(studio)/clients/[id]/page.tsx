@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import CcnSection from "./CcnSection";
 import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
+import { LinkButton } from "@/ui-kit/LinkButton";
 import { AffectationList } from "../../_components/AffectationList";
 import { AddOverrideForm } from "./AddOverrideForm";
 import { getCompanyAffectations } from "@/lib/studio/affectations";
@@ -56,6 +57,13 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
       <div className="flex items-center gap-3">
         <h1 className="text-2xl font-semibold text-zinc-900">{company.company_name}</h1>
         <Badge tone="blue">Palier {company.offer_tier}</Badge>
+        <LinkButton
+          href={`/clients/${company.id}/questionnaire`}
+          variant="secondary"
+          className="text-xs"
+        >
+          Ouvrir le questionnaire
+        </LinkButton>
       </div>
 
       <Card className="mt-6">

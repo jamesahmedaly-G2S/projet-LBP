@@ -19,9 +19,11 @@
 
 ---
 
-## STU-QUEST-02 — Formulaire de saisie des réponses
+## STU-QUEST-02 — Formulaire de saisie des réponses ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-QUEST-01, STU-DATA-04**
+**Réalisé** : `lib/studio/visible-questions.ts` (`getVisibleQuestions()`, reproduit `visibleQuestions()` de `LBP_V6_Studio.html`) ; `QuestionnaireForm.tsx` (composant réutilisable, client, réévalue les questions visibles en direct à chaque réponse) ; `saveCompanyAnswers()` (`clients/actions.ts`) — insertion pure (jamais d'update), historique complet dans `company_questionnaire_answers`. Accessible depuis la fiche client (bouton "Ouvrir le questionnaire"), même point d'entrée que `stOpenQuest()` dans la référence réelle. **Écart voulu par rapport à la référence** : `stOpenQuest()` est en lecture seule dans le prototype (la saisie n'y a lieu que via l'assistant ou l'entretien) — ici, formulaire réellement modifiable à tout moment depuis la fiche client, conformément au texte du ticket ; sera réutilisé tel quel par STU-CLIENT-01 (étape 3) et STU-INTERVIEW-02. Les questions de type `ccn` sont exclues (gérées par `CcnSection`, STU-CCN-02), reproduisant `qs.filter(q => q.type!=='ccn')`.
+**Vérifié** : test réel navigateur — aucune question CCN dans le formulaire ; questions conditionnelles déjà répondues (`q_tr_part`, `q_elec`) visibles au chargement ; **bascule en direct sans rechargement** : passer `q_tr` à "non" fait disparaître `q_tr_part` instantanément. Écriture confirmée en base : nouvelle ligne à chaque enregistrement (historique), `company_current_answers` reflète toujours la dernière réponse. Recalcul immédiat vérifié sur une vraie fiche affectée : faire passer `q_teletravail` à "non" retire le badge "Questionnaire" de "Télétravail : allocation forfaitaire" sans que la fiche disparaisse (origine `base`/`offre` toujours présentes, comportement correct) ; remettre "oui" restaure le badge immédiatement.
 
 **Contexte** : "G2S crée le client et remplit le questionnaire ; le client ne remplit pas lui-même l'onboarding" (§6) — réservé au rôle admin.
 

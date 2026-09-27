@@ -114,3 +114,73 @@ export async function clearSheetOverride(
   revalidatePath("/affectations");
   return null;
 }
+
+// STU-QUEST-02 : chaque sauvegarde ajoute de nouvelles lignes dans
+// `company_questionnaire_answers` (historique, STU-DATA-04) — jamais un
+// update en place. `company_current_answers` (vue) retient toujours la
+// plus récente par (société, question). `interview_id` optionnel : absent
+// à la création du client (STU-CLIENT-01), renseigné pendant un entretien
+// (STU-INTERVIEW-02) pour rattacher la réponse à cette session précise.
+// Validation : seules les questions marquées visibles+obligatoires côté
+// client (`required_codes`) sont vérifiées non vides côté serveur — ne
+// fait pas confiance au seul `required` HTML.
+export async function saveCompanyAnswers(
+  _prevState: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  await requireAdmin();
+
+  const companyId = formData.get("company_id");
+  const interviewId = formData.get("interview_id");
+  const requiredCodesRaw = formData.get("required_codes");
+
+  if (typeof companyId !== "string" || !companyId) {
+    return "Société introuvable.";
+  }
+
+  const requiredCodes =
+    typeof requiredCodesRaw === "string" && requiredCodesRaw
+      ? requiredCodesRaw.split(",").filter(Boolean)
+      : [];
+
+  const rows: {
+    company_id: string;
+    interview_id: string | null;
+    question_code: string;
+    answer_value: string;
+  }[] = [];
+
+  for (const [key, value] of formData.entries()) {
+    if (!key.startsWith("answer__") || typeof value !== "string") continue;
+    const questionCode = key.slice("answer__".length);
+    if (!value.trim()) continue;
+    rows.push({
+      company_id: companyId,
+      interview_id: typeof interviewId === "string" && interviewId ? interviewId : null,
+      question_code: questionCode,
+      answer_value: value.trim(),
+    });
+  }
+
+  const answeredCodes = new Set(rows.map((r) => r.question_code));
+  const missing = requiredCodes.filter((code) => !answeredCodes.has(code));
+  if (missing.length > 0) {
+    return `Réponse(s) obligatoire(s) manquante(s) : ${missing.join(", ")}.`;
+  }
+
+  if (rows.length === 0) {
+    return "Aucune réponse à enregistrer.";
+  }
+
+  const supabase = await createClient();
+  const { error: insertError } = await supabase.from("company_questionnaire_answers").insert(rows);
+
+  if (insertError) {
+    return `Erreur lors de l'enregistrement : ${insertError.message}`;
+  }
+
+  revalidatePath(`/clients/${companyId}`);
+  revalidatePath(`/clients/${companyId}/questionnaire`);
+  revalidatePath("/affectations");
+  return null;
+}
