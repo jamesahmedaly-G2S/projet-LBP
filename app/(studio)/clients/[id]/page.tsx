@@ -12,6 +12,7 @@ import { getCompanyAffectations } from "@/lib/studio/affectations";
 import { getPendingSheetUpdates, getCompanySpecificContent } from "@/lib/studio/client-fiche";
 import { summarizeEntretiens, type InterviewRow } from "@/lib/studio/entretien";
 import { getWorkflowStatusLabel, getWorkflowStatusTone } from "@/lib/studio/workflow-status";
+import StartInterviewButton from "./entretien/StartInterviewButton";
 
 // STU-CLIENT-02 : fiche client complète (§5.2) — identité, établissements,
 // offre, utilisateurs, CCN (STU-CCN-02), questionnaire, fiches affectées
@@ -110,6 +111,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
           <LinkButton href={`/clients/${id}/vue-client`} variant="secondary" className="text-xs">
             Accéder au LBP du client
           </LinkButton>
+          <StartInterviewButton companyId={id} />
         </div>
       </div>
 

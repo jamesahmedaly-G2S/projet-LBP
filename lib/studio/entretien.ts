@@ -77,3 +77,25 @@ export function summarizeEntretiens(rows: InterviewRow[]): EntretienSummary {
     tone: nextDueDate ? getEntretienTone(nextDueDate) : null,
   };
 }
+
+export type EntretienBucket = "retard" | "planifie" | "aPlanifier" | "realise";
+
+/**
+ * STU-INTERVIEW-01 (§11) : "À planifier / Planifiés / Réalisés / En retard".
+ * Port du regroupement de `stEntretiens()` (`if(j<0) retard; else if(j<=
+ * entretienSeuilJaune) planifier; else realises`) — "en retard" se déduit
+ * uniquement de l'échéance dépassée, jamais d'un statut oublié à la main
+ * (critère d'acceptation explicite : "sans action manuelle"). "Planifiés"
+ * distingue en plus, contrairement au prototype (qui laisse ce panier
+ * vide, faute de statut réel dans sa donnée de démo), les entretiens pour
+ * lesquels une date a réellement été fixée (`status='planned'`) — notre
+ * `company_interviews` réel le permet, le prototype ne le pouvait pas.
+ */
+export function bucketEntretien(rows: InterviewRow[], summary: EntretienSummary): EntretienBucket {
+  const { daysUntilNext } = summary;
+  if (daysUntilNext === null) return "realise";
+  if (daysUntilNext < 0) return "retard";
+  if (rows.some((r) => r.status === "planned")) return "planifie";
+  if (daysUntilNext <= STUDIO_SETTINGS.entretienSeuilJaune) return "aPlanifier";
+  return "realise";
+}

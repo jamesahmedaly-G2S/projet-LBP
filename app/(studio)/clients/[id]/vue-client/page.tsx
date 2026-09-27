@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { getCompanyAffectations } from "@/lib/studio/affectations";
 import { Card } from "@/ui-kit/Card";
 
 interface Row {
@@ -21,27 +22,41 @@ interface SheetRow {
 // même structure que /referentiel (STU-REF-01) mais strictement en lecture
 // et limitée aux fiches publiées — "exactement ce que verrait un vrai
 // profil client de cette société" (aucun statut de workflow affiché,
-// aucun contrôle d'édition).
+// aucun contrôle d'édition). Une fiche publiée est visible par défaut
+// (origine "base", STU-DATA-05) SAUF si elle a été retirée manuellement
+// pour cette société (STU-AFFECT-03) — filtrée ici comme dans
+// AffectationList.tsx ("Retirée manuellement... non visible côté client").
 export default async function VueClientPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: families }, { data: themes }, { data: subthemes }, { data: sheets }] =
-    await Promise.all([
-      supabase.from("master_families").select("id, name").order("display_order"),
-      supabase.from("master_themes").select("id, name, family_id").order("display_order"),
-      supabase.from("master_subthemes").select("id, name, theme_id").order("display_order"),
-      supabase
-        .from("master_sheets")
-        .select("id, title, theme_id, subtheme_id")
-        .eq("status", "published")
-        .order("title")
-        .returns<SheetRow[]>(),
-    ]);
+  const [
+    { data: families },
+    { data: themes },
+    { data: subthemes },
+    { data: allSheets },
+    affectations,
+  ] = await Promise.all([
+    supabase.from("master_families").select("id, name").order("display_order"),
+    supabase.from("master_themes").select("id, name, family_id").order("display_order"),
+    supabase.from("master_subthemes").select("id, name, theme_id").order("display_order"),
+    supabase
+      .from("master_sheets")
+      .select("id, title, theme_id, subtheme_id")
+      .eq("status", "published")
+      .order("title")
+      .returns<SheetRow[]>(),
+    getCompanyAffectations(supabase, id),
+  ]);
+
+  const removedIds = new Set(
+    affectations.filter((a) => a.removedManually).map((a) => a.masterSheetId),
+  );
+  const sheets = (allSheets ?? []).filter((s) => !removedIds.has(s.id));
 
   const sheetsOfTheme = (themeId: string, subthemeId: string | null) =>
-    (sheets ?? []).filter((s) => s.theme_id === themeId && s.subtheme_id === subthemeId);
+    sheets.filter((s) => s.theme_id === themeId && s.subtheme_id === subthemeId);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getVisibleLayersForCompany } from "@/lib/studio/client-view";
+import { getCompanyAffectations } from "@/lib/studio/affectations";
 import { getPublishedContentDiff, type ContentDiff } from "@/lib/studio/content-diff";
 import { SHEET_CONTENT_FIELDS, type SheetContent } from "@/lib/studio/placeholder-content";
 import { Card } from "@/ui-kit/Card";
@@ -36,6 +37,12 @@ export default async function VueClientFichePage({
     .single();
 
   if (!sheet) {
+    notFound();
+  }
+
+  const affectations = await getCompanyAffectations(supabase, id);
+  const removed = affectations.find((a) => a.masterSheetId === sheetId)?.removedManually;
+  if (removed) {
     notFound();
   }
 
