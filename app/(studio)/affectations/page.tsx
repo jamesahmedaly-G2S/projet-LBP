@@ -33,19 +33,21 @@ export default async function AffectationsPage({
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="mb-6 text-2xl font-semibold text-zinc-900">Affectations</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-studio-navy">Affectations</h1>
 
       <div className="flex flex-col gap-6 md:flex-row">
         <Card padded={false} className="w-full shrink-0 self-start md:w-64">
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-studio-line">
             {list.map((company) => {
               const isActive = company.id === selected?.id;
               return (
                 <li key={company.id}>
                   <Link
                     href={`/affectations?company=${company.id}`}
-                    className={`flex items-center justify-between px-4 py-3 text-sm hover:bg-zinc-50 ${
-                      isActive ? "bg-blue-50 font-medium text-blue-800" : "text-zinc-800"
+                    className={`flex items-center justify-between px-4 py-3 text-sm hover:bg-studio-bg ${
+                      isActive
+                        ? "bg-studio-blue-soft font-medium text-studio-navy"
+                        : "text-studio-navy"
                     }`}
                   >
                     <span>{company.company_name}</span>
@@ -55,7 +57,7 @@ export default async function AffectationsPage({
               );
             })}
             {list.length === 0 && (
-              <li className="px-4 py-3 text-sm text-zinc-400">Aucune société.</li>
+              <li className="px-4 py-3 text-sm text-studio-muted">Aucune société.</li>
             )}
           </ul>
         </Card>
@@ -63,13 +65,13 @@ export default async function AffectationsPage({
         <Card className="flex-1">
           {selected ? (
             <>
-              <h2 className="mb-3 text-lg font-semibold text-zinc-800">
+              <h2 className="mb-3 text-lg font-semibold text-studio-navy">
                 {selected.company_name} — pourquoi ces fiches sont présentes
               </h2>
               <AffectationList affectations={affectations} />
             </>
           ) : (
-            <p className="text-sm text-zinc-400">Aucune société à afficher.</p>
+            <p className="text-sm text-studio-muted">Aucune société à afficher.</p>
           )}
         </Card>
       </div>

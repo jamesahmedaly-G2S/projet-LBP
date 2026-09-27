@@ -17,7 +17,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-lg border border-zinc-200 bg-white shadow-sm ${padded ? "p-5" : ""} ${className}`}
+      className={`rounded-2xl border border-studio-line bg-studio-card shadow-[0_1px_3px_rgba(20,48,79,0.05)] ${padded ? "p-6" : ""} ${className}`}
     >
       {children}
     </div>

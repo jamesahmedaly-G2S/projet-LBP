@@ -3,6 +3,27 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* STU-DESIGN-01 : port 1:1 de lib/design-tokens.ts (lui-même porté du
+     vrai prototype LBP_V6_Studio.html) — ne pas ajouter de couleur ici
+     sans l'ajouter d'abord côté lib/design-tokens.ts. */
+  --studio-navy: #14304f;
+  --studio-navy2: #1c3f63;
+  --studio-navy-muted: #a9c0d9;
+  --studio-blue: #2e5b87;
+  --studio-blue-soft: #e9f0fa;
+  --studio-bg: #e9eff8;
+  --studio-card: #ffffff;
+  --studio-line: #d3deec;
+  --studio-muted: #6b7c93;
+  --studio-green: #6e9b6e;
+  --studio-green-bg: #eaf2ea;
+  --studio-amber: #d4a32e;
+  --studio-amber-bg: #fbf3de;
+  --studio-red: #c4544f;
+  --studio-red-bg: #faeae9;
+  --studio-violet: #8c6fa8;
+  --studio-violet-bg: #f2ecf7;
 }
 
 @theme inline {
@@ -10,6 +31,24 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-studio-navy: var(--studio-navy);
+  --color-studio-navy2: var(--studio-navy2);
+  --color-studio-navy-muted: var(--studio-navy-muted);
+  --color-studio-blue: var(--studio-blue);
+  --color-studio-blue-soft: var(--studio-blue-soft);
+  --color-studio-bg: var(--studio-bg);
+  --color-studio-card: var(--studio-card);
+  --color-studio-line: var(--studio-line);
+  --color-studio-muted: var(--studio-muted);
+  --color-studio-green: var(--studio-green);
+  --color-studio-green-bg: var(--studio-green-bg);
+  --color-studio-amber: var(--studio-amber);
+  --color-studio-amber-bg: var(--studio-amber-bg);
+  --color-studio-red: var(--studio-red);
+  --color-studio-red-bg: var(--studio-red-bg);
+  --color-studio-violet: var(--studio-violet);
+  --color-studio-violet-bg: var(--studio-violet-bg);
 }
 
 @media (prefers-color-scheme: dark) {

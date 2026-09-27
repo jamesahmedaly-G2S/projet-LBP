@@ -25,13 +25,13 @@ export function StudioNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-wrap gap-x-5 gap-y-1 border-t border-blue-800 px-6 py-2 text-sm">
+    <nav className="flex flex-wrap gap-x-1 px-6 text-sm">
       {SECTIONS.map((section) => {
         if (!section.href) {
           return (
             <span
               key={section.label}
-              className="cursor-default text-blue-400"
+              className="cursor-default border-b-[3px] border-transparent px-4 py-3.5 font-semibold text-studio-muted/40"
               title="Pas encore construit"
             >
               {section.label}
@@ -43,7 +43,11 @@ export function StudioNav() {
           <Link
             key={section.label}
             href={section.href}
-            className={isActive ? "font-medium text-white" : "text-blue-100 hover:text-white"}
+            className={`border-b-[3px] px-4 py-3.5 font-semibold transition-colors ${
+              isActive
+                ? "border-studio-blue text-studio-navy"
+                : "border-transparent text-studio-muted hover:text-studio-navy"
+            }`}
           >
             {section.label}
           </Link>

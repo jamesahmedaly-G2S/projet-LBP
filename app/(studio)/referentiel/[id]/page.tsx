@@ -55,7 +55,7 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <p className="text-sm text-zinc-500">
+      <p className="text-sm text-studio-muted">
         Identifiant stable : <span className="font-mono">{sheet.code}</span> (ne change jamais, y
         compris après renommage)
       </p>
@@ -76,7 +76,7 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
       {version ? (
         <Card className="mt-6">
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-studio-muted">
               Contenu de la couche régime général — version {version.version}
             </p>
             <Badge tone={getWorkflowStatusTone(version.status)}>

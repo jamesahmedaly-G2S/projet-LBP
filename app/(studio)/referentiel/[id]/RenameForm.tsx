@@ -15,17 +15,17 @@ export default function RenameForm({ sheetId, title }: { sheetId: string; title:
       <input
         name="title"
         defaultValue={title}
-        className="rounded-md border border-zinc-300 px-2 py-1 text-lg font-semibold text-zinc-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        className="rounded-md border border-studio-line px-2 py-1 text-lg font-semibold text-studio-navy focus:border-studio-blue focus:outline-none focus:ring-1 focus:ring-studio-blue"
       />
       <Button
         type="submit"
         variant="ghost"
         disabled={pending}
-        className="border border-zinc-200 text-xs"
+        className="border border-studio-line text-xs"
       >
         {pending ? "..." : "Renommer"}
       </Button>
-      {message && <span className="text-xs text-zinc-500">{message}</span>}
+      {message && <span className="text-xs text-studio-muted">{message}</span>}
     </form>
   );
 }

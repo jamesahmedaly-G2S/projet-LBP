@@ -42,10 +42,10 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-900">{question.label}</h1>
+        <h1 className="text-2xl font-semibold text-studio-navy">{question.label}</h1>
         <DeleteQuestionButton questionId={question.id} />
       </div>
-      <p className="mt-1 text-sm text-zinc-500">
+      <p className="mt-1 text-sm text-studio-muted">
         Identifiant stable : <span className="font-mono">{question.code}</span> (ne change jamais)
       </p>
 
@@ -57,7 +57,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
       </Card>
 
       <Card className="mt-6">
-        <h2 className="mb-3 text-sm font-medium text-zinc-600">
+        <h2 className="mb-3 text-sm font-medium text-studio-muted">
           Fiches déclenchées par une réponse — &quot;master_question_impacts&quot;
         </h2>
         <ImpactsSection

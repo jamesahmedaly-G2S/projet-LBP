@@ -20,7 +20,9 @@ export default function WorkflowActions({
   const nextStatuses = ALLOWED_TRANSITIONS[status] ?? [];
 
   if (nextStatuses.length === 0) {
-    return <p className="text-xs text-zinc-400">Statut terminal, aucune transition possible.</p>;
+    return (
+      <p className="text-xs text-studio-muted">Statut terminal, aucune transition possible.</p>
+    );
   }
 
   return (
@@ -41,7 +43,7 @@ export default function WorkflowActions({
         </form>
       ))}
       {pending && (
-        <span className="text-xs text-zinc-500" role="status">
+        <span className="text-xs text-studio-muted" role="status">
           Enregistrement en cours...
         </span>
       )}

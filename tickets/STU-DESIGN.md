@@ -28,13 +28,18 @@
 
 ---
 
-## STU-DESIGN-01 — Charte bleu Studio + navigation dédiée
+## STU-DESIGN-01 — Charte bleu Studio + navigation dédiée ✅ Fait
 
 **Priorité : Should** · **Dépendances : aucune**
 
 **Contexte** : §2 — le Studio doit être "immédiatement identifiable comme appartenant au pôle LBP" sans copier le LBP Client : univers bleu structurant, cartes claires, navigation plus dense, header "LBP STUDIO / Administration G2S · Référentiel & clients". Explicitement interdit : un dark mode générique ou un simple recolorage du mode G2S actuel.
 
-**À faire** : tokens de couleur Studio dérivés de `lib/design-tokens.ts` existant (pas redérivés from scratch — principe DRY d'`ARCHITECTURE.md`), nouvelle navigation avec les 10 onglets du §3 (Tableau de bord, Clients, Référentiel, Questionnaires, Affectations, Publications, Veille & mises à jour, Entretiens, Quiz & formations, Administration).
+**Déclencheur (27/09/2026)** : l'utilisateur a signalé que les couleurs ne correspondaient pas à celles de Pauline. Vérification : les écrans utilisaient les couleurs Tailwind par défaut (`blue-900`, `zinc-50`...), jamais dérivées d'un vrai fichier de tokens — `lib/design-tokens.ts`, que `docs/ARCHITECTURE.md` §9 et ce ticket désignent depuis STU-DESIGN-00 comme le port 1:1 attendu, n'avait en réalité jamais été créé.
+
+**Réalisé** : `lib/design-tokens.ts` (nouveau) — port 1:1 des variables `--st-*` de `LBP_V6_Studio.html` (racine de `LBP_V2/`, section "LBP STUDIO : univers bleu, lumineux et premium", la version la plus récente et complète, postérieure à `LBP_V2-20.html`) : navy `#14304F`, bleu `#2E5B87`, fond `#E9EFF8`, ligne `#D3DEEC`, muted `#6B7C93`, plus les tons vert/ambre/rouge/violet de statut. Reporté dans `app/globals.css` (`@theme` Tailwind v4 → classes `bg-studio-*`/`text-studio-*`/`border-studio-*`). Tous les composants `ui-kit/` (`Card`, `Button`, `LinkButton`, `Badge`, `Field`) recolorés avec ces tokens (plus arrondis en pilule pour les boutons et 16px pour les cartes, conformes à `--pill` et `.st-card` du prototype) ; `app/(studio)/layout.tsx` et `StudioNav.tsx` restructurés pour correspondre à la vraie structure du prototype — header navy fixe, **barre d'onglets blanche séparée avec indicateur de soulignement bleu** (pas un fond navy uniforme comme avant), fidèle à `.st-header`/`.st-nav` du prototype. Balayage systématique de tous les écrans existants (`app/(studio)/**`, `app/login`) pour remplacer chaque classe Tailwind brute (`text-zinc-*`, `bg-blue-*`...) par les tokens Studio — plus aucune couleur non dérivée du prototype.
+**Vérifié** : test réel navigateur (session admin réelle) — captures d'écran de `/login`, `/referentiel`, `/clients`, `/veille` : fond bleu pâle, header et titres navy, liens et boutons primaires bleus, nav à onglets blanche avec soulignement actif, badges de statut recolorés (vert/ambre) — conforme pixel-pour-token à la palette du prototype. `tsc --noEmit` et `eslint` propres sur l'ensemble du balayage.
+
+**À faire (reste, non bloquant)** : `STU-DESIGN-02` (harmonisation icônes) — les emojis (📅 sur le bouton calendrier de STU-VEILLE) n'ont pas encore été remplacés par les icônes Lucide du prototype, cohérent avec la portée déjà déclarée de ce ticket suivant.
 
 **Critères d'acceptation**
 

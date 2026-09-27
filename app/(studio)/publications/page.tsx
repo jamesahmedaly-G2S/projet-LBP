@@ -50,14 +50,14 @@ export default async function PublicationsPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-2xl font-semibold text-zinc-900">Publications</h1>
-      <p className="mt-1 text-sm text-zinc-500">
+      <h1 className="text-2xl font-semibold text-studio-navy">Publications</h1>
+      <p className="mt-1 text-sm text-studio-muted">
         Contenus validés, programmés et publiés, toutes fiches et couches confondues.
       </p>
 
       {rows.length === 0 ? (
         <Card className="mt-6">
-          <p className="text-sm text-zinc-400">Rien à afficher pour l&apos;instant.</p>
+          <p className="text-sm text-studio-muted">Rien à afficher pour l&apos;instant.</p>
         </Card>
       ) : (
         <div className="mt-6 flex flex-col gap-4">
@@ -73,16 +73,16 @@ export default async function PublicationsPage() {
                   <div>
                     <Link
                       href={`/referentiel/${row.master_sheet_id}`}
-                      className="font-medium text-blue-700 hover:underline"
+                      className="font-medium text-studio-blue hover:underline"
                     >
                       {row.master_sheets?.title ?? "(fiche introuvable)"}
                     </Link>
-                    <p className="mt-0.5 text-xs text-zinc-500">
+                    <p className="mt-0.5 text-xs text-studio-muted">
                       <span className="font-mono">{row.master_sheets?.code}</span> ·{" "}
                       {getLayerKindLabel(row.layer_kind)} · version {row.version} ·{" "}
                       {row.profiles?.full_name ?? "auteur inconnu"}
                     </p>
-                    <p className="mt-0.5 text-xs text-zinc-500">
+                    <p className="mt-0.5 text-xs text-studio-muted">
                       {row.status === "published" &&
                         row.published_at &&
                         `Publiée le ${new Date(row.published_at).toLocaleString("fr-FR")}`}
@@ -93,7 +93,7 @@ export default async function PublicationsPage() {
                         `Validée le ${new Date(row.created_at).toLocaleString("fr-FR")}`}
                     </p>
                     {row.motif && (
-                      <p className="mt-1 text-xs text-zinc-500">
+                      <p className="mt-1 text-xs text-studio-muted">
                         Motif : <span className="italic">{row.motif}</span>
                       </p>
                     )}
@@ -105,9 +105,9 @@ export default async function PublicationsPage() {
 
                 {row.status === "published" && (
                   <div className="mt-2">
-                    <p className="text-xs font-medium text-zinc-500">Sociétés réceptrices</p>
+                    <p className="text-xs font-medium text-studio-muted">Sociétés réceptrices</p>
                     {recipients.length === 0 ? (
-                      <p className="text-xs text-zinc-400">Aucune.</p>
+                      <p className="text-xs text-studio-muted">Aucune.</p>
                     ) : (
                       <div className="mt-1 flex flex-wrap gap-1">
                         {recipients.map((name) => (

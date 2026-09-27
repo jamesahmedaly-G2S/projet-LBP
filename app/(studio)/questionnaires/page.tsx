@@ -37,7 +37,7 @@ export default async function QuestionnairesPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-900">Questionnaire maître</h1>
+        <h1 className="text-2xl font-semibold text-studio-navy">Questionnaire maître</h1>
         <LinkButton href="/questionnaires/nouvelle" variant="primary">
           + Nouvelle question
         </LinkButton>
@@ -45,22 +45,22 @@ export default async function QuestionnairesPage() {
 
       {rows.length === 0 ? (
         <Card className="mt-6">
-          <p className="text-sm text-zinc-400">Aucune question pour l&apos;instant.</p>
+          <p className="text-sm text-studio-muted">Aucune question pour l&apos;instant.</p>
         </Card>
       ) : (
         <Card padded={false} className="mt-6">
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-studio-line">
             {rows.map((q) => (
               <li key={q.id}>
                 <Link
                   href={`/questionnaires/${q.id}`}
-                  className="flex items-start justify-between gap-3 px-5 py-3 text-sm hover:bg-zinc-50"
+                  className="flex items-start justify-between gap-3 px-5 py-3 text-sm hover:bg-studio-bg"
                 >
                   <div>
-                    <p className="text-zinc-800">
+                    <p className="text-studio-navy">
                       {q.label} {q.required && <span className="text-red-500">*</span>}
                     </p>
-                    <p className="mt-0.5 text-xs text-zinc-500">
+                    <p className="mt-0.5 text-xs text-studio-muted">
                       <span className="font-mono">{q.code}</span> · {getQuestionTypeLabel(q.type)}
                       {q.condition_question_code &&
                         ` · visible si ${q.condition_question_code} = ${q.condition_value}`}

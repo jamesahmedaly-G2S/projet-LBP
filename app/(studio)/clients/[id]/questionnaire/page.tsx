@@ -64,13 +64,13 @@ export default async function CompanyQuestionnairePage({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <Link href={`/clients/${id}`} className="text-sm text-blue-700 hover:underline">
+      <Link href={`/clients/${id}`} className="text-sm text-studio-blue hover:underline">
         ← Retour à la fiche client
       </Link>
-      <h1 className="mt-2 text-2xl font-semibold text-zinc-900">
+      <h1 className="mt-2 text-2xl font-semibold text-studio-navy">
         Questionnaire — {company.company_name}
       </h1>
-      <p className="mt-1 text-sm text-zinc-500">
+      <p className="mt-1 text-sm text-studio-muted">
         {interviewId
           ? "Entretien en cours — prérempli avec les dernières réponses."
           : "Prérempli avec les dernières réponses enregistrées."}

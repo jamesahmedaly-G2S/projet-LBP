@@ -67,7 +67,7 @@ export default function EditQuestionForm({
         onChange={(e) => setHasCondition(e.target.checked)}
       />
       {hasCondition && (
-        <div className="grid grid-cols-2 gap-2 rounded-md bg-zinc-50 p-3">
+        <div className="grid grid-cols-2 gap-2 rounded-md bg-studio-bg p-3">
           <SelectField
             label="Visible si..."
             name="condition_question_code"
@@ -97,7 +97,7 @@ export default function EditQuestionForm({
         defaultValue={question.display_order}
       />
 
-      {message && <p className="text-sm text-zinc-600">{message}</p>}
+      {message && <p className="text-sm text-studio-muted">{message}</p>}
 
       <Button type="submit" variant="primary" disabled={pending} className="mt-1 w-fit">
         {pending ? "Enregistrement..." : "Enregistrer"}

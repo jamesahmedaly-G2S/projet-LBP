@@ -50,11 +50,11 @@ export default function RunConnectorsButton() {
         <ul className="flex flex-col gap-1">
           {results.map((result) => (
             <li key={result.key} className="flex items-center justify-between gap-3 text-xs">
-              <span className="text-zinc-700">
+              <span className="text-studio-navy">
                 {result.label}
                 {result.status === "ok" &&
                   ` — ${result.itemsInserted} nouvelle(s) sur ${result.itemsFound} vue(s)`}
-                {result.message && <span className="text-zinc-400"> — {result.message}</span>}
+                {result.message && <span className="text-studio-muted"> — {result.message}</span>}
               </span>
               <Badge tone={STATUS_TONE[result.status]}>{STATUS_LABEL[result.status]}</Badge>
             </li>
@@ -63,11 +63,11 @@ export default function RunConnectorsButton() {
       )}
 
       {notification && (
-        <div className="flex items-center justify-between gap-3 border-t border-zinc-100 pt-2 text-xs">
-          <span className="text-zinc-700">
+        <div className="flex items-center justify-between gap-3 border-t border-studio-line pt-2 text-xs">
+          <span className="text-studio-navy">
             Notification e-mail/SMS
             {notification.message && (
-              <span className="text-zinc-400"> — {notification.message}</span>
+              <span className="text-studio-muted"> — {notification.message}</span>
             )}
           </span>
           <Badge tone={STATUS_TONE[notification.status]}>{STATUS_LABEL[notification.status]}</Badge>

@@ -26,14 +26,14 @@ export default function AnalyzeButton({ legalMonitoringId }: { legalMonitoringId
       >
         {pending ? "..." : "Analyser avec l'IA"}
       </Button>
-      {result?.message && <p className="text-xs text-zinc-500">{result.message}</p>}
+      {result?.message && <p className="text-xs text-studio-muted">{result.message}</p>}
       {result?.status === "ok" && result.analysis && (
-        <div className="rounded-md bg-zinc-50 px-3 py-2 text-xs text-zinc-700">
+        <div className="rounded-md bg-studio-bg px-3 py-2 text-xs text-studio-navy">
           <p>
             <span className="font-medium">{result.analysis.type}</span> — {result.analysis.intitule}
           </p>
           <p className="mt-1">{result.analysis.resume}</p>
-          <p className="mt-1 text-zinc-500">Impact : {result.analysis.impactRhPaie}</p>
+          <p className="mt-1 text-studio-muted">Impact : {result.analysis.impactRhPaie}</p>
         </div>
       )}
     </div>

@@ -40,16 +40,16 @@ export default async function ControlePage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-semibold text-zinc-900">Contrôle G2S</h1>
+        <h1 className="text-2xl font-semibold text-studio-navy">Contrôle G2S</h1>
         <Badge tone={rows.length > 0 ? "amber" : "neutral"}>{rows.length} en attente</Badge>
       </div>
-      <p className="mt-1 text-sm text-zinc-500">
+      <p className="mt-1 text-sm text-studio-muted">
         Versions passées en « À vérifier », toutes fiches et couches confondues.
       </p>
 
       {rows.length === 0 ? (
         <Card className="mt-6">
-          <p className="text-sm text-zinc-400">Rien à contrôler pour l&apos;instant.</p>
+          <p className="text-sm text-studio-muted">Rien à contrôler pour l&apos;instant.</p>
         </Card>
       ) : (
         <div className="mt-6 flex flex-col gap-4">
@@ -59,17 +59,17 @@ export default async function ControlePage() {
                 <div>
                   <Link
                     href={`/referentiel/${row.master_sheets?.id}`}
-                    className="font-medium text-blue-700 hover:underline"
+                    className="font-medium text-studio-blue hover:underline"
                   >
                     {row.master_sheets?.title ?? "(fiche introuvable)"}
                   </Link>
-                  <p className="mt-0.5 text-xs text-zinc-500">
+                  <p className="mt-0.5 text-xs text-studio-muted">
                     <span className="font-mono">{row.master_sheets?.code}</span> ·{" "}
                     {getLayerKindLabel(row.layer_kind)} · version {row.version} ·{" "}
                     {row.profiles?.full_name ?? "auteur inconnu"}
                   </p>
                   {row.motif && (
-                    <p className="mt-1 text-xs text-zinc-500">
+                    <p className="mt-1 text-xs text-studio-muted">
                       Motif précédent : <span className="italic">{row.motif}</span>
                     </p>
                   )}

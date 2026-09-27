@@ -18,7 +18,9 @@ export function AddOverrideForm({
   const [error, formAction, pending] = useActionState(setSheetOverride, null);
 
   if (availableSheets.length === 0) {
-    return <p className="text-xs text-zinc-400">Toutes les fiches publiées sont déjà affectées.</p>;
+    return (
+      <p className="text-xs text-studio-muted">Toutes les fiches publiées sont déjà affectées.</p>
+    );
   }
 
   return (

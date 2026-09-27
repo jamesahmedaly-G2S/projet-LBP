@@ -22,7 +22,7 @@ export function AffectationList({
   const removed = affectations.filter((a) => a.removedManually);
 
   if (affectations.length === 0) {
-    return <p className="text-sm text-zinc-400">Aucune fiche affectée pour l&apos;instant.</p>;
+    return <p className="text-sm text-studio-muted">Aucune fiche affectée pour l&apos;instant.</p>;
   }
 
   return (
@@ -35,14 +35,14 @@ export function AffectationList({
 
       {removed.length > 0 && (
         <div>
-          <p className="mb-1 text-xs font-medium text-zinc-500">
+          <p className="mb-1 text-xs font-medium text-studio-muted">
             Retirées manuellement (règle automatique conservée, non visible côté client)
           </p>
           <ul className="flex flex-col gap-1">
             {removed.map((a) => (
               <li
                 key={a.masterSheetId}
-                className="flex items-center justify-between gap-3 text-sm text-zinc-400"
+                className="flex items-center justify-between gap-3 text-sm text-studio-muted"
               >
                 <span className="line-through">{a.title}</span>
                 <div className="flex flex-wrap items-center justify-end gap-1">
@@ -88,11 +88,11 @@ function AffectationRow({
   }
 
   return (
-    <li className="flex flex-col gap-1 border-b border-zinc-50 pb-2 text-sm last:border-0">
+    <li className="flex flex-col gap-1 border-b border-studio-line pb-2 text-sm last:border-0">
       <div className="flex items-start justify-between gap-3">
         <Link
           href={`/referentiel/${affectation.masterSheetId}`}
-          className="text-blue-700 hover:underline"
+          className="text-studio-blue hover:underline"
         >
           {affectation.title}
         </Link>
@@ -124,7 +124,7 @@ function AffectationRow({
             name="reason"
             required
             placeholder="Motif du retrait (obligatoire)"
-            className="flex-1 rounded-md border border-zinc-300 px-2 py-1 text-xs"
+            className="flex-1 rounded-md border border-studio-line px-2 py-1 text-xs"
           />
           <Button type="submit" variant="secondary" className="text-xs" disabled={pending}>
             {pending ? "..." : "Confirmer"}

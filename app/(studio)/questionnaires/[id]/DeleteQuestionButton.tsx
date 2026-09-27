@@ -19,7 +19,7 @@ export default function DeleteQuestionButton({ questionId }: { questionId: strin
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-zinc-500">Confirmer la suppression ?</span>
+      <span className="text-xs text-studio-muted">Confirmer la suppression ?</span>
       <Button
         type="button"
         variant="danger"

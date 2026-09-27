@@ -29,7 +29,7 @@ export default function ImpactsSection({
   return (
     <div className="flex flex-col gap-3">
       {impacts.length === 0 ? (
-        <p className="text-sm text-zinc-400">Aucune fiche déclenchée pour l&apos;instant.</p>
+        <p className="text-sm text-studio-muted">Aucune fiche déclenchée pour l&apos;instant.</p>
       ) : (
         <ul className="flex flex-col gap-1">
           {impacts.map((impact) => (
@@ -40,7 +40,7 @@ export default function ImpactsSection({
 
       <form
         action={formAction}
-        className="flex flex-wrap items-end gap-2 border-t border-zinc-100 pt-3"
+        className="flex flex-wrap items-end gap-2 border-t border-studio-line pt-3"
       >
         <input type="hidden" name="question_code" value={questionCode} />
         <input type="hidden" name="question_id" value={questionId} />
@@ -73,9 +73,9 @@ function ImpactRow({ impact, questionId }: { impact: Impact; questionId: string 
 
   return (
     <li className="flex items-center justify-between gap-3 text-sm">
-      <span className="text-zinc-700">
+      <span className="text-studio-navy">
         <Badge tone="blue">{impact.answerValue}</Badge> → {impact.sheetTitle}{" "}
-        <span className="font-mono text-xs text-zinc-400">({impact.sheetCode})</span>
+        <span className="font-mono text-xs text-studio-muted">({impact.sheetCode})</span>
       </span>
       <Button
         type="button"

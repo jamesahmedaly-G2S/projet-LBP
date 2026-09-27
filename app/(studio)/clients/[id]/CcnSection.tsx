@@ -31,7 +31,7 @@ export default function CcnSection({
       <Button type="button" variant="primary" onClick={save} disabled={pending} className="w-fit">
         {pending ? "Enregistrement..." : "Enregistrer les CCN"}
       </Button>
-      {message && <p className="text-sm text-zinc-600">{message}</p>}
+      {message && <p className="text-sm text-studio-muted">{message}</p>}
     </div>
   );
 }

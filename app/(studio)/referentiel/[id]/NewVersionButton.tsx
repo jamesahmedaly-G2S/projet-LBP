@@ -13,7 +13,7 @@ export default function NewVersionButton({ masterSheetId }: { masterSheetId: str
   return (
     <form action={formAction} className="flex flex-col items-start gap-1">
       <input type="hidden" name="master_sheet_id" value={masterSheetId} />
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-studio-muted">
         Cette version est déjà diffusée, son contenu est figé.
       </p>
       <Button type="submit" variant="secondary" disabled={pending} className="text-xs">

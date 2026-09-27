@@ -3,10 +3,10 @@ import type { ButtonHTMLAttributes } from "react";
 type Variant = "primary" | "secondary" | "danger" | "ghost";
 
 const VARIANT_CLASSES: Record<Variant, string> = {
-  primary: "bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300",
-  secondary: "border border-zinc-300 text-zinc-700 hover:bg-zinc-50 disabled:opacity-50",
-  danger: "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300",
-  ghost: "text-zinc-600 hover:bg-zinc-100 disabled:opacity-50",
+  primary: "bg-studio-blue text-white hover:bg-studio-navy2 disabled:bg-studio-blue-soft",
+  secondary: "border border-studio-line text-studio-navy hover:bg-studio-bg disabled:opacity-50",
+  danger: "bg-studio-red text-white hover:bg-studio-red/90 disabled:bg-studio-red-bg",
+  ghost: "text-studio-muted hover:bg-studio-blue-soft disabled:opacity-50",
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -18,7 +18,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export function Button({ variant = "secondary", className = "", ...props }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed ${VARIANT_CLASSES[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed ${VARIANT_CLASSES[variant]} ${className}`}
       {...props}
     />
   );

@@ -89,7 +89,7 @@ export default async function ReferentielPage() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-900">Référentiel maître</h1>
+        <h1 className="text-2xl font-semibold text-studio-navy">Référentiel maître</h1>
         <div className="flex items-center gap-3">
           <LinkButton href="/referentiel/controle" variant="secondary">
             Contrôle G2S{reviewCount ? ` (${reviewCount})` : ""}
@@ -103,22 +103,22 @@ export default async function ReferentielPage() {
       <div className="mt-6 flex flex-col gap-6">
         {(families ?? []).map((family) => (
           <Card key={family.id}>
-            <h2 className="text-lg font-semibold text-zinc-800">{family.name}</h2>
+            <h2 className="text-lg font-semibold text-studio-navy">{family.name}</h2>
 
             <div className="mt-3 flex flex-col gap-4">
               {(themes ?? [])
                 .filter((theme) => theme.family_id === family.id)
                 .map((theme) => (
-                  <div key={theme.id} className="border-l-2 border-zinc-100 pl-4">
-                    <h3 className="font-medium text-zinc-700">{theme.name}</h3>
+                  <div key={theme.id} className="border-l-2 border-studio-line pl-4">
+                    <h3 className="font-medium text-studio-navy">{theme.name}</h3>
 
                     <SheetList sheets={sheetsOfTheme(theme.id, null)} />
 
                     {(subthemes ?? [])
                       .filter((subtheme) => subtheme.theme_id === theme.id)
                       .map((subtheme) => (
-                        <div key={subtheme.id} className="mt-2 border-l-2 border-zinc-100 pl-4">
-                          <h4 className="text-sm font-medium text-zinc-600">{subtheme.name}</h4>
+                        <div key={subtheme.id} className="mt-2 border-l-2 border-studio-line pl-4">
+                          <h4 className="text-sm font-medium text-studio-muted">{subtheme.name}</h4>
                           <SheetList sheets={sheetsOfTheme(theme.id, subtheme.id)} />
                         </div>
                       ))}
@@ -141,7 +141,7 @@ function SheetList({ sheets }: { sheets: MasterSheetRow[] }) {
     <ul className="mt-2 flex flex-col gap-1">
       {sheets.map((sheet) => (
         <li key={sheet.id} className="flex items-center justify-between gap-3 text-sm">
-          <Link href={`/referentiel/${sheet.id}`} className="text-blue-700 hover:underline">
+          <Link href={`/referentiel/${sheet.id}`} className="text-studio-blue hover:underline">
             {sheet.title}
           </Link>
           <Badge tone={getWorkflowStatusTone(sheet.status)}>

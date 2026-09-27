@@ -71,17 +71,17 @@ export default async function HistoriquePage({ params }: { params: Promise<{ id:
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <Link href={`/referentiel/${sheet.id}`} className="text-sm text-blue-700 hover:underline">
+      <Link href={`/referentiel/${sheet.id}`} className="text-sm text-studio-blue hover:underline">
         ← Retour à la fiche
       </Link>
-      <h1 className="mt-2 text-2xl font-semibold text-zinc-900">Historique — {sheet.title}</h1>
-      <p className="text-sm text-zinc-500">
+      <h1 className="mt-2 text-2xl font-semibold text-studio-navy">Historique — {sheet.title}</h1>
+      <p className="text-sm text-studio-muted">
         <span className="font-mono">{sheet.code}</span> · toutes couches et tous statuts
       </p>
 
       {rows.length === 0 ? (
         <Card className="mt-6">
-          <p className="text-sm text-zinc-400">Aucune version pour cette fiche.</p>
+          <p className="text-sm text-studio-muted">Aucune version pour cette fiche.</p>
         </Card>
       ) : (
         <div className="mt-6 flex flex-col gap-4">
@@ -95,10 +95,10 @@ export default async function HistoriquePage({ params }: { params: Promise<{ id:
               <Card key={row.id}>
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-medium text-zinc-800">
+                    <p className="text-sm font-medium text-studio-navy">
                       {getLayerKindLabel(row.layer_kind)} · version {row.version}
                     </p>
-                    <p className="mt-0.5 text-xs text-zinc-500">
+                    <p className="mt-0.5 text-xs text-studio-muted">
                       {row.profiles?.full_name ?? "auteur inconnu"} ·{" "}
                       {new Date(row.created_at).toLocaleString("fr-FR")}
                       {row.published_at &&
@@ -108,16 +108,16 @@ export default async function HistoriquePage({ params }: { params: Promise<{ id:
                         ` · programmée pour le ${new Date(row.scheduled_at).toLocaleString("fr-FR")}`}
                     </p>
                     {row.motif && (
-                      <p className="mt-1 text-xs text-zinc-500">
+                      <p className="mt-1 text-xs text-studio-muted">
                         Motif : <span className="italic">{row.motif}</span>
                       </p>
                     )}
                     {row.legal_monitoring_id && (
-                      <p className="mt-1 text-xs text-zinc-500">
+                      <p className="mt-1 text-xs text-studio-muted">
                         Origine :{" "}
                         <Link
                           href={`/veille/${row.legal_monitoring_id}`}
-                          className="text-blue-700 hover:underline"
+                          className="text-studio-blue hover:underline"
                         >
                           veille — {row.legal_monitoring?.title ?? "(entrée introuvable)"}
                         </Link>
@@ -130,9 +130,9 @@ export default async function HistoriquePage({ params }: { params: Promise<{ id:
                 </div>
 
                 <div className="mt-2">
-                  <p className="text-xs font-medium text-zinc-500">Sociétés diffusées</p>
+                  <p className="text-xs font-medium text-studio-muted">Sociétés diffusées</p>
                   {recipients.length === 0 ? (
-                    <p className="text-xs text-zinc-400">Aucune (jamais publiée).</p>
+                    <p className="text-xs text-studio-muted">Aucune (jamais publiée).</p>
                   ) : (
                     <div className="mt-1 flex flex-wrap gap-1">
                       {recipients.map((name) => (
@@ -145,15 +145,17 @@ export default async function HistoriquePage({ params }: { params: Promise<{ id:
                 </div>
 
                 <details className="mt-3">
-                  <summary className="cursor-pointer text-xs font-medium text-blue-700 hover:underline">
+                  <summary className="cursor-pointer text-xs font-medium text-studio-blue hover:underline">
                     Voir le contenu de cette version
                   </summary>
-                  <div className="mt-2 flex flex-col gap-2 border-t border-zinc-100 pt-2">
+                  <div className="mt-2 flex flex-col gap-2 border-t border-studio-line pt-2">
                     {CONTENT_FIELDS.map((field) => (
                       <div key={field.key}>
-                        <p className="text-xs font-medium text-zinc-600">{field.label}</p>
-                        <p className="whitespace-pre-wrap text-sm text-zinc-800">
-                          {row.content[field.key] || <span className="text-zinc-400">(vide)</span>}
+                        <p className="text-xs font-medium text-studio-muted">{field.label}</p>
+                        <p className="whitespace-pre-wrap text-sm text-studio-navy">
+                          {row.content[field.key] || (
+                            <span className="text-studio-muted">(vide)</span>
+                          )}
                         </p>
                       </div>
                     ))}

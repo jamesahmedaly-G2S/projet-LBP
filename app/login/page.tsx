@@ -10,9 +10,9 @@ export default function LoginPage() {
   const [error, formAction, pending] = useActionState(login, null);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-6">
+    <main className="flex min-h-screen items-center justify-center bg-studio-bg px-6">
       <Card className="w-full max-w-sm">
-        <h1 className="mb-5 text-xl font-semibold text-zinc-900">Connexion</h1>
+        <h1 className="mb-5 text-xl font-semibold text-studio-navy">Connexion</h1>
 
         <form action={formAction} className="flex flex-col gap-4">
           <TextField label="Email" type="email" name="email" required />
