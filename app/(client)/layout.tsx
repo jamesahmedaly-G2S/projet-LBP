@@ -22,18 +22,23 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
     <div className="theme-client min-h-screen bg-page-bg">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-6 py-4">
         <div className="flex items-center gap-6">
-          <Link href="/bibliotheque" className="text-sm font-semibold tracking-wide text-ink">
+          <span className="text-sm font-semibold tracking-wide text-ink">
             LE LIVRE BLANC DE LA PAIE
-          </Link>
-          <Link href="/mon-equipe" className="text-sm font-medium text-muted hover:text-ink">
-            Mon équipe
-          </Link>
-          <Link href="/mes-quiz" className="text-sm font-medium text-muted hover:text-ink">
-            Quiz
-          </Link>
-          <Link href="/offres" className="text-sm font-medium text-muted hover:text-ink">
-            Offres
-          </Link>
+          </span>
+          <nav className="flex items-center gap-5">
+            <Link href="/mon-equipe" className="text-sm font-medium text-muted hover:text-ink">
+              Mon équipe
+            </Link>
+            <Link href="/bibliotheque" className="text-sm font-medium text-muted hover:text-ink">
+              La bibliothèque
+            </Link>
+            <Link href="/mes-quiz" className="text-sm font-medium text-muted hover:text-ink">
+              Quizz
+            </Link>
+            <Link href="/offres" className="text-sm font-medium text-muted hover:text-ink">
+              Offres
+            </Link>
+          </nav>
         </div>
         <div className="flex items-center gap-2">
           <Link
