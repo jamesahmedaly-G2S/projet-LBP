@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireClient } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getStudioOfferTier, computeOfferPrice } from "@/lib/studio/offer-tiers";
-import { KEY_FIGURE_LABELS } from "@/lib/client/key-figure-labels";
+import { keyFigureLabel } from "@/lib/client/key-figure-labels";
 import { Card } from "@/ui-kit/Card";
 import ChiffreCard from "./ChiffreCard";
 
@@ -29,6 +29,7 @@ interface KeyFigureRow {
   value: number;
   unit: string;
   note: string | null;
+  label: string | null;
 }
 
 // LBP-CLIENT-01 : "Accueil" [§1.2, p.8-9]. Rappels de semaine et
@@ -50,7 +51,7 @@ export default async function AccueilPage() {
   const [{ data: keyFigures }, { data: families }, { data: themes }] = await Promise.all([
     supabase
       .from("key_figures")
-      .select("key, year, value, unit, note")
+      .select("key, year, value, unit, note, label")
       .in("key", KEY_FIGURE_ORDER)
       .order("year", { ascending: false })
       .returns<KeyFigureRow[]>(),
@@ -120,7 +121,7 @@ export default async function AccueilPage() {
           return (
             <ChiffreCard
               key={key}
-              label={KEY_FIGURE_LABELS[key]}
+              label={keyFigureLabel(key, current.label)}
               currentNote={current.note ?? `${current.value} ${current.unit}`}
               history={history.map((h) => ({
                 year: h.year,

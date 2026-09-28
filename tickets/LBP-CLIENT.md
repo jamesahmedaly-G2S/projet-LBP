@@ -76,7 +76,7 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
-## LBP-CLIENT-05 — Chiffres Paie 🟡 Partiellement fait (client fait, admin G2S à faire)
+## LBP-CLIENT-05 — Chiffres Paie ✅ Fait
 
 **Contexte** [§1.6, p.11] : "Comparatif N-1→N, plafonds toutes périodicités, taux de cotisations". Vérifié contre le vrai code du prototype (`LBP_V6_Studio.html`, `var CHIFFRES` + `renderChiffres()`, lignes 3113-3202) avant de construire — même discipline que pour Offres/Accueil. §1.6 dit explicitement _"Édition G2S : la page est entièrement pilotée par des données modifiables"_, avec des vrais boutons "+ Ajouter un repère"/"+ Ajouter un groupe"/"Modifier les tableaux" dans le prototype — ce ticket ferme donc aussi le manque d'écran d'administration déjà signalé pour `key_figures` (Accueil, LBP-CLIENT-01), en unifiant les deux sur la même table plutôt que dupliquer les mêmes indicateurs (SMIC/PMSS/PASS) ailleurs.
 
@@ -84,7 +84,11 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 **Simplification assumée** : le prototype stocke une "variation" (ex. "▲ +3,6 %") comme un champ texte librement édité par G2S, avec un risque réel d'incohérence avec les valeurs affichées si elles divergent. Ici, la variation est **calculée à l'affichage** à partir des deux dernières années présentes pour une clé donnée — jamais stockée, jamais désynchronisable.
 
-**Non fait — reste à faire** : l'écran d'administration G2S (`app/(studio)/chiffres-paie/`) pour ajouter/modifier/supprimer un repère, un groupe, une ligne de cotisation, et éditer titre/intro/source — les policies RLS d'écriture sont déjà posées (`is_admin()` sur les 4 tables, y compris `key_figures` qui n'en avait aucune avant cette migration), il ne manque que l'écran.
+**Réalisé (partie admin G2S, 28/09/2026)** : `app/(studio)/administration/chiffres-paie/` — bloc "Données de référence" ajouté à `/administration` (nouvelle porte d'entrée pour ce type d'écran, plutôt qu'un 11e onglet Studio distinct de plus que les 10 fixes du §3 du dossier). Réglages de page (titre/intro/titres de tableaux/source), groupes (ajout/suppression), repères (`key_figures` — ajout/modification/suppression, une ligne par clé+année, cases à cocher pour l'affichage carte/tableau périodicités), taux de cotisations (ajout/modification/suppression, en-têtes de catégorie inclus).
+
+**Correctif au passage** : `key_figures.label` ajouté (migration `20260928160000`) — sans cette colonne, un repère créé depuis l'écran d'admin n'aurait eu qu'un libellé de repli (sa clé technique brute) tant qu'un développeur n'ajoute pas l'entrée dans `lib/client/key-figure-labels.ts`, contraire à l'exigence explicite de l'utilisateur ("tout doit se faire depuis l'espace G2S, Pauline ne touche jamais au code"). `keyFigureLabel()` priorise maintenant ce libellé en base sur la table de code.
+
+**Vérifié** : test réel avec la session admin réelle (Pauline) — ajout réel d'un repère de test avec son propre libellé, confirmé en base, puis confirmé **visible côté client** (`/chiffres-paie`) avec ce même libellé personnalisé, sans aucun changement de code. Modification réelle du titre de la page, persistante après rechargement. Toutes les données de test supprimées après coup, réglages restaurés à leur valeur d'origine.
 
 **Vérifié** : test réel navigateur avec la session cliente ALPHA — titre/intro réels affichés, 3 groupes réels avec leurs vraies cartes comparatives (SMIC horaire 11,88 € → 12,31 €, variation calculée +3,6 % correcte), tableau plafond réel avec les 7 périodicités (jusqu'à l'horaire, 29 € → 30 €), tableau des cotisations réel avec ses 35 lignes (ex. AGIRC-ARRCO tranche 1 : 3,15 % / 4,72 %), source réelle affichée. Lien réel ajouté depuis l'Accueil ("Tous les chiffres Paie →").
 

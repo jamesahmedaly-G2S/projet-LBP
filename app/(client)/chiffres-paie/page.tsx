@@ -9,6 +9,7 @@ interface KeyFigureRow {
   value: number;
   unit: string;
   note: string | null;
+  label: string | null;
   group_id: string | null;
 }
 interface GroupRow {
@@ -45,7 +46,7 @@ export default async function ChiffresPaiePage() {
       supabase.from("key_figure_groups").select("*").order("display_order").returns<GroupRow[]>(),
       supabase
         .from("key_figures")
-        .select("key, year, value, unit, note, group_id")
+        .select("key, year, value, unit, note, label, group_id")
         .or("show_as_card.eq.true,show_in_ceiling_table.eq.true")
         .order("year", { ascending: false })
         .returns<KeyFigureRow[]>(),
@@ -106,7 +107,7 @@ export default async function ChiffresPaiePage() {
                     : null;
                 return (
                   <Card key={key}>
-                    <p className="text-sm text-ink">{keyFigureLabel(key)}</p>
+                    <p className="text-sm text-ink">{keyFigureLabel(key, latest.label)}</p>
                     <div className="mt-2 flex items-center gap-2">
                       {previous && (
                         <>
@@ -160,7 +161,9 @@ export default async function ChiffresPaiePage() {
               if (!v2025 && !v2026) return null;
               return (
                 <tr key={key} className="border-b border-border">
-                  <td className="py-1.5 pr-2 text-ink">{keyFigureLabel(key)}</td>
+                  <td className="py-1.5 pr-2 text-ink">
+                    {keyFigureLabel(key, v2026?.label ?? v2025?.label)}
+                  </td>
                   <td className="px-2 py-1.5 text-right font-mono text-muted">
                     {v2025?.note ?? "—"}
                   </td>

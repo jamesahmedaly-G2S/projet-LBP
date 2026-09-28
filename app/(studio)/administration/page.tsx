@@ -5,6 +5,7 @@ import { getRecentActivity } from "@/lib/studio/activity";
 import { STUDIO_SETTINGS } from "@/lib/studio/settings";
 import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
+import { LinkButton } from "@/ui-kit/LinkButton";
 import OfferRequestActions from "./OfferRequestActions";
 
 const OFFER_REQUEST_STATUS_LABELS = {
@@ -155,6 +156,19 @@ export default async function AdministrationPage() {
             ))}
           </ul>
         )}
+      </Card>
+
+      <Card className="mt-6">
+        <h2 className="mb-3 text-lg font-semibold text-studio-navy">Données de référence</h2>
+        <p className="mb-3 text-xs text-studio-muted">
+          Contenu affiché côté client (LBP Client), édité exclusivement depuis ces écrans — jamais
+          par une modification de code ni un accès direct à la base.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <LinkButton href="/administration/chiffres-paie" variant="secondary">
+            Chiffres Paie
+          </LinkButton>
+        </div>
       </Card>
 
       <Card className="mt-6">

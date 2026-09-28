@@ -31,6 +31,12 @@ export const CEILING_TABLE_ORDER = [
   "plafond-horaire",
 ];
 
-export function keyFigureLabel(key: string): string {
-  return KEY_FIGURE_LABELS[key] ?? key;
+/**
+ * `dbLabel` (la colonne `key_figures.label`) est prioritaire quand
+ * renseignée — un repère ajouté par G2S depuis l'écran d'admin a un
+ * libellé réel dès sa création, jamais besoin d'un changement de code
+ * pour l'afficher correctement.
+ */
+export function keyFigureLabel(key: string, dbLabel?: string | null): string {
+  return dbLabel || KEY_FIGURE_LABELS[key] || key;
 }
