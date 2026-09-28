@@ -1,6 +1,8 @@
 import { requireClient } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/ui-kit/Card";
+import { Eyebrow } from "../_components/Eyebrow";
+import { SectionTitle } from "../_components/SectionTitle";
 import ProfileForm from "./ProfileForm";
 import PasswordForm from "./PasswordForm";
 
@@ -29,8 +31,8 @@ export default async function MonComptePage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-2xl font-semibold text-ink">Mon compte</h1>
-      <p className="mt-1 text-sm text-muted">Le compte de {profile?.full_name ?? "—"}.</p>
+      <Eyebrow>Espace personnel</Eyebrow>
+      <SectionTitle>Le compte de {profile?.full_name ?? "—"}</SectionTitle>
 
       <Card className="mt-6">
         <h2 className="text-lg font-semibold text-ink">Mes informations</h2>

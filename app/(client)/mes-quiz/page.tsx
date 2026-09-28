@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { parseQuiz } from "@/lib/studio/parse-quiz";
 import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
+import { Eyebrow } from "../_components/Eyebrow";
+import { SectionTitle } from "../_components/SectionTitle";
 
 interface QuizRow {
   id: string;
@@ -47,10 +49,9 @@ export default async function ClientQuizListPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-2xl font-semibold text-ink">Quiz</h1>
-      <p className="mt-1 text-sm text-muted">
-        Testez vos connaissances sur les thèmes et fiches du LBP.
-      </p>
+      <Eyebrow>Évaluation</Eyebrow>
+      <SectionTitle>Testez vos connaissances</SectionTitle>
+      <p className="-mt-3 text-sm text-muted">Les quizz de vos fiches, à faire directement ici.</p>
 
       {rows.length === 0 ? (
         <Card className="mt-6">

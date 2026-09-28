@@ -3,6 +3,8 @@ import { requireClient } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getCompanyAffectations } from "@/lib/studio/affectations";
 import { Card } from "@/ui-kit/Card";
+import { Eyebrow } from "../_components/Eyebrow";
+import { SectionTitle } from "../_components/SectionTitle";
 
 interface Row {
   id: string;
@@ -73,8 +75,9 @@ export default async function BibliothequePage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-2xl font-semibold text-ink">Bibliothèque</h1>
-      <p className="mt-1 text-sm text-muted">
+      <Eyebrow>La bibliothèque RH &amp; Paie</Eyebrow>
+      <SectionTitle>Bibliothèque</SectionTitle>
+      <p className="-mt-3 text-sm text-muted">
         L&apos;ensemble des fiches accessibles pour {company?.company_name ?? "votre société"}.
       </p>
 

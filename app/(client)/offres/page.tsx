@@ -1,6 +1,8 @@
 import { requireClient } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getAllStudioOfferTiers } from "@/lib/studio/offer-tiers";
+import { Eyebrow } from "../_components/Eyebrow";
+import { SectionTitle } from "../_components/SectionTitle";
 import OffersClient from "./OffersClient";
 
 // LBP-CLIENT-07 : "Présentation et détail des 4 offres commerciales"
@@ -35,8 +37,9 @@ export default async function OffresPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="text-2xl font-semibold text-ink">Offres</h1>
-      <p className="mt-1 text-sm text-muted">
+      <Eyebrow>Nos offres</Eyebrow>
+      <SectionTitle>Les offres LBP</SectionTitle>
+      <p className="-mt-3 text-sm text-muted">
         Choisissez le niveau de LBP adapté à votre entreprise.
       </p>
       {pendingRequest && (

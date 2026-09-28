@@ -70,6 +70,15 @@
   --color-success-bg: #e7e4dc;
   --color-danger: #c24a3a;
   --color-danger-bg: color-mix(in srgb, #c24a3a 12%, white);
+
+  /* Port 1:1 de LBP_V2-20.html : Inter en corps de texte (ligne 37),
+     Plus Jakarta Sans pour .disp/.eyebrow/.section-title/.btn (ligne 38) —
+     le Studio garde Geist, --font-sans global n'est pas touché ici. */
+  font-family: var(--font-inter-client), sans-serif;
+}
+.theme-client button,
+.theme-client [class*="rounded-full"] {
+  font-family: var(--font-jakarta), sans-serif;
 }
 
 @theme inline {
@@ -77,6 +86,10 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* LBP Client uniquement (voir .theme-client) — jamais utilisé côté
+     Studio, qui n'a pas cette variable définie et retomberait sur
+     --font-sans (Geist) si jamais appliqué par erreur. */
+  --font-display: var(--font-jakarta);
 
   --color-studio-navy: var(--studio-navy);
   --color-studio-navy2: var(--studio-navy2);

@@ -1,5 +1,7 @@
 import { requireClient } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { Eyebrow } from "../_components/Eyebrow";
+import { SectionTitle } from "../_components/SectionTitle";
 import DictionaryList, { type DictionaryTerm } from "./DictionaryList";
 
 // LBP-CLIENT-14 : "Dictionnaire" — 14e module ajouté après vérification
@@ -19,8 +21,9 @@ export default async function DictionnairePage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-2xl font-semibold text-ink">Dictionnaire</h1>
-      <p className="mt-1 text-sm text-muted">
+      <Eyebrow>Les mots de la paie</Eyebrow>
+      <SectionTitle>Dictionnaire</SectionTitle>
+      <p className="-mt-3 text-sm text-muted">
         Les termes essentiels de la paie et du droit social.
       </p>
 

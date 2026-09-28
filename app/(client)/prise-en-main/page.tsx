@@ -1,6 +1,8 @@
 import { requireClient } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/ui-kit/Card";
+import { Eyebrow } from "../_components/Eyebrow";
+import { SectionTitle } from "../_components/SectionTitle";
 
 interface HelpSettings {
   title: string;
@@ -29,10 +31,8 @@ export default async function PriseEnMainPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <p className="text-sm text-muted">Aide &amp; prise en main</p>
-      <h1 className="mt-1 text-2xl font-semibold text-ink">
-        {help?.title ?? "Bien démarrer avec le LBP"}
-      </h1>
+      <Eyebrow>Aide &amp; prise en main</Eyebrow>
+      <SectionTitle>{help?.title ?? "Bien démarrer avec le LBP"}</SectionTitle>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Card>

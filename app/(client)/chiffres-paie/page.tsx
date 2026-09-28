@@ -2,6 +2,8 @@ import { requireClient } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { keyFigureLabel, CEILING_TABLE_ORDER } from "@/lib/client/key-figure-labels";
 import { Card } from "@/ui-kit/Card";
+import { Eyebrow } from "../_components/Eyebrow";
+import { SectionTitle } from "../_components/SectionTitle";
 
 interface KeyFigureRow {
   key: string;
@@ -81,10 +83,8 @@ export default async function ChiffresPaiePage() {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <p className="text-sm text-muted">Données de référence</p>
-      <h1 className="mt-1 text-2xl font-semibold text-ink">
-        {settings?.title ?? "Les chiffres de la paie"}
-      </h1>
+      <Eyebrow>Données de référence</Eyebrow>
+      <SectionTitle>{settings?.title ?? "Les chiffres de la paie"}</SectionTitle>
       {settings?.intro && <p className="mt-2 max-w-2xl text-sm text-muted">{settings.intro}</p>}
 
       {(groups ?? []).map((group) => {

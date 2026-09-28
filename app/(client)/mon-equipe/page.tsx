@@ -1,6 +1,8 @@
 import { requireClient } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/ui-kit/Card";
+import { Eyebrow } from "../_components/Eyebrow";
+import { SectionTitle } from "../_components/SectionTitle";
 import EstablishmentsSection from "./EstablishmentsSection";
 import TeamSection, { type TeamMember } from "./TeamSection";
 import PayrollForm from "./PayrollForm";
@@ -72,8 +74,11 @@ export default async function MonEquipePage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-2xl font-semibold text-ink">Mon équipe</h1>
-      <p className="mt-1 text-sm text-muted">Votre société, votre organisation et vos outils RH.</p>
+      <Eyebrow>Mon espace</Eyebrow>
+      <SectionTitle>Mon équipe</SectionTitle>
+      <p className="-mt-3 text-sm text-muted">
+        Votre société, votre organisation et vos outils RH.
+      </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Card>

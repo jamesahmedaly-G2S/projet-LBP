@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getStudioOfferTier, computeOfferPrice } from "@/lib/studio/offer-tiers";
 import { keyFigureLabel } from "@/lib/client/key-figure-labels";
 import { Card } from "@/ui-kit/Card";
+import { Eyebrow } from "../_components/Eyebrow";
+import { SectionTitle } from "../_components/SectionTitle";
 import ChiffreCard from "./ChiffreCard";
 
 const KEY_FIGURE_ORDER = ["smic-h", "smic-m", "pmss", "pass"];
@@ -102,10 +104,8 @@ export default async function AccueilPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <p className="text-sm text-muted">{dateStr}</p>
-      <h1 className="mt-1 text-2xl font-semibold text-ink">
-        Bonjour {session.profile.full_name} 👋
-      </h1>
+      <Eyebrow>{dateStr}</Eyebrow>
+      <SectionTitle>Bonjour {session.profile.full_name} 👋</SectionTitle>
 
       <div className="mt-8 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-ink">Les chiffres clés</h2>
