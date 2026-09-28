@@ -22,10 +22,13 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
     <div className="theme-client min-h-screen bg-page-bg">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-6 py-4">
         <div className="flex items-center gap-6">
-          <span className="text-sm font-semibold tracking-wide text-ink">
+          <Link href="/accueil" className="text-sm font-semibold tracking-wide text-ink">
             LE LIVRE BLANC DE LA PAIE
-          </span>
+          </Link>
           <nav className="flex items-center gap-5">
+            <Link href="/accueil" className="text-sm font-medium text-muted hover:text-ink">
+              Accueil
+            </Link>
             <Link href="/mon-equipe" className="text-sm font-medium text-muted hover:text-ink">
               Mon équipe
             </Link>

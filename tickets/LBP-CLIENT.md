@@ -32,11 +32,15 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
-## LBP-CLIENT-01 — Accueil
+## LBP-CLIENT-01 — Accueil 🟡 Partiellement fait
 
-**Contexte** [§1.2, p.8-9] : bandeau, rappels de semaine interactifs, calendrier compact, chiffres clés, deux blocs d'actualités, rappel des 3 familles de bibliothèque.
+**Contexte** [§1.2, p.8-9] : bandeau, rappels de semaine interactifs, calendrier compact, chiffres clés, deux blocs d'actualités, rappel des 3 familles de bibliothèque. Vérifié contre le vrai code du prototype (`LBP_V6_Studio.html`, `renderOverview()`, lignes 4249-4293) avant de construire, même discipline que pour Offres.
 
-**À faire** : écran d'atterrissage post-login (remplace la redirection directe vers `/bibliotheque` actuelle). Dépend du moteur de calendrier/récurrence (`docs/ARCHITECTURE.md` §7.1, hors phase 1) pour les rappels de semaine — un premier jet peut s'en passer (chiffres clés + rappel des 3 familles seuls, réalistes dès maintenant avec les données déjà en base).
+**Réalisé** : `app/(client)/accueil/` devient l'écran d'atterrissage post-login (`app/login/actions.ts` redirige désormais vers `/accueil`, plus `/bibliotheque`). Salutation réelle (nom + date du jour). **Chiffres clés** : `key_figures` existe déjà dans le schéma réel de James (§9.6), jamais peuplée — les 4 indicateurs réels du prototype (SMIC horaire/mensuel, PMSS, PASS) portés 1:1 avec leur historique complet 2021-2026 (`var HISTO`, lignes 1804-1809, migration `20260928140000`), carte cliquable pour dérouler l'historique (`ChiffreCard.tsx`). **Dernières mises à jour de votre LBP** : vraies publications récentes visibles par ce client (`client_sheet_content`, pas de donnée inventée). **Votre offre** : réutilise `getStudioOfferTier()`/`computeOfferPrice()` déjà construits pour `/offres` (LBP-CLIENT-07) — jamais une deuxième logique de tarification. **La bibliothèque** : les 3 familles réelles avec leur vrai nombre de thèmes (`master_families`/`master_themes`), icônes et exemples portés du prototype (`var FAMILIES`, ligne 1799-1803, contenu décoratif seulement, pas de nouvelle colonne en base).
+
+**Non fait — hors périmètre confirmé** : rappels de semaine interactifs et calendrier compact, qui dépendent d'un vrai moteur de calendrier/récurrence explicitement reporté hors phase 1 (`docs/ARCHITECTURE.md` §7.1). Actualités RH & juridiques : le bloc existe (`articles`, schéma réel de James, jamais peuplée), affiché avec un état vide honnête plutôt qu'un article inventé — attend LBP-CLIENT-04.
+
+**Vérifié** : test réel navigateur — parcours complet de login jusqu'à `/accueil`, salutation réelle, 4 chiffres clés réels avec valeurs exactes (12,31 € etc.), historique réel déroulé au clic (2021 → 10,25 €), offre réelle affichée (LBP Métier, 349 € HT/an), 3 familles réelles avec comptage exact de thèmes (5/10/4, cohérent avec les 153 fiches importées + les thèmes de démo). Un vrai bug trouvé et corrigé en testant : le symbole "€" apparaissait en double lorsque la valeur stockée dans `note` le contenait déjà.
 
 ---
 
