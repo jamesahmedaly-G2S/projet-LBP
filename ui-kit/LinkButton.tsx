@@ -4,8 +4,8 @@ import type { AnchorHTMLAttributes } from "react";
 type Variant = "primary" | "secondary";
 
 const VARIANT_CLASSES: Record<Variant, string> = {
-  primary: "bg-studio-blue text-white hover:bg-studio-navy2",
-  secondary: "border border-studio-line text-studio-navy hover:bg-studio-bg",
+  primary: "bg-primary text-white hover:bg-primary-hover",
+  secondary: "border border-border text-ink hover:bg-page-bg",
 };
 
 // ui-kit : même rendu que Button, mais pour une navigation (Link) plutôt

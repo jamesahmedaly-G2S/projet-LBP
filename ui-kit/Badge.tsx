@@ -3,11 +3,11 @@ import type { ReactNode } from "react";
 type Tone = "neutral" | "blue" | "green" | "amber" | "red";
 
 const TONE_CLASSES: Record<Tone, string> = {
-  neutral: "border-studio-line bg-white text-studio-muted",
-  blue: "border-studio-blue/30 bg-studio-blue-soft text-studio-blue",
-  green: "border-studio-green/30 bg-studio-green-bg text-studio-green",
-  amber: "border-studio-amber/30 bg-studio-amber-bg text-studio-amber",
-  red: "border-studio-red/30 bg-studio-red-bg text-studio-red",
+  neutral: "border-border bg-white text-muted",
+  blue: "border-primary/30 bg-primary-soft text-primary",
+  green: "border-success/30 bg-success-bg text-success",
+  amber: "border-warning/30 bg-warning-bg text-warning",
+  red: "border-danger/30 bg-danger-bg text-danger",
 };
 
 // ui-kit : pastille de statut réutilisée partout (workflow, entretiens,

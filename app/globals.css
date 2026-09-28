@@ -24,6 +24,52 @@
   --studio-red-bg: #faeae9;
   --studio-violet: #8c6fa8;
   --studio-violet-bg: #f2ecf7;
+
+  /* Couche sémantique consommée par ui-kit/ (Button, Card, Badge, Field) —
+     un seul jeu de composants partagé entre Studio et LBP Client
+     (ARCHITECTURE.md §4, STU-DESIGN-02), chaque route group choisit sa
+     palette en redéfinissant ces variables plutôt qu'en dupliquant les
+     composants. Valeurs par défaut = alias exact des `--studio-*`
+     ci-dessus (aucun changement visuel pour les écrans Studio déjà
+     vérifiés) ; `.theme-client` les redéfinit plus bas avec la vraie
+     palette du prototype LBP Client. */
+  --color-primary: var(--studio-blue);
+  --color-primary-hover: var(--studio-navy2);
+  --color-primary-soft: var(--studio-blue-soft);
+  --color-surface: var(--studio-card);
+  --color-page-bg: var(--studio-bg);
+  --color-border: var(--studio-line);
+  --color-ink: var(--studio-navy);
+  --color-muted: var(--studio-muted);
+  --color-success: var(--studio-green);
+  --color-success-bg: var(--studio-green-bg);
+  --color-warning: var(--studio-amber);
+  --color-warning-bg: var(--studio-amber-bg);
+  --color-danger: var(--studio-red);
+  --color-danger-bg: var(--studio-red-bg);
+}
+
+/* STU-CLIENT (fondations) : palette sauge/encre/crème du vrai prototype
+   LBP Client (lib/design-tokens-client.ts, port 1:1 de LBP_V2-20.html) —
+   appliquée en scope sur app/(client)/layout.tsx uniquement. Pas de
+   --color-warning-bg propre au client : le prototype vitrine n'en définit
+   aucun (pas de couleur ajoutée), donc cette teinte retombe sur celle du
+   Studio plutôt que d'en inventer une. --color-danger-bg est calculée à
+   partir du seul rouge réel du prototype (color-mix), pas une teinte
+   choisie au hasard. */
+.theme-client {
+  --color-primary: #181818;
+  --color-primary-hover: #4f6139;
+  --color-primary-soft: #cbd9e3;
+  --color-surface: #ffffff;
+  --color-page-bg: #f5f3ee;
+  --color-border: #e7e3d9;
+  --color-ink: #181818;
+  --color-muted: #78766e;
+  --color-success: #6f8657;
+  --color-success-bg: #e7e4dc;
+  --color-danger: #c24a3a;
+  --color-danger-bg: color-mix(in srgb, #c24a3a 12%, white);
 }
 
 @theme inline {
@@ -49,6 +95,21 @@
   --color-studio-red-bg: var(--studio-red-bg);
   --color-studio-violet: var(--studio-violet);
   --color-studio-violet-bg: var(--studio-violet-bg);
+
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-soft: var(--color-primary-soft);
+  --color-surface: var(--color-surface);
+  --color-page-bg: var(--color-page-bg);
+  --color-border: var(--color-border);
+  --color-ink: var(--color-ink);
+  --color-muted: var(--color-muted);
+  --color-success: var(--color-success);
+  --color-success-bg: var(--color-success-bg);
+  --color-warning: var(--color-warning);
+  --color-warning-bg: var(--color-warning-bg);
+  --color-danger: var(--color-danger);
+  --color-danger-bg: var(--color-danger-bg);
 }
 
 @media (prefers-color-scheme: dark) {

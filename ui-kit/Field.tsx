@@ -6,11 +6,11 @@ import type {
 } from "react";
 
 const CONTROL_CLASSES =
-  "rounded-md border border-studio-line px-3 py-2 text-sm text-studio-navy focus:border-studio-blue focus:outline-none focus:ring-1 focus:ring-studio-blue";
+  "rounded-md border border-border px-3 py-2 text-sm text-ink focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
 
 function Wrapper({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="flex flex-col gap-1 text-sm font-medium text-studio-muted">
+    <label className="flex flex-col gap-1 text-sm font-medium text-muted">
       {label}
       {children}
     </label>
@@ -67,10 +67,10 @@ export function CheckboxField({
   ...props
 }: { label: string } & InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <label className="flex items-center gap-2 text-sm font-medium text-studio-muted">
+    <label className="flex items-center gap-2 text-sm font-medium text-muted">
       <input
         type="checkbox"
-        className={`h-4 w-4 rounded border-studio-line text-studio-blue focus:ring-1 focus:ring-studio-blue ${className}`}
+        className={`h-4 w-4 rounded border-border text-primary focus:ring-1 focus:ring-primary ${className}`}
         {...props}
       />
       {label}
