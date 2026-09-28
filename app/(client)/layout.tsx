@@ -35,14 +35,22 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
             Offres
           </Link>
         </div>
-        <form action={logout}>
-          <button
-            type="submit"
+        <div className="flex items-center gap-2">
+          <Link
+            href="/mon-compte"
             className="rounded-full border border-border px-3 py-2 text-sm font-medium text-muted transition-colors hover:border-ink hover:text-ink"
           >
-            Déconnexion
-          </button>
-        </form>
+            Mon compte
+          </Link>
+          <form action={logout}>
+            <button
+              type="submit"
+              className="rounded-full border border-border px-3 py-2 text-sm font-medium text-muted transition-colors hover:border-ink hover:text-ink"
+            >
+              Déconnexion
+            </button>
+          </form>
+        </div>
       </header>
       {children}
     </div>

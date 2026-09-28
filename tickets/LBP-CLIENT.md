@@ -122,11 +122,15 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
-## LBP-CLIENT-10 — Mon compte
+## LBP-CLIENT-10 — Mon compte 🟡 Partiellement fait
 
-**Contexte** [§1.11, p.12-13] : infos perso, identifiants, préférences de notification.
+**Contexte** [§1.11, p.12-13] : infos perso, identifiants, préférences de notification. Vérifié contre le vrai code du prototype (`LBP_V2-20.html`, `renderAccount()`, lignes 3025-3048) : "Mes informations" (poste/service/téléphone/e-mail pro), "Identifiants & sécurité" (e-mail de connexion en lecture seule + changement de mot de passe), "Mes notifications" (`NOTIF_TYPES`, 7 types réels, un canal par type : non/LBP/e-mail/LBP+e-mail).
 
-**À faire** : édition du profil (`profiles.full_name`/`job_title`/`department`/`phone`, déjà en base), changement de mot de passe (Supabase Auth, `updateUser()` — jamais branché nulle part dans l'app actuelle, ni Studio ni client). Préférences de notification dépendent de LBP-CLIENT-11.
+**Réalisé** : `app/(client)/mon-compte/` — "Mes informations" (`ProfileForm.tsx`, `profiles.job_title`/`department`/`phone`, déjà en base, jamais éditées par le client lui-même avant ce ticket) ; "Identifiants & sécurité" (`PasswordForm.tsx`, e-mail de connexion en lecture seule via `supabase.auth.getUser()`, changement de mot de passe via l'API Supabase Auth réelle `updateUser()` — jamais branché nulle part dans l'app, ni Studio ni client, avant ce ticket). Simplification par rapport au prototype : pas de champ "e-mail professionnel" séparé (le prototype en a un, distinct de l'e-mail de connexion, mais `profiles` n'a qu'une seule adresse e-mail réelle — ajouter une colonne redondante pour un champ qui duplique l'identifiant de connexion n'était pas justifié).
+
+**Non fait — bloqué, pas oublié** : "Mes notifications" (préférences de canal par type) dépend de LBP-CLIENT-11 — `notifications` (le flux/l'historique lui-même) existe déjà dans le schéma réel de James, mais aucun mécanisme de stockage des préférences de canal par utilisateur n'existe. À construire avec LBP-CLIENT-11 plutôt que séparément, pour éviter deux décisions de schéma non coordonnées sur le même sujet.
+
+**Vérifié** : test réel navigateur avec la session cliente ALPHA — nom et e-mail réels affichés, modification du poste persistante après rechargement complet. Changement de mot de passe testé de bout en bout pour de vrai : nouveau mot de passe utilisé pour une vraie connexion réussie (`POST /auth/v1/token`), puis mot de passe de démo restauré et connexion à nouveau confirmée — aucune donnée de démo laissée dans un état modifié après le test.
 
 ---
 
