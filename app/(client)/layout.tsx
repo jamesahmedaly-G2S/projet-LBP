@@ -25,6 +25,9 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           <Link href="/bibliotheque" className="text-sm font-semibold tracking-wide text-ink">
             LE LIVRE BLANC DE LA PAIE
           </Link>
+          <Link href="/mon-equipe" className="text-sm font-medium text-muted hover:text-ink">
+            Mon équipe
+          </Link>
           <Link href="/mes-quiz" className="text-sm font-medium text-muted hover:text-ink">
             Quiz
           </Link>

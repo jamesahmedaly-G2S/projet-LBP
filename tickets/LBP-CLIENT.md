@@ -40,11 +40,17 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
-## LBP-CLIENT-02 — Mon équipe
+## LBP-CLIENT-02 — Mon équipe 🟡 Partiellement fait
 
-**Contexte** [§1.3, p.9] : identité société, organigramme (124 avatars), organisation de la paie, outils RH, documents (CC, accords, grille de salaire).
+**Contexte** [§1.3, p.9 — vérifié verbatim "1.3 Mon équipe" dans le texte du cahier des charges, pas seulement le résumé] : identité société (1.3.1), organigramme (1.3.2, 124 avatars), organisation de la paie (1.3.3), outils RH (1.3.4), documents (1.3.5 — CC, accords, grille de salaire).
 
-**À faire** : écran d'identité société côté client (`companies`, `establishments`, `company_ccns` déjà en base — juste en lecture, pas de nouvelle donnée). L'organigramme à 124 avatars et les "outils RH" sont un contenu éditorial du prototype (données figées), pas une fonctionnalité — à traiter en KISS (ne pas reproduire 124 avatars factices).
+**Découverte en préparant ce ticket** : `team_members`, `payroll_org` et `software_stack` existent déjà dans le schéma réel de James (`baseline_schema_reel.sql` §9.1/9.2), avec une RLS `company_id = current_company_id()` déjà scopée pour un client — jamais consommées par aucun écran avant ce ticket. Une première migration additive avait été écrite par erreur avant de vérifier l'existant (`create table team_members` a échoué avec "already exists") — supprimée, le ticket construit exclusivement sur les tables réelles de James, aucune nouvelle table.
+
+**Réalisé** : `app/(client)/mon-equipe/` — Identité (1.3.1) en lecture seule (`companies.company_name`/`legal_form`/`headcount` ; `companies_update_admin` est admin-only par RLS réelle, cohérent avec le principe déjà établi pour l'offre : le client demande, G2S contrôle) + établissements pleinement gérables (ajout/suppression, `establishments_write_own`/`delete_own` déjà réelles). Organisation (1.3.2, `TeamSection.tsx`) : organigramme réel avec ajout/modification/suppression et rattachement hiérarchique (`manager_id`) — sélecteur à 124 avatars du prototype délibérément non reproduit (aucune source réelle de 124 images), remplacé par un cercle avec l'initiale du nom. Organisation de la paie (1.3.3, `PayrollForm.tsx`) et Outils (1.3.4, `ToolsForm.tsx`) : formulaires simples sur `payroll_org`/`software_stack`.
+
+**Non fait — périmètre trop large pour ce ticket seul** : "Vos documents" (1.3.5, CC/accords/grille de salaire) demande un vrai stockage de fichiers (bucket Supabase Storage, upload, catégorisation) — aucune capacité d'upload n'existe nulle part ailleurs dans l'application, Studio compris. Documenté plutôt que construit avec des documents inventés.
+
+**Vérifié** : test réel navigateur avec la session cliente ALPHA — raison sociale et établissement réels affichés ; ajout réel d'un établissement, persistant après rechargement complet ; ajout réel de deux personnes avec rattachement hiérarchique (l'une sous l'autre), les deux persistantes après rechargement complet ; enregistrement réel du mode d'organisation de la paie, confirmé à la fois en base (requête directe) et par la valeur du champ après rechargement. Toutes les données de test supprimées après coup.
 
 ---
 
