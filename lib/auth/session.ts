@@ -75,3 +75,7 @@ export async function requireRole(roles: UserRole[]): Promise<Session> {
 export async function requireAdmin(): Promise<Session> {
   return requireRole(["admin"]);
 }
+
+export async function requireClient(): Promise<Session> {
+  return requireRole(["client"]);
+}
