@@ -10,10 +10,9 @@ const MAX_ITEMS = 10;
 /**
  * STU-VEILLE-04 (AUTOMATION-02, #86) — seule source des 7 dont le flux
  * public a été vérifié accessible sans authentification pendant le
- * développement (fetch réel testé, 200, items RSS réels). Les 6 autres
- * (dont Légifrance) exigent une clé/API non fournie — voir
- * `other-sources.ts`, connecteurs en état "non configuré" honnête plutôt
- * que simulés.
+ * développement (fetch réel testé, 200, items RSS réels). Légifrance
+ * (`legifrance.ts`) exige une clé PISTE non fournie — reste en état "non
+ * configuré" honnête plutôt que simulé.
  */
 export function createMinistereTravailConnector(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

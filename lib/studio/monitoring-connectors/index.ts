@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ConnectorResult } from "./types";
 import { createMinistereTravailConnector } from "./ministere-travail";
 import { createHtmlScrapingConnectors } from "./html-scraping";
-import { createOtherSourceConnectors } from "./other-sources";
+import { createLegifranceConnector } from "./legifrance";
 import { sendVeilleNotification, type NotificationResult } from "../monitoring-notifications";
 
 export type { ConnectorResult, ConnectorStatus, MonitoringConnector } from "./types";
@@ -12,7 +12,7 @@ export function getMonitoringConnectors(supabase: SupabaseClient<any, any, any>)
   return [
     createMinistereTravailConnector(supabase),
     ...createHtmlScrapingConnectors(supabase),
-    ...createOtherSourceConnectors(),
+    createLegifranceConnector(supabase),
   ];
 }
 
