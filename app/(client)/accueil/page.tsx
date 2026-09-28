@@ -2,15 +2,10 @@ import Link from "next/link";
 import { requireClient } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getStudioOfferTier, computeOfferPrice } from "@/lib/studio/offer-tiers";
+import { KEY_FIGURE_LABELS } from "@/lib/client/key-figure-labels";
 import { Card } from "@/ui-kit/Card";
 import ChiffreCard from "./ChiffreCard";
 
-const KEY_FIGURE_LABELS: Record<string, string> = {
-  "smic-h": "SMIC horaire brut",
-  "smic-m": "SMIC mensuel brut (35 h)",
-  pmss: "Plafond mensuel SS (PMSS)",
-  pass: "Plafond annuel SS (PASS)",
-};
 const KEY_FIGURE_ORDER = ["smic-h", "smic-m", "pmss", "pass"];
 
 const FAMILY_DECOR: Record<string, { icon: string; example: string }> = {
@@ -111,7 +106,12 @@ export default async function AccueilPage() {
         Bonjour {session.profile.full_name} 👋
       </h1>
 
-      <h2 className="mt-8 text-lg font-semibold text-ink">Les chiffres clés</h2>
+      <div className="mt-8 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-ink">Les chiffres clés</h2>
+        <Link href="/chiffres-paie" className="text-sm text-primary hover:underline">
+          Tous les chiffres Paie →
+        </Link>
+      </div>
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {KEY_FIGURE_ORDER.map((key) => {
           const history = historyByKey.get(key) ?? [];

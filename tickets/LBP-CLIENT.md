@@ -76,11 +76,17 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
-## LBP-CLIENT-05 — Chiffres Paie
+## LBP-CLIENT-05 — Chiffres Paie 🟡 Partiellement fait (client fait, admin G2S à faire)
 
-**Contexte** [§1.6, p.11] : comparatif N-1→N, plafonds toutes périodicités, taux de cotisations.
+**Contexte** [§1.6, p.11] : "Comparatif N-1→N, plafonds toutes périodicités, taux de cotisations". Vérifié contre le vrai code du prototype (`LBP_V6_Studio.html`, `var CHIFFRES` + `renderChiffres()`, lignes 3113-3202) avant de construire — même discipline que pour Offres/Accueil. §1.6 dit explicitement _"Édition G2S : la page est entièrement pilotée par des données modifiables"_, avec des vrais boutons "+ Ajouter un repère"/"+ Ajouter un groupe"/"Modifier les tableaux" dans le prototype — ce ticket ferme donc aussi le manque d'écran d'administration déjà signalé pour `key_figures` (Accueil, LBP-CLIENT-01), en unifiant les deux sur la même table plutôt que dupliquer les mêmes indicateurs (SMIC/PMSS/PASS) ailleurs.
 
-**À faire** : données de référence chiffrées (plafond Sécu, taux de cotisations par an) — pas encore modélisées en base (`master_families`/`sheet_versions` ne couvrent que le contenu rédactionnel, pas des séries chiffrées). Nécessite une vraie table de référence + une source fiable pour les valeurs (pas à inventer).
+**Réalisé (partie client)** : migration `20260928150000` — `key_figure_groups` (nouveau, les 3 groupes réels : SMIC / Plafond de la Sécurité sociale / Autres repères), `contribution_rates` (nouveau, les 35 lignes réelles du tableau des cotisations — 8 en-têtes de catégorie + 27 taux, portés 1:1), `payroll_reference_settings` (nouveau, titre/intro/titres de tableaux/source, une seule ligne). `key_figures` étendue en additif (`group_id`, `show_as_card`, `show_in_ceiling_table`) plutôt que dupliquée — les 4 indicateurs déjà seedés pour l'Accueil (smic-h/smic-m/pmss/pass) sont réutilisés tels quels pour les cartes comparatives et le tableau plafond, 4 nouveaux repères ajoutés (smic-net, mg, an-repas-hcr, gratification-stage) et 5 nouvelles clés de périodicité (trimestriel/quinzaine/hebdomadaire/journalier/horaire). `app/(client)/chiffres-paie/` : 3 groupes de cartes comparatives, tableau plafond 7 périodicités, tableau des 35 taux de cotisations. Libellés centralisés dans `lib/client/key-figure-labels.ts` (réutilisé par l'Accueil, qui utilisait auparavant sa propre copie locale — un seul endroit maintenant).
+
+**Simplification assumée** : le prototype stocke une "variation" (ex. "▲ +3,6 %") comme un champ texte librement édité par G2S, avec un risque réel d'incohérence avec les valeurs affichées si elles divergent. Ici, la variation est **calculée à l'affichage** à partir des deux dernières années présentes pour une clé donnée — jamais stockée, jamais désynchronisable.
+
+**Non fait — reste à faire** : l'écran d'administration G2S (`app/(studio)/chiffres-paie/`) pour ajouter/modifier/supprimer un repère, un groupe, une ligne de cotisation, et éditer titre/intro/source — les policies RLS d'écriture sont déjà posées (`is_admin()` sur les 4 tables, y compris `key_figures` qui n'en avait aucune avant cette migration), il ne manque que l'écran.
+
+**Vérifié** : test réel navigateur avec la session cliente ALPHA — titre/intro réels affichés, 3 groupes réels avec leurs vraies cartes comparatives (SMIC horaire 11,88 € → 12,31 €, variation calculée +3,6 % correcte), tableau plafond réel avec les 7 périodicités (jusqu'à l'horaire, 29 € → 30 €), tableau des cotisations réel avec ses 35 lignes (ex. AGIRC-ARRCO tranche 1 : 3,15 % / 4,72 %), source réelle affichée. Lien réel ajouté depuis l'Accueil ("Tous les chiffres Paie →").
 
 ---
 
