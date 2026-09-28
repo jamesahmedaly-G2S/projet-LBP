@@ -52,9 +52,11 @@
 
 ---
 
-## STU-REF-04 — Import de la nomenclature de départ
+## STU-REF-04 — Import de la nomenclature de départ ✅ Fait
 
 **Priorité : Should** · **Dépendances : STU-DATA-01**
+**Réalisé** : `supabase/migrations/20260928100000_import_nomenclature_maitre.sql` — le fichier `Nomenclature_Maitre_LBP_V1_Septembre_2026.xlsx` n'existe dans aucun des dossiers sources (`LBP_V2/`, `Nouveau dossier/`), repli explicitement prévu par le ticket sur `MASTER_THEMES`/`TITLE_BANK` de `LBP_V6_Studio.html` (lignes 3243-3277). Migration générée par un script Node jetable (mêmes règles de code/numérotation que le prototype, lignes 3278-3304) pour éviter toute transcription manuelle de 153 titres : 15 thèmes réels créés (codes `T-VIE-ABS`, `T-VIE-CTR`... distincts des thèmes `*-DEMO` du seed, jamais touchés), 153 fiches avec chacune sa première `sheet_versions` (`draft`/`rg`/v1, contenu factice via le même gabarit que `buildPlaceholderContent()`).
+**Vérifié** : effectif exact par thème confirmé en base (ex. `T-COT-COT` → 32, `T-REM-PRI` → 29, `T-VIE-EMB` → 1 — conforme au tableau du dossier), total 153 lignes `draft`, 159 `master_sheets` au total (153 + 6 fiches de démo préexistantes), 19 `master_themes` (15 + 4 démo). Test réel navigateur (session admin réelle) : les 3 familles s'affichent, dépli du thème "Absences & protection sociale" révèle bien "Arrêt maladie non professionnel" (fiche réellement importée), aucune erreur console.
 
 **Contexte** : la Nomenclature Maître V1 fournit 153 fiches candidates déjà réparties par famille/thème (§8) — base de travail à affiner, pas à rédiger intégralement.
 
