@@ -2,9 +2,11 @@
 
 ---
 
-## STU-OFFER-01 — Branchement front sur le filtre par couche
+## STU-OFFER-01 — Branchement front sur le filtre par couche 🔴 Bloqué
 
 **Priorité : Must** · **Dépendances : STU-DATA-06, STU-DATA-07**
+
+**Bloqué, pas oublié** : ce ticket demande des "pages client de bibliothèque" — or aucune page du portail LBP Client (13 modules du dossier, cf. `docs/G2S-LBP-01.md`) n'existe sur ce dépôt, réel ou pivot (confirmé via `git ls-tree -r origin/main` : seuls `app/page.tsx` placeholder et les routes API profils existent côté réel aussi). La partie serveur est prête et testée (`client_sheet_content` vue sécurisée depuis STU-DATA-07, `getPublishedContentDiff()`/`diffSheetContent()` depuis STU-WORKFLOW-05) mais il n'y a littéralement aucun écran où la brancher — construire une page juste pour ce ticket reviendrait à commencer le portail LBP Client par un coin, hors du périmètre "on termine le Studio d'abord" fixé explicitement par l'utilisateur. Resterait à faire dès que la question du portail LBP Client est tranchée.
 
 **Contexte** : "le moteur doit être conçu pour utiliser le niveau d'offre comme filtre d'accès... Le client ne doit pas pouvoir augmenter artificiellement son niveau d'accès" (§13). Ordre logique : applicabilité → CCN → offre → contrôle G2S → publication.
 
