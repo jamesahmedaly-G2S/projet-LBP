@@ -27,10 +27,9 @@ export default async function ClientQuizPage({ params }: { params: Promise<{ id:
       <Link href="/mes-quiz" className="text-sm text-primary hover:underline">
         ← Retour aux quiz
       </Link>
-      <h1 className="mt-2 text-2xl font-semibold text-ink">{quiz.title}</h1>
 
-      <div className="mt-6">
-        <QuizPlayer quizId={quiz.id} questions={questions} />
+      <div className="mt-4">
+        <QuizPlayer quizId={quiz.id} title={quiz.title} questions={questions} />
       </div>
     </main>
   );
