@@ -163,3 +163,15 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 **Contexte** [§1.14, p.13] : widget de chat.
 
 **À faire** : dépend très probablement d'un service tiers (chat en direct ou IA) — à clarifier avant de commencer, même prudence que pour les clés API externes déjà rencontrées (PISTE, Brevo, Anthropic) : jamais simulé, prêt à s'activer seulement si un vrai service est choisi et ses identifiants fournis.
+
+---
+
+## LBP-CLIENT-14 — Dictionnaire ✅ Fait
+
+**Contexte** : module réel repéré en vérifiant le vrai style de la page Offres (mode client de `LBP_V6_Studio.html`) — un onglet "Dictionnaire" entre "Chiffres Paie" et "Quizz" dans le vrai menu (lignes 1467-1479), avec un lecteur complet (`DICO`/`renderDico()`, lignes 4602-4690) : 29 vrais termes de paie/droit social définis et sourcés (BOSS/URSSAF/Code du travail/Ameli/impots.gouv.fr/net-entreprises/Ministère du travail), recherche, regroupement et navigation alphabétiques, statut brouillon/publié géré côté G2S. **Absent des 13 modules du cahier des charges écrit** — vérifié explicitement : ni dans §1 (le tableau module par module), ni dans l'Annexe B "Glossaire" (qui ne définit que le vocabulaire du document lui-même — LBP, RLS, DSN... — pas un dictionnaire paie pour l'utilisateur), ni ailleurs dans le texte. Ajouté comme 14e module après vérification et confirmation explicite de l'utilisateur.
+
+**Réalisé** : `dictionary_terms` — schéma de base repris de `Nouveau dossier/Modelisation-BDD-LBP.md` (lignes 541-548, jamais créée en base jusqu'ici, comme `offer_change_requests` l'était avant STU-OFFER-02), `source`/`published` ajoutés en additif (le schéma modélisé n'a pas de distinction brouillon/publié, indispensable pour ne jamais exposer un brouillon côté client — sans cette colonne la RLS `using (true)` du schéma modélisé les exposerait tous). Les 29 termes réels du prototype insérés tels quels dans la migration (donnée de référence, même logique que `ccn_catalog`/STU-REF-04 — pas dans `seed.sql`). `app/(client)/dictionnaire/` : recherche, navigation alphabétique par lettre, regroupement — pendant client de `renderDico()`, sans les outils d'édition (`g2s-only` dans le prototype).
+
+**Non fait — périmètre volontairement limité** : pas d'écran d'administration pour ajouter/modifier/publier des termes (le prototype gère ça en mode G2S sur la même page, un modèle qui ne correspond pas à notre séparation stricte `(client)`/`(studio)`). Pour l'instant, gestion directe via Supabase Studio local — même situation que `ccn_catalog`, aucune administration dédiée non plus. Ajouter un onglet Studio dédié serait rouvrir la nav Studio (10 onglets déjà tous câblés) sans qu'on me l'ait demandé — pas tenté sans confirmation.
+
+**Vérifié** : test réel navigateur avec la session cliente ALPHA — terme réel affiché avec sa vraie définition et sa vraie source ("Bulletin de paie" → "Code du travail"), navigation alphabétique réelle (lettre B cliquable), recherche réelle ("SMIC" trouve le bon terme et exclut les termes sans rapport), message "Aucun terme ne correspond" affiché pour une recherche sans résultat.
