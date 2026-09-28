@@ -47,9 +47,12 @@
 
 ---
 
-## STU-DESIGN-02 — Harmonisation icônes/composants
+## STU-DESIGN-02 — Harmonisation icônes/composants ✅ Fait
 
 **Priorité : Could** · **Dépendances : STU-DESIGN-01**
+**Réalisé** : `lucide-react` ajouté en dépendance réelle. Recherche exhaustive de tout le code Studio (`app/`, `ui-kit/`, `lib/`) : un seul emoji restant, exactement celui identifié par STU-DESIGN-01 (📅 sur `AddToCalendarButton.tsx`, STU-VEILLE) — remplacé par les icônes `Calendar`/`Check` de Lucide.
+**Note sur le critère « pas de composant dupliqué avec LBP Client »** : sans objet pour l'instant — le portail LBP Client (13 modules du dossier, cf. `docs/G2S-LBP-01.md`) n'existe encore sur aucune branche, réelle ou pivot, donc il n'y a rien à dédupliquer aujourd'hui. Le seul `ui-kit/` du dépôt reste bien le Studio ; le jour où LBP Client sera construit, il devra réutiliser ce même `ui-kit/` (règle déjà en place, rien à faire de plus ici).
+**Vérifié** : test réel navigateur (session admin réelle) sur `/veille/[id]` — le bouton contient une vraie icône SVG, plus aucun caractère 📅, `tsc --noEmit`/`eslint` propres.
 
 **Contexte** : continuité avec le travail déjà engagé côté maquette client (remplacement des emojis par des icônes Lucide, cf. CR du 08/09) — à étendre au Studio.
 

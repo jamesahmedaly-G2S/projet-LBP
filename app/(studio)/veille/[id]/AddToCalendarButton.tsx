@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Calendar, Check } from "lucide-react";
 import { addVeilleToCalendar } from "../actions";
 import { Button } from "@/ui-kit/Button";
 
@@ -24,7 +25,17 @@ export default function AddToCalendarButton({ legalMonitoringId }: { legalMonito
           })
         }
       >
-        {pending ? "..." : message === "ok" ? "✓ Ajouté au calendrier" : "📅 Ajouter au calendrier"}
+        {pending ? (
+          "..."
+        ) : message === "ok" ? (
+          <>
+            <Check className="h-3.5 w-3.5" /> Ajouté au calendrier
+          </>
+        ) : (
+          <>
+            <Calendar className="h-3.5 w-3.5" /> Ajouter au calendrier
+          </>
+        )}
       </Button>
       {message && message !== "ok" && <p className="text-xs text-studio-red">{message}</p>}
     </div>
