@@ -4,14 +4,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getImpactedCompanies } from "@/lib/studio/publication-impact";
 import { summarizeEntretiens, type InterviewRow } from "@/lib/studio/entretien";
 import { STUDIO_SETTINGS } from "@/lib/studio/settings";
+import { getRecentActivity } from "@/lib/studio/activity";
 import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
 import EntretienCell from "../clients/EntretienCell";
-
-interface ActivityEvent {
-  date: string;
-  label: string;
-}
 
 // STU-DASH-01/02 : port de `stDash()` — "l'ouverture du Studio doit
 // répondre immédiatement à la question : Qu'est-ce que G2S doit traiter
@@ -34,8 +30,6 @@ export default async function TableauDeBordPage() {
     { data: answeredRows },
     { data: pendingVersions },
     { data: recentPublications },
-    { data: recentOverrides },
-    { data: recentInterviewsDone },
   ] = await Promise.all([
     supabase.from("companies").select("id, company_name").order("company_name"),
     supabase
@@ -61,17 +55,6 @@ export default async function TableauDeBordPage() {
       .select("id, master_sheet_id, version, published_at, master_sheets(title)")
       .eq("status", "published")
       .order("published_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("company_sheet_overrides")
-      .select("action, created_at, companies(company_name), master_sheets(title)")
-      .order("created_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("company_interviews")
-      .select("completed_at, companies(company_name)")
-      .eq("status", "done")
-      .order("completed_at", { ascending: false })
       .limit(5),
   ]);
 
@@ -122,22 +105,7 @@ export default async function TableauDeBordPage() {
       .map((r) => `Entretien en urgence — ${r.name}`),
   ];
 
-  const activity: ActivityEvent[] = [
-    ...(recentPublications ?? []).map((p) => ({
-      date: p.published_at as string,
-      label: `Publication — ${(p.master_sheets as unknown as { title: string } | null)?.title ?? "?"} (v${p.version})`,
-    })),
-    ...(recentOverrides ?? []).map((o) => ({
-      date: o.created_at as string,
-      label: `${o.action === "add" ? "Ajout manuel" : "Retrait manuel"} — ${(o.companies as unknown as { company_name: string } | null)?.company_name ?? "?"} · ${(o.master_sheets as unknown as { title: string } | null)?.title ?? "?"}`,
-    })),
-    ...(recentInterviewsDone ?? []).map((i) => ({
-      date: i.completed_at as string,
-      label: `Entretien réalisé — ${(i.companies as unknown as { company_name: string } | null)?.company_name ?? "?"}`,
-    })),
-  ]
-    .sort((a, b) => (a.date < b.date ? 1 : -1))
-    .slice(0, 5);
+  const activity = await getRecentActivity(supabase, 5);
 
   const firstName = session.profile.full_name.split(" ")[0];
 
