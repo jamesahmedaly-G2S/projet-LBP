@@ -5,6 +5,18 @@ import { getRecentActivity } from "@/lib/studio/activity";
 import { STUDIO_SETTINGS } from "@/lib/studio/settings";
 import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
+import OfferRequestActions from "./OfferRequestActions";
+
+const OFFER_REQUEST_STATUS_LABELS = {
+  pending: "En attente",
+  contacted: "Contacté",
+  closed: "Clôturée",
+} as const;
+const OFFER_REQUEST_STATUS_TONES = {
+  pending: "amber",
+  contacted: "blue",
+  closed: "neutral",
+} as const;
 
 // STU-ADMIN-01 (§15) : "Gestion des utilisateurs Studio. Paramètres
 // globaux [...]. Journal d'activité. Préparer la gestion future de droits
@@ -32,6 +44,28 @@ export default async function AdministrationPage() {
   );
 
   const activity = await getRecentActivity(supabase, 10);
+
+  const { data: offerRequests } = await supabase
+    .from("offer_change_requests")
+    .select(
+      "id, current_tier, requested_tier, status, created_at, companies(company_name), profiles(full_name)",
+    )
+    .order("created_at", { ascending: false })
+    .returns<
+      {
+        id: string;
+        current_tier: number;
+        requested_tier: number;
+        status: "pending" | "contacted" | "closed";
+        created_at: string;
+        companies: { company_name: string } | null;
+        profiles: { full_name: string } | null;
+      }[]
+    >();
+
+  const { data: offerTiers } = await supabase.from("offer_tiers").select("tier_level, name");
+  const tierName = (level: number) =>
+    (offerTiers ?? []).find((t) => t.tier_level === level)?.name ?? `Palier ${level}`;
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -84,6 +118,43 @@ export default async function AdministrationPage() {
             value={`${STUDIO_SETTINGS.publicationDelaiJours} j`}
           />
         </dl>
+      </Card>
+
+      <Card className="mt-6">
+        <h2 className="mb-3 text-lg font-semibold text-studio-navy">Demandes de montée en gamme</h2>
+        <p className="mb-3 text-xs text-studio-muted">
+          Une demande n&apos;a aucun effet automatique sur le palier du client — seule une action
+          explicite de G2S (hors de cet écran) change réellement l&apos;offre.
+        </p>
+        {(offerRequests ?? []).length === 0 ? (
+          <p className="text-sm text-studio-muted">Aucune demande pour l&apos;instant.</p>
+        ) : (
+          <ul className="flex flex-col gap-3 text-sm">
+            {(offerRequests ?? []).map((r) => (
+              <li
+                key={r.id}
+                className="flex flex-col gap-2 border-b border-studio-line pb-3 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <span>
+                  <span className="font-medium text-studio-navy">
+                    {r.companies?.company_name ?? "—"}
+                  </span>
+                  <span className="ml-2 text-studio-muted">{r.profiles?.full_name ?? "—"}</span>
+                  <span className="block text-xs text-studio-muted">
+                    {tierName(r.current_tier)} → {tierName(r.requested_tier)} ·{" "}
+                    {new Date(r.created_at).toLocaleDateString("fr-FR")}
+                  </span>
+                </span>
+                <div className="flex items-center gap-2">
+                  <Badge tone={OFFER_REQUEST_STATUS_TONES[r.status]}>
+                    {OFFER_REQUEST_STATUS_LABELS[r.status]}
+                  </Badge>
+                  <OfferRequestActions id={r.id} status={r.status} />
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </Card>
 
       <Card className="mt-6">

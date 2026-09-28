@@ -1,8 +1,9 @@
 -- STU-DATA-08 — Seed de démonstration du pivot Studio.
 -- Rejoué automatiquement par `supabase db reset`. Données fictives
 -- reprises de LBP_V6_Studio.html (CCN_CAT, CLIENTS, QUESTIONS) : réalisme
--- des sociétés/CCN/réponses, pas les 153 fiches complètes (cf. STU-REF-04,
--- qui reste à faire pour la nomenclature intégrale).
+-- des sociétés/CCN/réponses. Les 153 fiches de la nomenclature intégrale
+-- vivent séparément dans une migration (STU-REF-04), pas ici : ce sont des
+-- données de référence, pas des données de démonstration jetables.
 
 -- --- Référentiel minimal de démonstration ---
 insert into master_themes (id, code, family_id, name, display_order)
@@ -218,3 +219,14 @@ from master_sheets where code = 'REM-DEMO-004';
 insert into company_sheet_overrides (company_id, master_sheet_id, action, reason, created_by)
 select 'a1000000-0000-0000-0000-000000000002', id, 'remove', 'Non applicable à ce client (motif G2S)', 'a2000000-0000-0000-0000-000000000099'
 from master_sheets where code = 'REM-DEMO-002';
+
+-- --- Demande de montée en gamme de démonstration (STU-OFFER-02) ---
+-- Le bouton côté client n'existe pas encore (portail LBP Client non
+-- construit) : cette ligne simule ce qu'il insérerait, pour que l'écran
+-- de traitement G2S ait une vraie demande à traiter dès `db:reset`.
+insert into offer_change_requests (company_id, profile_id, current_tier, requested_tier)
+values (
+  'a1000000-0000-0000-0000-000000000001',
+  'a2000000-0000-0000-0000-000000000001',
+  2, 3
+);
