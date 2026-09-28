@@ -13,9 +13,19 @@ import RenameForm from "./RenameForm";
 import WorkflowActions from "./WorkflowActions";
 import PublishPanel from "./PublishPanel";
 import NewVersionButton from "./NewVersionButton";
+import CcnLayersSection from "./CcnLayersSection";
 import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
 import { LinkButton } from "@/ui-kit/LinkButton";
+
+interface CcnLayerVersion {
+  id: string;
+  content: SheetContent;
+  status: WorkflowStatus;
+  version: number;
+  ccn_idcc: string;
+  scheduled_at: string | null;
+}
 
 export default async function FichePage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
@@ -52,6 +62,43 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
           companyId: version.company_id,
         })
       : [];
+
+  // STU-CCN-03 : toutes les versions "ccn" de cette fiche, réduites à la
+  // plus récente par CCN (même principe que la couche rg ci-dessus, mais
+  // répété une fois par ccn_idcc — chaque CCN a son propre cycle de
+  // statuts indépendant).
+  const [{ data: ccnCatalog }, { data: allCcnVersions }] = await Promise.all([
+    supabase.from("ccn_catalog").select("idcc, name").order("name"),
+    supabase
+      .from("sheet_versions")
+      .select("id, content, status, version, ccn_idcc, scheduled_at")
+      .eq("master_sheet_id", id)
+      .eq("layer_kind", "ccn")
+      .order("version", { ascending: false })
+      .returns<CcnLayerVersion[]>(),
+  ]);
+
+  const latestByCcn = new Map<string, CcnLayerVersion>();
+  for (const v of allCcnVersions ?? []) {
+    if (!latestByCcn.has(v.ccn_idcc)) {
+      latestByCcn.set(v.ccn_idcc, v);
+    }
+  }
+  const ccnLayers = await Promise.all(
+    Array.from(latestByCcn.values()).map(async (v) => ({
+      ...v,
+      ccnName: (ccnCatalog ?? []).find((c) => c.idcc === v.ccn_idcc)?.name ?? v.ccn_idcc,
+      impactedCompanies:
+        v.status === "valid" || v.status === "scheduled"
+          ? await getImpactedCompanies(supabase, {
+              layerKind: "ccn",
+              ccnIdcc: v.ccn_idcc,
+              companyId: null,
+            })
+          : [],
+    })),
+  );
+  const availableCcns = (ccnCatalog ?? []).filter((c) => !latestByCcn.has(c.idcc));
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
@@ -106,6 +153,12 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
           Aucune version régime général trouvée pour cette fiche.
         </p>
       )}
+
+      <CcnLayersSection
+        masterSheetId={sheet.id}
+        layers={ccnLayers}
+        availableCcns={availableCcns ?? []}
+      />
     </main>
   );
 }

@@ -35,13 +35,14 @@
 
 ---
 
-## STU-CCN-03 — Édition de la couche CCN d'une fiche
+## STU-CCN-03 — Édition de la couche CCN d'une fiche ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-DATA-02, STU-REF-02, STU-WORKFLOW-01, STU-WORKFLOW-03** (dépendance corrigée : les critères d'acceptation supposent la publication et `sheet_version_recipients`, pas encore construites — reporté après STU-WORKFLOW)
 
 **Contexte** : scénario C ("modifier uniquement la couche Syntec... n'impacter que les clients Syntec concernés").
 
-**À faire** : depuis une fiche maître, écran d'édition dédié par CCN (une `sheet_versions` par CCN sélectionnée), avec son propre cycle de statuts indépendant de la couche `rg`.
+**Réalisé** : bonne nouvelle constatée en lisant le code existant avant d'écrire quoi que ce soit — `transitionSheetVersion()` (STU-WORKFLOW-01/03) ne synchronise `master_sheets.status` que pour `layer_kind==='rg'`, et `getImpactedCompanies()` gère déjà correctement la couche `ccn` (CCN + palier éligible) : les deux critères d'acceptation étaient donc déjà satisfaits par le code du workflow, il ne manquait que la création/l'affichage des couches CCN elles-mêmes. `EditContentForm`/`WorkflowActions`/`PublishPanel` (déjà entièrement génériques, aucune dépendance à `rg`) réutilisés tels quels — jamais une deuxième implémentation du workflow. Ajouté : `createCcnLayer()`/`createNewCcnVersion()` (`referentiel/actions.ts`, pendants de `createNewVersion()` mais sans jamais toucher `master_sheets.status`), `CcnLayersSection.tsx` (une carte par CCN déjà présente sur la fiche, cycle de statuts indépendant), `AddCcnLayerForm.tsx` (choisir une CCN du catalogue non encore présente sur cette fiche), `NewCcnVersionButton.tsx` (pendant de `NewVersionButton`).
+**Vérifié** : test réel navigateur bout en bout sur une vraie fiche publiée (`VIE-DEMO-001`) — couche CCN Syntec (1486) créée, contenu édité, transitions brouillon→à vérifier→validé, aperçu d'impact avant publication confirmant exactement **ALPHA SAS et GAMMA** (les 2 seules sociétés réelles ayant la CCN 1486 avec un palier l'incluant — BETA correctement exclue), publication effective. Confirmé en base après coup : la couche `rg` reste `version 1 / published` sans aucun changement, `sheet_version_recipients` contient exactement ALPHA et GAMMA pour cette version CCN, `master_sheets.status` intact.
 
 **Critères d'acceptation**
 

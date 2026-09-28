@@ -368,3 +368,95 @@ export async function transitionSheetVersion(
   revalidatePath("/referentiel/controle");
   return null;
 }
+
+// STU-CCN-03 (scénario C — "modifier uniquement la couche Syntec... sans
+// impacter la couche rg") : première version d'une couche CCN pour cette
+// fiche. Cycle de statuts totalement indépendant de la couche rg —
+// transitionSheetVersion() ne synchronise master_sheets.status que pour
+// layer_kind==='rg' (déjà vérifié plus haut dans ce fichier), donc rien de
+// spécifique à faire ici pour respecter ce critère d'acceptation.
+export async function createCcnLayer(
+  _prevState: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const session = await requireAdmin();
+
+  const masterSheetId = formData.get("master_sheet_id");
+  const ccnIdcc = formData.get("ccn_idcc");
+  if (typeof masterSheetId !== "string" || typeof ccnIdcc !== "string" || !ccnIdcc) {
+    return "Fiche et CCN sont obligatoires.";
+  }
+
+  const supabase = await createClient();
+
+  const { data: sheet } = await supabase
+    .from("master_sheets")
+    .select("title")
+    .eq("id", masterSheetId)
+    .single();
+
+  const { error } = await supabase.from("sheet_versions").insert({
+    master_sheet_id: masterSheetId,
+    layer_kind: "ccn",
+    ccn_idcc: ccnIdcc,
+    version: 1,
+    status: "draft",
+    content: buildPlaceholderContent(sheet?.title ?? ""),
+    author_id: session.userId,
+  });
+
+  if (error) {
+    return `Erreur lors de la création de la couche CCN : ${error.message}`;
+  }
+
+  revalidatePath(`/referentiel/${masterSheetId}`);
+  return null;
+}
+
+// Pendant de createNewVersion() pour une couche CCN — jamais de mise à
+// jour de master_sheets.status ici (réservé à la couche rg).
+export async function createNewCcnVersion(
+  _prevState: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const session = await requireAdmin();
+
+  const masterSheetId = formData.get("master_sheet_id");
+  const ccnIdcc = formData.get("ccn_idcc");
+  if (typeof masterSheetId !== "string" || typeof ccnIdcc !== "string" || !ccnIdcc) {
+    return "Fiche et CCN sont obligatoires.";
+  }
+
+  const supabase = await createClient();
+
+  const { data: current, error: fetchError } = await supabase
+    .from("sheet_versions")
+    .select("version, content")
+    .eq("master_sheet_id", masterSheetId)
+    .eq("layer_kind", "ccn")
+    .eq("ccn_idcc", ccnIdcc)
+    .order("version", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (fetchError || !current) {
+    return "Version courante introuvable.";
+  }
+
+  const { error: insertError } = await supabase.from("sheet_versions").insert({
+    master_sheet_id: masterSheetId,
+    layer_kind: "ccn",
+    ccn_idcc: ccnIdcc,
+    version: current.version + 1,
+    status: "draft",
+    content: current.content,
+    author_id: session.userId,
+  });
+
+  if (insertError) {
+    return `Erreur lors de la création de la nouvelle version : ${insertError.message}`;
+  }
+
+  revalidatePath(`/referentiel/${masterSheetId}`);
+  return null;
+}
