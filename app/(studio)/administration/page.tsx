@@ -171,6 +171,9 @@ export default async function AdministrationPage() {
           <LinkButton href="/administration/dictionnaire" variant="secondary">
             Dictionnaire
           </LinkButton>
+          <LinkButton href="/administration/ccn" variant="secondary">
+            Conventions collectives
+          </LinkButton>
         </div>
       </Card>
 

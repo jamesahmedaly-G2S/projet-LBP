@@ -7,6 +7,8 @@
 **Priorité : Must** · **Dépendances : STU-DATA-01**
 **Réalisé** : `app/(studio)/_components/CcnMultiSelect.tsx` — composant contrôlé (`selected`/`onChange`), pas de dépendance à une page précise, réutilisable tel quel. Vérifié fonctionnellement via son intégration dans STU-CCN-02 (recherche + sélection multiple testées en conditions réelles).
 
+**Correctif (28/09/2026, écran d'administration manquant)** : `ccn_catalog` (12 entrées réelles) n'avait qu'une policy de lecture depuis le début du projet, jamais de policy d'écriture ni d'écran — signalé par l'utilisateur dans la même série que Chiffres Paie/Dictionnaire ("tout doit se faire depuis l'espace G2S"). Policies d'écriture ajoutées (migration `20260928170000`), `app/(studio)/administration/ccn/` (ajout/modification/suppression, lien depuis le bloc "Données de référence" de `/administration`). Vérifié en réel : ajout d'une CCN de test confirmé, tentative de suppression d'une CCN réellement utilisée (1486, Syntec, ALPHA/GAMMA) correctement **bloquée par la vraie contrainte de clé étrangère** (`sheet_versions_ccn_idcc_fkey`) plutôt que de silencieusement casser des données — suppression de la CCN de test (sans dépendance) réussie normalement.
+
 **Contexte** : "Prévoir une sélection multiple, avec recherche par nom et IDCC" (§7.2).
 
 **À faire** : composant de recherche/sélection sur `ccn_catalog`, réutilisable dans le questionnaire, l'assistant de création client et la fiche client.
