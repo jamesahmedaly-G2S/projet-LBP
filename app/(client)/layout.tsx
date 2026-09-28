@@ -21,9 +21,14 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
   return (
     <div className="theme-client min-h-screen bg-page-bg">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-6 py-4">
-        <Link href="/bibliotheque" className="text-sm font-semibold tracking-wide text-ink">
-          LE LIVRE BLANC DE LA PAIE
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link href="/bibliotheque" className="text-sm font-semibold tracking-wide text-ink">
+            LE LIVRE BLANC DE LA PAIE
+          </Link>
+          <Link href="/mes-quiz" className="text-sm font-medium text-muted hover:text-ink">
+            Quiz
+          </Link>
+        </div>
         <form action={logout}>
           <button
             type="submit"

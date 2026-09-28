@@ -74,11 +74,15 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
-## LBP-CLIENT-06 — Quizz (côté client)
+## LBP-CLIENT-06 — Quizz (côté client) ✅ Fait
 
 **Contexte** [§1.7, p.11-12] : quiz issus de fiches + quiz autonomes, import Word/texte au format normé.
 
-**À faire** : écran de passage de quiz pour un vrai utilisateur client — le CRUD admin existe déjà côté Studio (STU-QUIZ-01/02/03, `quizzes` + `parseQuiz()`), il manque uniquement l'écran de restitution/passage côté client (lire `quizzes.questions`, dérouler les questions, corriger, afficher l'explication en cas d'erreur — STU-QUIZ-02 a déjà le champ `expl`, jamais consommé côté client). Le plus proche des 13 modules d'un "juste brancher l'écran" comme LBP-CLIENT-03.
+**Réalisé** : `app/(client)/mes-quiz/page.tsx` (liste des quiz publiés — `quizzes_read_published`, policy RLS réelle déjà en base, ne filtre rien côté requête) et `[id]/page.tsx` + `QuizPlayer.tsx` (une question à la fois, réponse validée avant de passer à la suivante, explication `expl` de STU-QUIZ-02 enfin consommée quelque part — jamais affichée nulle part avant ce ticket). Score envoyé à `quiz_scores` via `submitQuizScore()` (`app/(client)/mes-quiz/actions.ts`) — table et policy `quiz_scores_own` déjà réelles dans le schéma de James (`baseline_schema_reel.sql`), jamais touchées avant, juste consommées.
+
+**Collision de route trouvée en testant en réel** : `app/(client)/quiz/` entrait en conflit avec `app/(studio)/quiz/` déjà existant — les route groups Next.js (`(client)`/`(studio)`) ne participent pas à l'URL, les deux résolvaient vers `/quiz` (erreur Next explicite : "You cannot have two parallel pages that resolve to the same path"). Renommé en `app/(client)/mes-quiz/` — seule collision trouvée en comparant les 13 modules aux routes Studio déjà prises (`/tableau-de-bord`, `/clients`, `/referentiel`, `/questionnaires`, `/affectations`, `/publications`, `/veille`, `/entretiens`, `/quiz`, `/administration`).
+
+**Vérifié** : test réel navigateur bout en bout avec un vrai quiz (2 questions réelles, insérées puis supprimées après coup) et une vraie session cliente (`c.moreau@alpha.fr`) — navigation depuis la bibliothèque, quiz rattaché au bon thème affiché, sélection d'une réponse, validation, explication affichée, question suivante, score final 2/2 (100 %) affiché ; ligne réelle confirmée dans `quiz_scores` (`profile_id` de Camille Moreau, `quiz_id` réel, `score: 100`) ; badge de score réapparaît sur la liste après un rechargement complet de la page (pas juste en mémoire côté client).
 
 ---
 
