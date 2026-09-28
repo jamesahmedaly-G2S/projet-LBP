@@ -28,6 +28,9 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           <Link href="/mes-quiz" className="text-sm font-medium text-muted hover:text-ink">
             Quiz
           </Link>
+          <Link href="/offres" className="text-sm font-medium text-muted hover:text-ink">
+            Offres
+          </Link>
         </div>
         <form action={logout}>
           <button

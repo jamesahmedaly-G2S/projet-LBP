@@ -2,11 +2,11 @@
 
 ---
 
-## STU-OFFER-01 — Branchement front sur le filtre par couche 🔴 Bloqué
+## STU-OFFER-01 — Branchement front sur le filtre par couche 🟡 Partiellement débloqué
 
 **Priorité : Must** · **Dépendances : STU-DATA-06, STU-DATA-07**
 
-**Bloqué, pas oublié** : ce ticket demande des "pages client de bibliothèque" — or aucune page du portail LBP Client (13 modules du dossier, cf. `docs/G2S-LBP-01.md`) n'existe sur ce dépôt, réel ou pivot (confirmé via `git ls-tree -r origin/main` : seuls `app/page.tsx` placeholder et les routes API profils existent côté réel aussi). La partie serveur est prête et testée (`client_sheet_content` vue sécurisée depuis STU-DATA-07, `getPublishedContentDiff()`/`diffSheetContent()` depuis STU-WORKFLOW-05) mais il n'y a littéralement aucun écran où la brancher — construire une page juste pour ce ticket reviendrait à commencer le portail LBP Client par un coin, hors du périmètre "on termine le Studio d'abord" fixé explicitement par l'utilisateur. Resterait à faire dès que la question du portail LBP Client est tranchée.
+**Mise à jour (28/09/2026)** : le portail LBP Client a démarré (LBP-CLIENT-00) — `app/(client)/bibliotheque/` consomme bien exclusivement `client_sheet_content` (jamais `sheet_versions` en direct), premier critère de ce ticket satisfait. Restent non construits : le composant signalant qu'une couche existe mais n'est pas incluse dans l'offre actuelle (nécessite une requête côté admin pour savoir ce qui est masqué, sans l'exposer au client — pas tenté), et le surlignage jaune des modifications (bloqué pour une raison différente, déjà documentée dans `tickets/LBP-CLIENT.md`, LBP-CLIENT-00 : `client_sheet_content` n'expose la version historisée nécessaire au diff qu'à un admin).
 
 **Contexte** : "le moteur doit être conçu pour utiliser le niveau d'offre comme filtre d'accès... Le client ne doit pas pouvoir augmenter artificiellement son niveau d'accès" (§13). Ordre logique : applicabilité → CCN → offre → contrôle G2S → publication.
 
@@ -18,15 +18,15 @@
 
 ---
 
-## STU-OFFER-02 — Demande de montée en gamme 🟡 Partiellement fait
+## STU-OFFER-02 — Demande de montée en gamme ✅ Fait
 
 **Priorité : Should** · **Dépendances : STU-DATA-06**
 
 **Réalisé (côté G2S, dans le Studio)** : `offer_change_requests` n'existait que dans la modélisation (`Nouveau dossier/Modelisation-BDD-LBP.md` lignes 575-584/744-749), jamais créée en base — migration `20260928110000_demandes_montee_en_gamme.sql` reprenant l'enum/table/policies telles que spécifiées. Bloc "Demandes de montée en gamme" ajouté à `/administration` (nom du palier via `offer_tiers`, société et demandeur via les embeds PostgREST, statut avec badge), actions `markOfferRequest()` (`administration/actions.ts`) pour Marquer contacté/Clôturer — ne touche jamais `companies.offer_tier`, uniquement `offer_change_requests.status`.
 
-**Non fait — bloqué, pas oublié** : le bouton côté client ne peut pas exister, comme pour STU-OFFER-01 — aucune page du portail LBP Client (13 modules du dossier) n'est construite sur ce dépôt, réel ou pivot (confirmé via `git ls-tree -r origin/main`). Pour démontrer l'écran G2S sans ce bouton, `supabase/seed.sql` insère une demande de démonstration réaliste (ALPHA SAS / Camille Moreau, palier 2→3, `pending`) — un commentaire dans le seed explicite que c'est une simulation de ce que le bouton insérerait.
+**Réalisé (côté client, une fois le portail LBP Client démarré)** : `app/(client)/offres/` (LBP-CLIENT-07) — `RequestOfferButton.tsx` + `requestOfferChange()` insèrent dans `offer_change_requests`, avec un garde-fou serveur (une seule demande `pending` à la fois par société). Le bouton, noté bloqué le 28/09/2026 faute de portail client, existe maintenant que ce portail a démarré (LBP-CLIENT-00).
 
-**Vérifié** : test réel navigateur (session admin réelle) — `/administration` affiche bien "ALPHA SAS", "La Branche → Le Référentiel", badge "En attente" ; clic sur "Marquer contacté" fait bien passer le badge à "Contacté" et fait disparaître le bouton (`revalidatePath`), aucune erreur console. Base reremise à `pending` après le test pour garder une donnée de démonstration cohérente au prochain `db:reset` (le seed la recrée de toute façon).
+**Vérifié** : test réel navigateur (session admin réelle) — `/administration` affiche bien "ALPHA SAS", "La Branche → Le Référentiel", badge "En attente" ; clic sur "Marquer contacté" fait bien passer le badge à "Contacté" et fait disparaître le bouton (`revalidatePath`), aucune erreur console. Côté client (session réelle ALPHA) : demande réellement créée en base, garde-fou vérifié serveur (pas juste masqué à l'affichage) — après création, `/offres` affiche "en attente de traitement" même après un rechargement complet. Base remise à `pending` après chaque test pour garder une donnée de démonstration cohérente au prochain `db:reset` (le seed la recrée de toute façon).
 
 **Contexte** : "Il peut demander une évolution d'offre ; G2S conserve le contrôle" (§13) — mécanisme déjà conçu dans la modélisation (`offer_change_requests`).
 

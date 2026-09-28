@@ -90,11 +90,13 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
-## LBP-CLIENT-07 — Offres
+## LBP-CLIENT-07 — Offres ✅ Fait
 
 **Contexte** [§1.8, p.12] : présentation et détail des 4 offres commerciales.
 
-**À faire** : page de présentation des 4 paliers (`offer_tiers`, déjà en base, `lib/studio/offer-tiers.ts` a déjà le vocabulaire Studio réel LBP Essentiel/Métier/Entreprise/Signature) + le bouton de demande de montée en gamme qui manquait à STU-OFFER-02 (le formulaire d'insertion dans `offer_change_requests`, dont l'écran de traitement G2S existe déjà côté Studio, `/administration`).
+**Réalisé** : `app/(client)/offres/page.tsx` — les 4 paliers via `getStudioOfferTier()` (`lib/studio/offer-tiers.ts`, écrit lors de STU-DATA-06, jamais consommé par un écran avant ce ticket) pour le vocabulaire/tarif réels du pivot (LBP Essentiel/Métier/Entreprise/Signature), droits réels (CCN/contenu entreprise/détail/quota messages) tirés directement de `offer_tiers` (table de James, jamais modifiée). Palier actuel mis en évidence. `RequestOfferButton.tsx` + `requestOfferChange()` (`app/(client)/offres/actions.ts`) complètent la partie client manquante à STU-OFFER-02 — insère dans `offer_change_requests` (jamais dans `companies.offer_tier`), avec un garde-fou (une seule demande `pending` à la fois par société, vérifié côté serveur, pas juste masqué côté affichage) pour éviter le spam. Le traitement (contacté/clôturé) reste exclusivement côté G2S (`/administration`, déjà construit).
+
+**Vérifié** : test réel navigateur avec la vraie session cliente ALPHA — palier actuel "LBP Métier" affiché, 4 offres réelles avec leurs vrais droits, demande de changement de palier réellement créée en base (`offer_change_requests`, `status: pending`), garde-fou vérifié réel : après création, le bouton "Demander cette offre" disparaît et la page affiche "en attente de traitement" après un rechargement complet (pas juste un état local React). Nettoyage après test : la ligne créée par le test supprimée, la demande de démonstration d'origine (ALPHA, palier 2→3, seedée pour STU-OFFER-02) restaurée à `pending` telle quelle.
 
 ---
 
