@@ -136,11 +136,13 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
-## LBP-CLIENT-09 — Prise en main
+## LBP-CLIENT-09 — Prise en main ✅ Fait
 
-**Contexte** [§1.10, p.12] : aide contextuelle et bloc vidéo.
+**Contexte** [§1.10, p.12] : aide contextuelle et bloc vidéo. Vérifié contre le vrai code du prototype (`LBP_V6_Studio.html`, `var HELP` + `renderHelp()`/`openHelpEditor()`/`saveHelp()`, lignes 5037-5071) avant de construire.
 
-**À faire** : contenu d'aide statique + emplacement vidéo. Le plus simple des 13 modules à construire (pas de donnée métier, pas de RLS) — bon candidat pour un remplissage rapide une fois les modules à donnée réelle avancés.
+**Réalisé** : `help_page_settings` (nouveau, singleton) — titre, 5 points clés (`text[]`, un par ligne comme dans le prototype), titre/texte/URL du bloc vidéo, portés 1:1 depuis `var HELP`. "Aide & prise en main" (eyebrow) laissé en constante de code plutôt qu'en base : absent de `openHelpEditor()`/`saveHelp()` dans le prototype lui-même, jamais éditable même à la source. `app/(client)/prise-en-main/` (affichage, vidéo intégrée en iframe si une URL est renseignée, sinon un emplacement vide honnête) + `app/(studio)/administration/prise-en-main/` (édition complète, même série que Chiffres Paie/Dictionnaire/CCN — construit dans la foulée plutôt qu'en dette séparée).
+
+**Vérifié** : test réel navigateur — côté client, titre et 5 points réels affichés, emplacement vidéo vide par défaut (aucune URL configurée dans le seed). Côté admin, modification réelle du titre et ajout d'une URL vidéo, confirmés **immédiatement visibles côté client** (titre modifié affiché, vraie iframe vidéo rendue) — sans changement de code. Réglages restaurés à leur état d'origine après le test.
 
 ---
 

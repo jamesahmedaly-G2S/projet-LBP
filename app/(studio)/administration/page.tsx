@@ -174,6 +174,9 @@ export default async function AdministrationPage() {
           <LinkButton href="/administration/ccn" variant="secondary">
             Conventions collectives
           </LinkButton>
+          <LinkButton href="/administration/prise-en-main" variant="secondary">
+            Prise en main
+          </LinkButton>
         </div>
       </Card>
 

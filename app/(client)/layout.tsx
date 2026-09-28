@@ -47,6 +47,9 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
             <Link href="/offres" className="text-sm font-medium text-muted hover:text-ink">
               Offres
             </Link>
+            <Link href="/prise-en-main" className="text-sm font-medium text-muted hover:text-ink">
+              Prise en main
+            </Link>
           </nav>
         </div>
         <div className="flex items-center gap-2">
