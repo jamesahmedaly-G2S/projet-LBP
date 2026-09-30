@@ -9,6 +9,8 @@ import { createClient } from "@/lib/supabase/server";
 // (baseline_schema_reel.sql, §9.1/9.2) avec leur RLS `for all using
 // (is_admin() or company_id = current_company_id())` — jamais consommées
 // par aucun écran avant ce ticket, jamais modifiées ici.
+// Renommé "Mon entreprise" (cahier des charges technique V9.4, §3.3, MAJ
+// 29/09/2026) — route et libellé alignés, schéma/tables inchangés.
 
 async function companyId(): Promise<string> {
   const session = await requireClient();
@@ -32,7 +34,7 @@ export async function addEstablishment(
     address: typeof address === "string" && address.trim() ? address.trim() : null,
   });
   if (error) return `Erreur : ${error.message}`;
-  revalidatePath("/mon-equipe");
+  revalidatePath("/mon-entreprise");
   return null;
 }
 
@@ -40,7 +42,7 @@ export async function deleteEstablishment(id: string): Promise<void> {
   await companyId();
   const supabase = await createClient();
   await supabase.from("establishments").delete().eq("id", id);
-  revalidatePath("/mon-equipe");
+  revalidatePath("/mon-entreprise");
 }
 
 export async function saveTeamMember(
@@ -70,7 +72,7 @@ export async function saveTeamMember(
       : await supabase.from("team_members").insert(data);
 
   if (error) return `Erreur : ${error.message}`;
-  revalidatePath("/mon-equipe");
+  revalidatePath("/mon-entreprise");
   return null;
 }
 
@@ -79,7 +81,7 @@ export async function deleteTeamMember(id: string): Promise<void> {
   const supabase = await createClient();
   await supabase.from("team_members").update({ manager_id: null }).eq("manager_id", id);
   await supabase.from("team_members").delete().eq("id", id);
-  revalidatePath("/mon-equipe");
+  revalidatePath("/mon-entreprise");
 }
 
 export async function savePayrollOrg(
@@ -94,7 +96,7 @@ export async function savePayrollOrg(
     provider_name: str(formData.get("provider_name")),
   });
   if (error) return `Erreur : ${error.message}`;
-  revalidatePath("/mon-equipe");
+  revalidatePath("/mon-entreprise");
   return "Enregistré.";
 }
 
@@ -113,7 +115,7 @@ export async function saveSoftwareStack(
     has_specifications: formData.get("has_specifications") === "on",
   });
   if (error) return `Erreur : ${error.message}`;
-  revalidatePath("/mon-equipe");
+  revalidatePath("/mon-entreprise");
   return "Enregistré.";
 }
 

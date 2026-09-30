@@ -21,7 +21,9 @@ import ToolsForm from "./ToolsForm";
 // consommées par aucun écran avant ce ticket. "Vos documents" (1.3.5)
 // demande un vrai stockage de fichiers — non tenté ici, périmètre trop
 // large pour ce seul ticket (voir tickets/LBP-CLIENT.md).
-export default async function MonEquipePage() {
+// Renommé "Mon entreprise" (cahier des charges technique V9.4, §3.3, MAJ
+// 29/09/2026) — route et libellé alignés, contenu/schéma inchangés.
+export default async function MonEntreprisePage() {
   const session = await requireClient();
   const companyId = session.profile.company_id;
 
@@ -75,7 +77,7 @@ export default async function MonEquipePage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <Eyebrow>Mon espace</Eyebrow>
-      <SectionTitle>Mon équipe</SectionTitle>
+      <SectionTitle>Mon entreprise</SectionTitle>
       <p className="-mt-3 text-sm text-muted">
         Votre société, votre organisation et vos outils RH.
       </p>
