@@ -220,7 +220,7 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
-## LBP-CLIENT-16 — Re-thème visuel (charte V37 — Archivo / framboise / carbone)
+## LBP-CLIENT-16 — Re-thème visuel (charte V37 — Archivo / framboise / carbone) ✅ Fait
 
 **Ajouté (30/09/2026)**, suite à un audit demandé explicitement par l'utilisateur après une recommandation trop hâtive ("il ne reste que l'import Word"). Le thème actuellement construit (`.theme-client` dans `app/globals.css`, polices Plus Jakarta Sans/Inter dans `app/layout.tsx`) a été porté depuis `Nouveau dossier/LBP_V2-20.html`, une maquette **plus ancienne** que `LBP_V9.9_Studio.html`, la référence actuelle.
 
@@ -232,3 +232,9 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 Ces variables sont posées au niveau racine du thème (`:root`/`.theme-client`) : le changement touche **les 9 pages déjà livrées** d'un coup (Accueil, Bibliothèque, Mes-quiz, Offres, Mon entreprise, Chiffres-paie, Dictionnaire, Mon-compte, Prise-en-main) — pas un correctif page par page, un remplacement de thème unique.
 
 **À faire** : remplacer les valeurs de `.theme-client` (`app/globals.css`) par la palette V37, remplacer les instances `next/font/google` Plus_Jakarta_Sans/Inter par Archivo (+ police mono pour `.mono`) dans `app/layout.tsx`. Le Studio (`--studio-*`, Geist) n'est pas concerné — vérifier explicitement l'absence de régression après coup, comme lors du premier passage de thème.
+
+**Réalisé (30/09/2026)** : cascade complète relue jusqu'au bloc de fin de feuille de `LBP_V9.9_Studio.html` ("COUCHE CHARTE G2S", placé en fin de fichier pour primer sur les styles historiques) — c'est cette version-là, pas la première règle rencontrée dans le fichier, qui fait foi. Deux précisions trouvées au passage : `.eyebrow`/`.section-title` sont dans la **même** teinte que les boutons (`--framboise`), pas une variante "hover" — `Eyebrow.tsx`/`SectionTitle.tsx` migrés de `text-primary-hover`/`text-ink` vers `text-primary` (le vrai hover, `--framboise-dark`, reste réservé au `:hover` des boutons) ; `.section-title` passe aussi de 23px à 26px et de `-.01em` à `-.03em` de letter-spacing. `app/layout.tsx` : Archivo unique (plus de split body/titres, IBM Plex Mono pour les valeurs tabulaires). `globals.css` : `.theme-client` entièrement re-mappé, success/danger/warning alignés sur les vraies couleurs de statut du prototype (teal, pas vert générique).
+
+**Non fait — hors périmètre de cette passe (jetons uniquement)** : les éléments plus élaborés du site vitrine (bandeau héros framboise sur l'Accueil, cartes KPI colorées par catégorie, cartes de familles de bibliothèque colorées) ne sont pas répliqués — demanderaient de nouvelles variantes de composants, pas juste un changement de jetons de design.
+
+**Vérifié** : test réel navigateur (Playwright, session client + admin réelles) — eyebrow/h1 confirmés `rgb(103,6,38)` (= `#670626` framboise), police Archivo confirmée sur `.theme-client`, Studio inchangé (Geist/navy, aucune régression). Accueil et Offres cohérents visuellement (boutons, badges, tableau comparatif).
