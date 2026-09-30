@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { notifyAllClients } from "@/lib/studio/content-notifications";
 
 function str(v: FormDataEntryValue | null): string {
   return typeof v === "string" ? v.trim() : "";
@@ -99,6 +100,11 @@ export async function saveOfferContent(
     .eq("tier_level", tierLevel);
 
   if (error) return `Erreur : ${error.message}`;
+
+  await notifyAllClients(supabase, {
+    kind: "offres",
+    title: `Notre offre ${name} évolue`,
+  });
 
   revalidatePath("/administration/offres");
   revalidatePath("/offres");

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { notifyAllClients } from "@/lib/studio/content-notifications";
 
 const PATH = "/administration/chiffres-paie";
 
@@ -105,6 +106,10 @@ export async function saveKeyFigure(
       : await supabase.from("key_figures").insert(data);
 
   if (error) return `Erreur : ${error.message}`;
+  await notifyAllClients(supabase, {
+    kind: "chiffres-paie",
+    title: `Un repère de la paie a été mis à jour : ${data.label ?? data.key}`,
+  });
   revalidatePath(PATH);
   revalidatePath("/chiffres-paie");
   revalidatePath("/accueil");
@@ -146,6 +151,12 @@ export async function saveContributionRate(
       : await supabase.from("contribution_rates").insert(data);
 
   if (error) return `Erreur : ${error.message}`;
+  if (!data.is_header) {
+    await notifyAllClients(supabase, {
+      kind: "chiffres-paie",
+      title: `Un taux de cotisation a été mis à jour : ${data.label}`,
+    });
+  }
   revalidatePath(PATH);
   revalidatePath("/chiffres-paie");
   return null;

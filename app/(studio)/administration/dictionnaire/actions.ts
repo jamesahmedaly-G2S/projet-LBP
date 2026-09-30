@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { notifyAllClients } from "@/lib/studio/content-notifications";
 
 export async function saveTerm(
   _prevState: string | null,
@@ -24,12 +25,32 @@ export async function saveTerm(
   };
 
   const supabase = await createClient();
+
+  // STU-WORKFLOW-07 : ne notifier que le passage réel à "publié" (création
+  // publiée directement, ou brouillon existant qui se publie) -- jamais une
+  // simple correction de texte sur un terme déjà publié.
+  let wasPublished = false;
+  if (typeof id === "string" && id) {
+    const { data: existing } = await supabase
+      .from("dictionary_terms")
+      .select("published")
+      .eq("id", id)
+      .single();
+    wasPublished = existing?.published ?? false;
+  }
+
   const { error } =
     typeof id === "string" && id
       ? await supabase.from("dictionary_terms").update(data).eq("id", id)
       : await supabase.from("dictionary_terms").insert(data);
 
   if (error) return `Erreur : ${error.message}`;
+  if (data.published && !wasPublished) {
+    await notifyAllClients(supabase, {
+      kind: "dictionnaire",
+      title: `Une nouvelle définition a été ajoutée au dictionnaire : ${data.term}`,
+    });
+  }
   revalidatePath("/administration/dictionnaire");
   revalidatePath("/dictionnaire");
   return null;

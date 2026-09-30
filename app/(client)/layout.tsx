@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { Bell } from "lucide-react";
 import { logout } from "@/app/login/actions";
 
 // Fondations LBP Client (ARCHITECTURE.md §4 : app/(client)/ + app/(admin)/
@@ -53,6 +54,13 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           </nav>
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            href="/notifications"
+            aria-label="Notifications"
+            className="rounded-full border border-border p-2 text-muted transition-colors hover:border-ink hover:text-ink"
+          >
+            <Bell className="h-4 w-4" />
+          </Link>
           <Link
             href="/mon-compte"
             className="rounded-full border border-border px-3 py-2 text-sm font-medium text-muted transition-colors hover:border-ink hover:text-ink"
