@@ -180,6 +180,9 @@ export default async function AdministrationPage() {
           <LinkButton href="/administration/offres" variant="secondary">
             Offres
           </LinkButton>
+          <LinkButton href="/administration/actu" variant="secondary">
+            Actu
+          </LinkButton>
         </div>
       </Card>
 

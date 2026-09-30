@@ -37,6 +37,13 @@ interface KeyFigureRow {
   label: string | null;
 }
 
+interface RecentArticleRow {
+  id: string;
+  title: string;
+  category: string | null;
+  published_at: string;
+}
+
 export interface AccueilContentProps {
   companyId: string | null;
   /** Nom affiché dans "Bonjour {greetingName}" -- prénom du client connecté,
@@ -63,16 +70,24 @@ export default async function AccueilContent({
 }: AccueilContentProps) {
   const supabase = await createClient();
 
-  const [{ data: keyFigures }, { data: families }, { data: themes }] = await Promise.all([
-    supabase
-      .from("key_figures")
-      .select("key, year, value, unit, note, label")
-      .in("key", KEY_FIGURE_ORDER)
-      .order("year", { ascending: false })
-      .returns<KeyFigureRow[]>(),
-    supabase.from("master_families").select("id, code, name").order("display_order"),
-    supabase.from("master_themes").select("id, family_id"),
-  ]);
+  const [{ data: keyFigures }, { data: families }, { data: themes }, { data: recentArticles }] =
+    await Promise.all([
+      supabase
+        .from("key_figures")
+        .select("key, year, value, unit, note, label")
+        .in("key", KEY_FIGURE_ORDER)
+        .order("year", { ascending: false })
+        .returns<KeyFigureRow[]>(),
+      supabase.from("master_families").select("id, code, name").order("display_order"),
+      supabase.from("master_themes").select("id, family_id"),
+      supabase
+        .from("articles")
+        .select("id, title, category, published_at")
+        .eq("published", true)
+        .order("published_at", { ascending: false })
+        .limit(3)
+        .returns<RecentArticleRow[]>(),
+    ]);
 
   const currentOfferTier: StudioOfferTier | null =
     offerTier !== null ? await getStudioOfferTier(supabase, offerTier) : null;
@@ -180,7 +195,31 @@ export default async function AccueilContent({
         <div>
           <h2 className="text-lg font-semibold text-ink">Actualités RH &amp; juridiques</h2>
           <Card className="mt-3">
-            <p className="text-sm text-muted">Aucune actualité pour l&apos;instant.</p>
+            {(recentArticles ?? []).length === 0 ? (
+              <p className="text-sm text-muted">Aucune actualité pour l&apos;instant.</p>
+            ) : (
+              <ul className="flex flex-col gap-2 text-sm">
+                {(recentArticles ?? []).map((a) => (
+                  <li key={a.id}>
+                    <Link
+                      href={`${linkPrefix}/actu/${a.id}`}
+                      className="text-ink hover:text-primary"
+                    >
+                      {a.title}
+                    </Link>
+                    <span className="ml-2 text-xs text-muted">
+                      {new Date(a.published_at).toLocaleDateString("fr-FR")}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link
+              href={`${linkPrefix}/actu`}
+              className="mt-3 block text-center text-sm text-primary hover:underline"
+            >
+              Toute l&apos;actu →
+            </Link>
           </Card>
         </div>
       </div>

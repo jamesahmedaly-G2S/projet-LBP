@@ -36,6 +36,9 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
             <Link href="/bibliotheque" className="text-sm font-medium text-muted hover:text-ink">
               La bibliothèque
             </Link>
+            <Link href="/actu" className="text-sm font-medium text-muted hover:text-ink">
+              Actu
+            </Link>
             <Link href="/chiffres-paie" className="text-sm font-medium text-muted hover:text-ink">
               Chiffres Paie
             </Link>

@@ -18,6 +18,7 @@ const KIND_LABEL: Record<string, string> = {
   "chiffres-paie": "Chiffres Paie",
   dictionnaire: "Dictionnaire",
   offres: "Offres",
+  actu: "Actu",
 };
 
 export default function NotificationsList({ notifications }: { notifications: NotificationRow[] }) {
