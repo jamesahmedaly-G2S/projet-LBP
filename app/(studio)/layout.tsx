@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Bell } from "lucide-react";
 import { StudioNav } from "./_components/StudioNav";
 import { LinkButton } from "@/ui-kit/LinkButton";
@@ -23,9 +24,20 @@ export default function StudioLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-studio-bg">
       <header className="flex flex-wrap items-center justify-between gap-3 bg-studio-navy px-6 py-3">
-        <Link href="/tableau-de-bord" className="text-sm font-semibold tracking-wide text-white">
-          LBP STUDIO
-          <span className="ml-2 font-normal text-studio-navy-muted">Administration G2S</span>
+        <Link href="/tableau-de-bord" className="flex items-center gap-2.5">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[9px] bg-white p-1">
+            <Image
+              src="/g2s-logo.png"
+              alt="G2S"
+              width={24}
+              height={24}
+              className="h-full w-full object-contain"
+            />
+          </span>
+          <span className="text-sm font-semibold tracking-wide text-white">
+            LBP STUDIO
+            <span className="ml-2 font-normal text-studio-navy-muted">Administration G2S</span>
+          </span>
         </Link>
         <div className="flex items-center gap-2">
           <LinkButton href="/clients/nouvelle" variant="secondary" className="bg-white">
