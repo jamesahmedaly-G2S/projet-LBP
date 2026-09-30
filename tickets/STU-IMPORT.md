@@ -40,13 +40,19 @@ Epic ajouté le 30/09/2026, suite au cahier des charges technique V9.4 (MAJ 29/0
 
 ---
 
-## STU-IMPORT-03 — Écran de mapping et contrôle G2S
+## STU-IMPORT-03 — Écran de mapping et contrôle G2S ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-IMPORT-01, STU-IMPORT-02**
 
 **Contexte** [§7.1, §13.1] : "le parsing peut échouer sans modifier le référentiel tant que G2S n'a pas validé le mapping". Avant tout écriture en base, G2S doit voir le résultat du parsing (sections reconnues, tableaux, CCN détectées, rubriques inconnues) et valider explicitement.
 
 **À faire** : écran de prévisualisation du mapping (port fonctionnel de `wordMappingHTML`, jamais son HTML brut) — accepter/corriger le rattachement des sections, confirmer ou écarter les CCN détectées, décider du sort des rubriques inconnues. Aucune écriture dans `sheet_versions` avant validation explicite de cet écran.
+
+**Réalisé (30/09/2026)** : `validateAndCreateSheet()` — seul point d'écriture réelle de tout l'epic, déclenché uniquement par un clic explicite sur "Valider et créer la fiche". Rattachement famille/thème/sous-thème obligatoire (mêmes sélecteurs en cascade que `nouvelle-fiche/NewSheetForm.tsx`). Chaque section a un sélecteur "Rattacher à" pour accepter l'auto-détection ou choisir un autre champ (5 champs + quiz + ignorer). Les résolutions CCN de STU-IMPORT-02 pilotent la création des couches (`matched`/`create`/`associate` → couche créée ; `ignore` → aucune couche). Le numéro détecté (ex. "01.01") devient `master_sheets.code` — la vraie clé métier du cahier, distincte du générateur `THEME-001` de `createMasterSheet()`. Fiche déjà existante (même `code`) : bloquée, jamais dupliquée ni écrasée.
+
+**Non fait — limite assumée** : les couches CCN créées reçoivent un contenu factice (`buildPlaceholderContent()`), pas le texte réellement spécifique à cette CCN — le modèle actuel ne distingue pas encore "ce paragraphe est propre à telle CCN" au-delà de la simple mention IDCC détectée en passant. À revoir si un vrai document montre une séparation plus nette (sous-section dédiée par CCN, par exemple).
+
+**Vérifié** : test réel navigateur (Playwright) — upload → rattachement réel (famille "Vie du salarié") → validation → vraie fiche créée en base (`code: "99.99"`, `status: draft`), contenu réparti correctement par section (essentiel/comprendre remplis, le reste vide), couche CCN 1486 (déjà reconnue) créée automatiquement. Confirmé par requêtes directes en base, pas seulement l'affichage. Données de test supprimées après coup, cascade confirmée (aucune `sheet_versions` orpheline).
 
 ---
 
