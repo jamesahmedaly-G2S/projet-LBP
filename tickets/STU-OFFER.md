@@ -38,7 +38,7 @@
 
 ---
 
-## STU-OFFER-03 — Rendre les 4 offres éditables depuis le Studio
+## STU-OFFER-03 — Rendre les 4 offres éditables depuis le Studio ✅ Fait
 
 **Priorité : Must** · **Dépendances : —**
 
@@ -47,6 +47,10 @@
 **Ce n'est pas un simple manque de finition** : ça contredit directement l'exigence déjà actée cette session (voir tickets/LBP-CLIENT.md, contexte général) — "tout se fait depuis l'espace G2S, Pauline n'a aucune compétence technique et ne touchera jamais à du code ou à une ligne de commande." Les 3 autres écrans "Données de référence" (Chiffres Paie, Dictionnaire, CCN) ont déjà été corrigés sur exactement ce principe ; les offres ont été oubliées.
 
 **À faire** : extraire `StudioOfferTier`/`OFFER_TIERS` vers une vraie table (name/sub/price/users/extraUserPrice/badge/reco/promesse/desc/pourqui/inc/why/foot/cta/cta2/highlight/formula/blocs/note — cf. `lib/studio/offer-tiers.ts` pour la forme exacte des champs), écran admin CRUD sous `/administration` (même famille que chiffres-paie/dictionnaire/ccn/prise-en-main), `getAllStudioOfferTiers()`/`computeOfferPrice()` adaptés pour lire la table au lieu du fichier en dur. Rejoint STU-WORKFLOW-07 pour la notification à la publication.
+
+**Réalisé (30/09/2026)** : migration `20260930090000_offres_editables_admin.sql` — table additive `studio_offer_content` (FK sur `offer_tiers(tier_level)`, jamais modifiée), contenu réel des 4 offres porté 1:1 depuis l'ancien `STUDIO_OFFER_TIERS`. `lib/studio/offer-tiers.ts` : `getStudioOfferTier()`/`getAllStudioOfferTiers()` deviennent async et lisent la table (signature `(supabase, tierLevel)`), tous les appelants mis à jour (`accueil/page.tsx`, `offres/page.tsx`, `offres/[tier]/page.tsx`). Écran `app/(studio)/administration/offres/` (liste des 4 paliers fixes + formulaire d'édition par palier, pas d'ajout/suppression), lien ajouté au bloc "Données de référence" de `/administration`.
+
+**Vérifié** : RLS testée en direct (token réel admin vs token réel client) — modification du prix de LBP Essentiel réussie avec le token admin, tentative identique avec le token client renvoyant 0 ligne affectée (bloquée). Changement de prix propagé sans délai et sans changement de code sur `/offres` (liste), `/offres/1` (détail) et `/accueil` (résumé de l'offre actuelle). Toutes les valeurs restaurées après test.
 
 **Critères d'acceptation**
 
