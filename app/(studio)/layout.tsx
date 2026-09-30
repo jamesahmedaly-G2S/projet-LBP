@@ -10,14 +10,14 @@ import { logout } from "@/app/login/actions";
 // `st-head-actions` du prototype (LBP_V9.9_Studio.html, L.6618-6619) : "+
 // Nouveau client" (STU-CLIENT-01), "Déconnexion" et "LBP Client" -- ce
 // dernier remplace l'ancien "Quitter le Studio" qui faisait les deux à la
-// fois. Le prototype bascule closeStudio() sur la même page (simulation
-// localStorage, cf. L.4551 "LBP CLIENT → espace de l'entreprise cliente.
-// URL distincte" -- son propre commentaire d'architecture confirme que ce
-// n'est pas le comportement de production à reproduire) : ici, Studio et
-// Client sont deux rôles/sessions réels distincts (une session admin ne
-// peut pas devenir cliente), donc "LBP Client" mène vers /clients, point
-// de départ réel vers "Accéder au LBP du client" (STU-CLIENT-04) plutôt
-// qu'un espace client générique qui n'existe pas côté admin.
+// fois. Le prototype bascule directement vers l'appli client complète
+// (closeStudio(), "profile" = persona fixe, jamais un choix par société --
+// vérifié dans le vrai code avant de construire) : "LBP Client" mène donc
+// vers /lbp-client, qui redirige directement vers la prévisualisation
+// complète (STU-CLIENT-04 étendu) de la société la plus récente -- pas
+// une étape de sélection intermédiaire, conformément au comportement réel
+// du prototype (corrigé le 30/09/2026 après retour explicite : la
+// première version pointait vers /clients, jugé insuffisant).
 export default function StudioLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-studio-bg">
@@ -31,8 +31,8 @@ export default function StudioLayout({ children }: { children: ReactNode }) {
             + Nouveau client
           </LinkButton>
           <Link
-            href="/clients"
-            title="Prévisualiser le LBP d'un client (Accéder au LBP du client, depuis sa fiche)"
+            href="/lbp-client"
+            title="Voir le vrai LBP Client (prévisualisation complète, société la plus récente)"
             className="rounded-full border border-white/30 px-3 py-2 text-sm font-medium text-studio-navy-muted transition-colors hover:border-white hover:text-white"
           >
             LBP Client

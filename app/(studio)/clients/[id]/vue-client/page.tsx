@@ -3,6 +3,8 @@ import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getCompanyAffectations } from "@/lib/studio/affectations";
 import { Card } from "@/ui-kit/Card";
+import { Eyebrow } from "@/app/(client)/_components/Eyebrow";
+import { SectionTitle } from "@/app/(client)/_components/SectionTitle";
 
 interface Row {
   id: string;
@@ -26,6 +28,11 @@ interface SheetRow {
 // (origine "base", STU-DATA-05) SAUF si elle a été retirée manuellement
 // pour cette société (STU-AFFECT-03) — filtrée ici comme dans
 // AffectationList.tsx ("Retirée manuellement... non visible côté client").
+// Tokens sémantiques (text-ink/text-muted/border-border...) plutôt que
+// studio-navy/studio-line depuis l'ajout du bandeau nav .theme-client
+// (30/09/2026, prévisualisation étendue) -- avant, cette page était la
+// seule sous vue-client, jamais dans .theme-client, la palette Studio ne
+// jurait pas.
 export default async function VueClientPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
@@ -60,25 +67,25 @@ export default async function VueClientPage({ params }: { params: Promise<{ id: 
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-2xl font-semibold text-studio-navy">Le Livre Blanc de la Paie</h1>
-      <p className="mt-1 text-sm text-studio-muted">Référentiel accessible pour cette société.</p>
+      <Eyebrow>La bibliothèque RH &amp; Paie</Eyebrow>
+      <SectionTitle>Bibliothèque</SectionTitle>
 
       <div className="mt-6 flex flex-col gap-6">
         {(families ?? []).map((family: Row) => (
           <Card key={family.id}>
-            <h2 className="text-lg font-semibold text-studio-navy">{family.name}</h2>
+            <h2 className="text-lg font-semibold text-ink">{family.name}</h2>
             <div className="mt-3 flex flex-col gap-4">
               {(themes ?? [])
                 .filter((theme: Row) => theme.family_id === family.id)
                 .map((theme: Row) => (
-                  <div key={theme.id} className="border-l-2 border-studio-line pl-4">
-                    <h3 className="font-medium text-studio-navy">{theme.name}</h3>
+                  <div key={theme.id} className="border-l-2 border-border pl-4">
+                    <h3 className="font-medium text-ink">{theme.name}</h3>
                     <SheetList companyId={id} sheets={sheetsOfTheme(theme.id, null)} />
                     {(subthemes ?? [])
                       .filter((subtheme: Row) => subtheme.theme_id === theme.id)
                       .map((subtheme: Row) => (
-                        <div key={subtheme.id} className="mt-2 border-l-2 border-studio-line pl-4">
-                          <h4 className="text-sm font-medium text-studio-muted">{subtheme.name}</h4>
+                        <div key={subtheme.id} className="mt-2 border-l-2 border-border pl-4">
+                          <h4 className="text-sm font-medium text-muted">{subtheme.name}</h4>
                           <SheetList companyId={id} sheets={sheetsOfTheme(theme.id, subtheme.id)} />
                         </div>
                       ))}
@@ -101,7 +108,7 @@ function SheetList({ companyId, sheets }: { companyId: string; sheets: SheetRow[
         <li key={sheet.id} className="text-sm">
           <Link
             href={`/clients/${companyId}/vue-client/${sheet.id}`}
-            className="text-studio-blue hover:underline"
+            className="text-primary hover:underline"
           >
             {sheet.title}
           </Link>

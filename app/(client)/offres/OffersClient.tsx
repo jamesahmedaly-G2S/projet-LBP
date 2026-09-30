@@ -47,10 +47,18 @@ export default function OffersClient({
   tiers,
   currentTier,
   pendingRequestTier,
+  linkPrefix = "",
+  readOnly = false,
 }: {
   tiers: StudioOfferTier[];
   currentTier: number;
   pendingRequestTier: number | null;
+  /** "" pour la vraie appli client, "/clients/[id]/vue-client" en
+   * prévisualisation admin (STU-CLIENT-04 étendu). */
+  linkPrefix?: string;
+  /** Prévisualisation admin : masque la demande de changement d'offre --
+   * "aucun droit d'écriture supplémentaire" (STU-CLIENT-04). */
+  readOnly?: boolean;
 }) {
   const [billing, setBilling] = useState<"annual" | "monthly">("annual");
   const [userCount, setUserCount] = useState(10);
@@ -171,18 +179,22 @@ export default function OffersClient({
 
               <div className="mt-4 flex flex-col gap-2">
                 {isCurrent ? (
-                  <Link href={`/offres/${tier.tierLevel}`}>
+                  <Link href={`${linkPrefix}/offres/${tier.tierLevel}`}>
                     <Button type="button" variant="secondary" className="w-full">
                       Voir le détail de mon offre
                     </Button>
                   </Link>
                 ) : pendingRequestTier ? (
                   <p className="text-xs text-muted">Une demande est déjà en attente.</p>
+                ) : readOnly ? (
+                  <Button type="button" variant="secondary" className="w-full" disabled>
+                    {tier.cta}
+                  </Button>
                 ) : (
                   <RequestOfferButton targetTier={tier.tierLevel} label={tier.cta} />
                 )}
                 <Link
-                  href={`/offres/${tier.tierLevel}`}
+                  href={`${linkPrefix}/offres/${tier.tierLevel}`}
                   className="text-center text-xs text-primary hover:underline"
                 >
                   Voir tout le détail
@@ -237,7 +249,7 @@ export default function OffersClient({
           return (
             <Link
               key={question}
-              href={`/offres/${tierLevel}`}
+              href={`${linkPrefix}/offres/${tierLevel}`}
               className="rounded-md border border-border bg-surface p-3 text-sm hover:border-primary"
             >
               <p className="text-ink">{question}</p>
