@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireClient } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { ALL_NOTIFICATION_KINDS, NOTIFICATION_CHANNELS } from "@/lib/client/notification-kinds";
 
 // LBP-CLIENT-10 : "Mon compte" [§1.11, p.12-13] — infos perso sur
 // `profiles` (déjà en base, jamais éditées par le client lui-même avant
@@ -53,4 +54,33 @@ export async function changeMyPassword(
 
 function str(v: FormDataEntryValue | null): string | null {
   return typeof v === "string" && v.trim() ? v.trim() : null;
+}
+
+// LBP-CLIENT-10/11 (finitions, 30/09/2026) : "Mes notifications" --
+// dernier bloc de Mon compte. Un seul bouton enregistre les préférences de
+// tous les types d'un coup (`saveAccount()` du prototype fait de même) --
+// upsert plutôt qu'update, une ligne n'existe pas tant que l'utilisateur
+// n'a jamais changé la valeur par défaut ("lbp") pour ce type.
+export async function saveNotificationPreferences(
+  _prevState: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const session = await requireClient();
+  const supabase = await createClient();
+
+  const rows = ALL_NOTIFICATION_KINDS.map((k) => {
+    const raw = formData.get(`channel_${k.key}`);
+    const channel = NOTIFICATION_CHANNELS.includes(raw as (typeof NOTIFICATION_CHANNELS)[number])
+      ? (raw as (typeof NOTIFICATION_CHANNELS)[number])
+      : "lbp";
+    return { profile_id: session.userId, kind: k.key, channel };
+  });
+
+  const { error } = await supabase
+    .from("notification_preferences")
+    .upsert(rows, { onConflict: "profile_id,kind" });
+
+  if (error) return `Erreur : ${error.message}`;
+  revalidatePath("/mon-compte");
+  return "Préférences enregistrées.";
 }

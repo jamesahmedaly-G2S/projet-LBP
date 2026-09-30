@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { Card } from "@/ui-kit/Card";
 import { Button } from "@/ui-kit/Button";
 import { markNotificationRead, markAllNotificationsRead } from "./actions";
+import { NOTIFICATION_KIND_LABEL } from "@/lib/client/notification-kinds";
 
 export interface NotificationRow {
   id: string;
@@ -13,14 +14,6 @@ export interface NotificationRow {
   read: boolean;
   created_at: string;
 }
-
-const KIND_LABEL: Record<string, string> = {
-  "chiffres-paie": "Chiffres Paie",
-  dictionnaire: "Dictionnaire",
-  offres: "Offres",
-  actu: "Actu",
-  "calendrier-rh": "Calendrier RH",
-};
 
 export default function NotificationsList({ notifications }: { notifications: NotificationRow[] }) {
   const [, startTransition] = useTransition();
@@ -52,7 +45,7 @@ export default function NotificationsList({ notifications }: { notifications: No
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs uppercase tracking-wide text-muted">
-                      {KIND_LABEL[n.kind] ?? n.kind}
+                      {NOTIFICATION_KIND_LABEL[n.kind] ?? n.kind}
                     </p>
                     <p className={`text-sm ${n.read ? "text-muted" : "font-semibold text-ink"}`}>
                       {n.title}
