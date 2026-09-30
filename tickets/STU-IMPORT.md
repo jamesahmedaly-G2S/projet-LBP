@@ -8,13 +8,19 @@ Epic ajouté le 30/09/2026, suite au cahier des charges technique V9.4 (MAJ 29/0
 
 ---
 
-## STU-IMPORT-01 — Lecture native DOCX + détection de structure
+## STU-IMPORT-01 — Lecture native DOCX + détection de structure ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-REF (référentiel maître), STU-DATA-02 (workflow_status)**
 
 **Contexte** [§7.1, §7.3, §8.1] : processus cible `WORD .DOCX → LECTURE NATIVE → ANALYSE → MAPPING → CONTRÔLE G2S → BROUILLON → VALIDATION`. Éléments à préserver : titre principal et niveaux de titres, paragraphes, listes, tableaux avec en-têtes et lignes. La structure éditoriale obligatoire (§8.1) a 6 sections fixes : 1. L'essentiel à retenir, 2. Comprendre la règle, 3. Maîtriser la règle dans le détail, 4. Application concrète en paie, 5. Points de vigilance, 6. Quiz — à faire correspondre aux 5 champs déjà existants côté `SHEET_CONTENT_FIELDS` (essentiel/comprendre/maîtriser/application/vigilance, cf. LBP-CLIENT-03) plus le quiz séparément (STU-QUIZ).
 
 **À faire** : service serveur de parsing DOCX structuré (choix de librairie à trancher — pas de dépendance DOCX dans `package.json` actuellement), détection des niveaux de titres et découpage par section, extraction fidèle des tableaux (en-têtes + lignes) et listes sans les aplatir en texte brut. Rubrique inconnue = conservée et signalée, jamais perdue silencieusement (§7.2, exigence explicite).
+
+**Réalisé (30/09/2026)** : `jszip` ajouté (dézippage du .docx, un vrai zip de fichiers XML) — choix délibéré de lire `word/document.xml` nous-mêmes plutôt qu'une librairie de "conversion" (Mammoth étant explicitement exclu). `lib/studio/docx-import/parse-docx.ts` : titre/numéro de fiche (motif `NN.NN — Titre`), les 6 sections reconnues par le **texte** de leur titre normalisé (jamais par un niveau Word fixe — rien n'indique que G2S utilise un niveau fixe pour les 6 sections, cette approche fonctionne quel que soit le gabarit réel), tableaux (en-têtes + lignes) et listes préservés comme blocs distincts, rubriques non reconnues conservées avec leur titre plutôt que perdues. Écran `/administration/import-word` (upload + aperçu du mapping, lecture seule, aucune écriture en base à ce stade).
+
+**Vérifié** : test réel navigateur (Playwright, upload d'un vrai .docx généré avec titre/6 sections/liste/tableau/CCN/rubriques inconnues). **2 bugs réels trouvés et corrigés pendant ce test** (pas en relisant le code) : (1) `extractText()` matchait aussi `<w:tc>`/`<w:tbl>`/`<w:tr>` par erreur (`<w:t[^>]*>` sans limite de mot après "t" — un tableau s'affichait avec ses balises XML brutes au lieu du texte de ses cellules), corrigé en `<w:t\b[^>]*>` ; (2) le style Word "Title" (sans numéro) n'était pas reconnu comme titre principal, le numéro/titre de fiche n'était jamais détecté et le premier `Heading1` réel se faisait voler son contenu par erreur. Après correction : numéro de fiche, 6 sections, CCN (1486 et 0016→16 normalisé), tableau, liste et rubriques inconnues tous détectés correctement.
+
+**Non fait — dette technique connue** : testé uniquement contre un document synthétique généré par le package `docx`, pas contre un vrai document Word rédigé à la main par un humain (styles/structure potentiellement différents — ex. numérotation de liste multi-niveaux, styles de titre personnalisés). Les deux fiches étalons réelles du cahier (§7.6, Annexe A) n'ont pas encore été fournies par l'utilisateur — à rejouer contre elles dès qu'elles seront transmises (STU-IMPORT-04 en dépend directement).
 
 ---
 
