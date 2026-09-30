@@ -2,52 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Home,
-  Building2,
-  Calendar,
-  BookOpen,
-  Newspaper,
-  LineChart,
-  BookMarked,
-  Trophy,
-  Tag,
-  HelpCircle,
-} from "lucide-react";
+import { MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS, type NavItem } from "./nav-items";
 
-// LBP Client (finitions design, 30/09/2026) : pendant de StudioNav.tsx
-// (app/(studio)/_components/StudioNav.tsx) -- même besoin d'un composant
-// client pour usePathname(), le layout parent reste un Server Component.
-// Ordre et icônes vérifiés contre le vrai header du prototype
-// (LBP_V9.9_Studio.html, <nav class="top-tools topnav">, lignes ~2526-2539) :
-// 9 onglets sur une ligne, "Prise en main" isolé sur sa propre ligne en
-// dessous (même disposition ici). Pilules actif/inactif portées 1:1
-// (header.top .topnav button / .on, "COUCHE CHARTE G2S" en fin de feuille).
-const MAIN_ITEMS = [
-  { href: "/accueil", label: "Accueil", Icon: Home },
-  { href: "/mon-entreprise", label: "Mon entreprise", Icon: Building2 },
-  { href: "/calendrier-rh", label: "Calendrier RH", Icon: Calendar },
-  { href: "/bibliotheque", label: "La bibliothèque", Icon: BookOpen },
-  { href: "/actu", label: "Actu", Icon: Newspaper },
-  { href: "/chiffres-paie", label: "Chiffres Paie", Icon: LineChart },
-  { href: "/dictionnaire", label: "Dictionnaire", Icon: BookMarked },
-  { href: "/mes-quiz", label: "Quizz", Icon: Trophy },
-  { href: "/offres", label: "Offres", Icon: Tag },
-];
-
-const SECONDARY_ITEMS = [{ href: "/prise-en-main", label: "Prise en main", Icon: HelpCircle }];
-
-function NavPill({
-  href,
-  label,
-  Icon,
-  active,
-}: {
-  href: string;
-  label: string;
-  Icon: typeof Home;
-  active: boolean;
-}) {
+// LBP Client (finitions design) : pendant de StudioNav.tsx -- même besoin
+// d'un composant client pour usePathname(), le layout parent reste un
+// Server Component. Pilules actif/inactif portées 1:1 (header.top .topnav
+// button / .on, "COUCHE CHARTE G2S"). Masquée sous 768px (`hidden md:flex`)
+// -- au-delà de 9 pilules, `flex-wrap` seul devient un empilement illisible
+// sur petit écran (le vrai prototype n'a pas de solution ici, jamais testé
+// sur mobile) ; MobileNav.tsx prend le relais avec un menu burger.
+function NavPill({ href, label, Icon, active }: NavItem & { active: boolean }) {
   return (
     <Link
       href={href}
@@ -68,14 +32,14 @@ export default function ClientNav() {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <nav className="flex flex-col gap-1.5">
+    <nav className="hidden flex-col gap-1.5 md:flex">
       <div className="flex flex-wrap items-center gap-1.5">
-        {MAIN_ITEMS.map((item) => (
+        {MAIN_NAV_ITEMS.map((item) => (
           <NavPill key={item.href} {...item} active={isActive(item.href)} />
         ))}
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
-        {SECONDARY_ITEMS.map((item) => (
+        {SECONDARY_NAV_ITEMS.map((item) => (
           <NavPill key={item.href} {...item} active={isActive(item.href)} />
         ))}
       </div>

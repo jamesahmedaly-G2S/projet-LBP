@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Bell, Search } from "lucide-react";
 import { logout } from "@/app/login/actions";
 import ClientNav from "./_components/ClientNav";
+import MobileNav from "./_components/MobileNav";
 import AccountBadge from "./_components/AccountBadge";
 import AssistanceButton from "./_components/AssistanceButton";
 
@@ -35,6 +36,15 @@ import AssistanceButton from "./_components/AssistanceButton";
 // tout ce projet) plutôt que "LBP — Référentiel Paie" vu dans cette
 // version précise du prototype -- seul le style du bandeau est porté ici,
 // pas un renommage produit non demandé.
+//
+// Responsive (finitions, 30/09/2026) : le vrai prototype n'a pas de menu
+// mobile fonctionnel pour ces 9 onglets (pas de media query ni de JS
+// burger sur <nav class="top-tools topnav">) -- l'app doit pourtant
+// fonctionner sur téléphone (objectif exprimé : mobilisable/installable).
+// Sous 768px : ClientNav (pilules) et le bloc compte/déconnexion se
+// masquent, MobileNav (menu burger plein écran) prend le relais avec les
+// mêmes liens + les actions qu'il masque de la ligne principale.
+// Construit indépendamment du prototype sur ce point précis.
 export default function ClientLayout({ children }: { children: ReactNode }) {
   return (
     <div className="theme-client min-h-screen bg-page-bg">
@@ -50,7 +60,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
                 className="h-full w-full object-contain"
               />
             </span>
-            <span className="leading-tight">
+            <span className="hidden leading-tight sm:block">
               <span className="block text-sm font-extrabold tracking-wide">
                 LE LIVRE BLANC DE LA PAIE
               </span>
@@ -70,7 +80,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
               type="search"
               id="gq"
               name="q"
-              placeholder="Rechercher dans tout le LBP…"
+              placeholder="Rechercher…"
               className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-muted"
             />
           </form>
@@ -83,19 +93,23 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
             <Bell className="h-4 w-4" />
           </Link>
 
-          <AccountBadge />
+          <div className="hidden items-center gap-3 md:flex">
+            <AccountBadge />
 
-          <form action={logout}>
-            <button
-              type="submit"
-              className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
-            >
-              Déconnexion
-            </button>
-          </form>
+            <form action={logout}>
+              <button
+                type="submit"
+                className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
+              >
+                Déconnexion
+              </button>
+            </form>
+          </div>
+
+          <MobileNav />
         </div>
 
-        <div className="mt-2">
+        <div className="hidden md:mt-2 md:block">
           <ClientNav />
         </div>
       </header>
