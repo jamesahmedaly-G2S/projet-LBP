@@ -38,13 +38,13 @@ export default function AccountBadge() {
   return (
     <Link
       href="/mon-compte"
-      className="flex items-center gap-2.5 rounded-full border border-white/25 bg-white/10 py-1.5 pl-3.5 pr-1.5 text-white transition-colors hover:bg-white/20"
+      className="flex items-center gap-2 rounded-full border border-white/25 bg-white/10 py-1 pl-3 pr-1 text-white transition-colors hover:bg-white/20"
     >
       <span className="text-right leading-tight">
         <span className="block text-xs font-bold">{fullName ?? "Mon compte"}</span>
         <span className="block text-[10px] text-white/75">Mode client</span>
       </span>
-      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink text-[13px] font-extrabold text-white">
+      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-xs font-extrabold text-white">
         {initials(fullName)}
       </span>
     </Link>

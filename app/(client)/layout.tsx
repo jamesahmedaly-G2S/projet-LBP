@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Bell, Search } from "lucide-react";
 import { logout } from "@/app/login/actions";
 import ClientNav from "./_components/ClientNav";
@@ -37,11 +38,17 @@ import AssistanceButton from "./_components/AssistanceButton";
 export default function ClientLayout({ children }: { children: ReactNode }) {
   return (
     <div className="theme-client min-h-screen bg-page-bg">
-      <header className="sticky top-0 z-50 bg-primary px-6 py-4 text-white">
-        <div className="flex flex-wrap items-center gap-4">
-          <Link href="/accueil" className="flex shrink-0 items-center gap-3">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink text-base font-extrabold">
-              G
+      <header className="sticky top-0 z-50 bg-primary px-6 py-2.5 text-white">
+        <div className="flex flex-wrap items-center gap-3">
+          <Link href="/accueil" className="flex shrink-0 items-center gap-2.5">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-white p-1">
+              <Image
+                src="/g2s-logo.png"
+                alt="G2S"
+                width={28}
+                height={28}
+                className="h-full w-full object-contain"
+              />
             </span>
             <span className="leading-tight">
               <span className="block text-sm font-extrabold tracking-wide">
@@ -53,7 +60,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
 
           <form
             action="/recherche"
-            className="flex min-w-0 flex-1 items-center gap-1.5 rounded-full bg-white px-3.5 py-2"
+            className="flex min-w-0 flex-1 items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5"
           >
             <Search className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden="true" />
             <label className="sr-only" htmlFor="gq">
@@ -71,7 +78,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           <Link
             href="/notifications"
             aria-label="Notifications"
-            className="rounded-full border border-white/25 bg-white/10 p-2.5 text-white transition-colors hover:bg-white/20"
+            className="rounded-full border border-white/25 bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
           >
             <Bell className="h-4 w-4" />
           </Link>
@@ -81,14 +88,14 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           <form action={logout}>
             <button
               type="submit"
-              className="rounded-full border border-white/25 bg-white/10 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20"
+              className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
             >
               Déconnexion
             </button>
           </form>
         </div>
 
-        <div className="mt-3">
+        <div className="mt-2">
           <ClientNav />
         </div>
       </header>

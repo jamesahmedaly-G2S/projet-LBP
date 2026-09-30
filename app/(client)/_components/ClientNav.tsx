@@ -51,13 +51,13 @@ function NavPill({
   return (
     <Link
       href={href}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] font-semibold transition-colors ${
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12.5px] font-semibold transition-colors ${
         active
           ? "border-[#efe7e1] bg-[#efe7e1] text-ink"
           : "border-white/20 bg-white/10 text-white hover:border-white/40 hover:bg-white/20"
       }`}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-[15px] w-[15px]" />
       {label}
     </Link>
   );
@@ -68,13 +68,13 @@ export default function ClientNav() {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <nav className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-center gap-2">
+    <nav className="flex flex-col gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
         {MAIN_ITEMS.map((item) => (
           <NavPill key={item.href} {...item} active={isActive(item.href)} />
         ))}
       </div>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5">
         {SECONDARY_ITEMS.map((item) => (
           <NavPill key={item.href} {...item} active={isActive(item.href)} />
         ))}
