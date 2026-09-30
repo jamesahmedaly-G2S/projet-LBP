@@ -184,6 +184,19 @@ export default async function AdministrationPage() {
       </Card>
 
       <Card className="mt-6">
+        <h2 className="mb-3 text-lg font-semibold text-studio-navy">Production</h2>
+        <p className="mb-3 text-xs text-studio-muted">
+          Outils de production du référentiel (STU-IMPORT) — distinct des données de référence
+          ci-dessus.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <LinkButton href="/administration/import-word" variant="secondary">
+            Import Word
+          </LinkButton>
+        </div>
+      </Card>
+
+      <Card className="mt-6">
         <h2 className="mb-3 text-lg font-semibold text-studio-navy">Journal d&apos;activité</h2>
         {activity.length === 0 ? (
           <p className="text-sm text-studio-muted">Aucune activité pour l&apos;instant.</p>
