@@ -184,7 +184,7 @@ Côté admin (`app/(studio)/administration/actu/`) : liste + formulaire (titre/t
 
 ---
 
-## LBP-CLIENT-11 — Notifications 🟡 Partiellement fait
+## LBP-CLIENT-11 — Notifications ✅ Fait
 
 **Contexte** [§1.12, p.13] : cloche, deux audiences (client/G2S) — module partagé, pas strictement côté client.
 
@@ -192,9 +192,17 @@ Côté admin (`app/(studio)/administration/actu/`) : liste + formulaire (titre/t
 
 **Réalisé (30/09/2026, dans le cadre de STU-WORKFLOW-07)** : `app/(client)/notifications/` — liste réelle, marquer comme lu (un par un ou tout d'un coup), cloche dans la nav (`app/(client)/layout.tsx`). Alimenté pour l'instant par 3 sources (Chiffres Paie/Dictionnaire/Offres, via `lib/studio/content-notifications.ts`), audience client uniquement.
 
-**Non fait** : audience G2S (le cahier dit "deux audiences" — rien construit côté Studio pour l'instant, ce ticket s'est concentré sur la boucle client pour que STU-WORKFLOW-07 soit vérifiable).
-
 **Complété (30/09/2026, via LBP-CLIENT-10)** : préférences de canal par type (`notification_preferences`, "Mes notifications" dans Mon compte). Le canal e-mail est enregistrable mais pas encore actif (`BREVO_API_KEY` absente, même prudence que la veille) — aucun canal ne modifie encore la création réelle des lignes `notifications` elles-mêmes (celles-ci restent partagées par société, pas par destinataire individuel ; faire dépendre leur création de la préférence de chaque utilisateur demanderait de faire évoluer `notifyAllClients()` vers un envoi par profil, hors périmètre de cette itération — documenté plutôt que tenté à moitié).
+
+**Finitions (30/09/2026)** : audience G2S. Vérifié contre le vrai code du prototype (`addNotif(audience,...)`, `LBP_V9.9_Studio.html`) : la quasi-totalité des appels réels `addNotif('g2s', ...)` concerne la veille réglementaire (détection, proposition à valider) — seul déclencheur déjà réel et câblé de notre côté (`runAllConnectorsAndNotify()`, STU-VEILLE-04). `notifications.audience` (enum `user_role`, 'admin'/'client') existait déjà en base, jamais utilisée qu'avec `'client'` jusqu'ici.
+
+`notifyAdmins()` ajoutée dans `lib/studio/content-notifications.ts`, symétrique de `notifyAllClients()` mais **une seule ligne** (`company_id`/`profile_id` null) plutôt qu'une par société — un admin voit tout via `is_admin()` dans la RLS déjà réelle, pas besoin d'une ligne par destinataire. Branchée dans `runAllConnectorsAndNotify()` : une notification in-app réelle par nouvelle entrée de veille détectée, en plus (jamais à la place) de l'e-mail/SMS Brevo déjà existant.
+
+Écran `app/(studio)/notifications-g2s/` (pendant Studio de `app/(client)/notifications/`) — route volontairement hors des 10 sections figées de `StudioNav.tsx` (§3 du dossier), accessible depuis une cloche ajoutée à l'en-tête du Studio, même principe que le lien "LBP Client" déjà hors nav. **Filtre explicite `audience='admin'`** sur la lecture et sur "Tout marquer comme lu" : la RLS seule (`is_admin()`) aurait laissé un admin voir — et surtout marquer comme lues d'un coup — les notifications de **toutes** les sociétés clientes, jamais compté dessus seule.
+
+Pas de compteur de notifications non lues dans la cloche de l'en-tête Studio (juste un lien) : un layout ne peut pas être protégé par le `error.tsx` de son propre segment (même limite déjà documentée pour `app/(client)/layout.tsx`) — une requête de session y échouerait sans page d'erreur propre. Même choix déjà fait côté client (`Bell` sans badge).
+
+**Vérifié** : test réel navigateur avec la session admin réelle (Pauline). Notification de test insérée (`audience='admin'`) confirmée visible sur `/notifications-g2s` avec le bon libellé ("Veille réglementaire"), une notification cliente de test insérée en parallèle confirmée **invisible** sur cet écran (isolation par audience). "Marquer comme lu" et "Tout marquer comme lu" testés réels, confirmés persistants après un rechargement complet — et confirmé en base que "Tout marquer comme lu" côté admin n'a **jamais** touché la notification cliente (`read` resté `false`). Déclenchement réel du bouton "Lancer la détection maintenant" (`/veille`, vrais appels réseau vers Ministère du Travail/URSSAF/Ameli) : 7 vraies nouvelles entrées détectées, confirmé que chacune a bien créé sa propre notification admin réelle (pas de simulation). Toutes les notifications de test/vérification supprimées après coup.
 
 ---
 

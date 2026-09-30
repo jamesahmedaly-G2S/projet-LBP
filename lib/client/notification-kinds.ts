@@ -53,14 +53,18 @@ export const NOTIFICATION_PREFERENCE_GROUPS = [
 
 export const ALL_NOTIFICATION_KINDS = [...CAHIER_NOTIFICATION_KINDS, ...EXTRA_NOTIFICATION_KINDS];
 
-// Badge court de l'historique des notifications (NotificationsList.tsx) --
-// une seule source, jamais une deuxième copie de cette table.
+// Badge court de l'historique des notifications -- réutilisé côté client
+// (app/(client)/notifications/NotificationsList.tsx, audience='client') ET
+// côté Studio (app/(studio)/notifications/NotificationsList.tsx,
+// audience='admin') : une seule source pour le libellé d'un "kind", jamais
+// une deuxième copie de cette table.
 export const NOTIFICATION_KIND_LABEL: Record<string, string> = {
   "chiffres-paie": "Chiffres Paie",
   dictionnaire: "Dictionnaire",
   offres: "Offres",
   actu: "Actu",
   "calendrier-rh": "Calendrier RH",
+  veille: "Veille réglementaire",
 };
 
 export type NotificationChannel = "none" | "lbp" | "mail" | "both";

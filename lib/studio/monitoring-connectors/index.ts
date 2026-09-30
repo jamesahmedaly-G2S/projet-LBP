@@ -4,6 +4,7 @@ import { createMinistereTravailConnector } from "./ministere-travail";
 import { createHtmlScrapingConnectors } from "./html-scraping";
 import { createLegifranceConnector } from "./legifrance";
 import { sendVeilleNotification, type NotificationResult } from "../monitoring-notifications";
+import { notifyAdmins } from "../content-notifications";
 
 export type { ConnectorResult, ConnectorStatus, MonitoringConnector } from "./types";
 
@@ -33,10 +34,13 @@ export async function runAllConnectors(
 /**
  * Comme `runAllConnectors`, mais envoie en plus la notification
  * e-mail/SMS (Pauline, CR 10/09 — étape explicitement attendue du circuit
- * de bout en bout) quand au moins une entrée a réellement été insérée.
- * Séparée de `runAllConnectors` pour que les appelants qui ne veulent pas
- * de notification (ex. futurs tests) puissent continuer à utiliser la
- * fonction simple.
+ * de bout en bout) quand au moins une entrée a réellement été insérée, et
+ * une notification in-app réelle par entrée détectée (audience='admin',
+ * LBP-CLIENT-11 finitions) -- pendant de `addNotif('g2s','veille',...)`
+ * dans le vrai prototype, jusqu'ici seul le canal e-mail/SMS existait de
+ * ce côté-ci. Séparée de `runAllConnectors` pour que les appelants qui ne
+ * veulent pas de notification (ex. futurs tests) puissent continuer à
+ * utiliser la fonction simple.
  */
 export async function runAllConnectorsAndNotify(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,5 +49,14 @@ export async function runAllConnectorsAndNotify(
   const results = await runAllConnectors(supabase);
   const newItems = results.flatMap((r) => r.insertedItems ?? []);
   const notification = await sendVeilleNotification(newItems);
+  await Promise.all(
+    newItems.map((item) =>
+      notifyAdmins(supabase, {
+        kind: "veille",
+        title: `Nouvelle veille détectée : ${item.title}`,
+        detail: item.source,
+      }),
+    ),
+  );
   return { results, notification };
 }

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { Bell } from "lucide-react";
 import { StudioNav } from "./_components/StudioNav";
 import { LinkButton } from "@/ui-kit/LinkButton";
 import { logout } from "@/app/login/actions";
@@ -30,6 +31,14 @@ export default function StudioLayout({ children }: { children: ReactNode }) {
           <LinkButton href="/clients/nouvelle" variant="secondary" className="bg-white">
             + Nouveau client
           </LinkButton>
+          <Link
+            href="/notifications-g2s"
+            aria-label="Notifications"
+            title="Notifications (audience G2S — §1.12 du cahier)"
+            className="rounded-full border border-white/30 p-2 text-studio-navy-muted transition-colors hover:border-white hover:text-white"
+          >
+            <Bell className="h-4 w-4" />
+          </Link>
           <Link
             href="/lbp-client"
             title="Voir le vrai LBP Client (prévisualisation complète, société la plus récente)"
