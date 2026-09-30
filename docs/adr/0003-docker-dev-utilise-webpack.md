@@ -54,3 +54,5 @@ il fonctionne correctement et le plus rapide des deux.
 - Si Turbopack corrige son support du polling dans une version future de
   Next.js, retester et simplifier `docker-compose.dev.yml` /
   `next.config.ts` en conséquence.
+
+**Mise à jour (30/09/2026)** : `package.json` (`"dev": "next dev --webpack"`) force désormais webpack aussi en dehors de Docker, ce qui contredit la phrase ci-dessus ("c'est l'environnement où [Turbopack] fonctionne correctement"). Raison différente de celle documentée ici : sur cette machine, en RAM basse, Turbopack ne parvient plus à lancer son process worker pour compiler `globals.css` (`exit code 0xc0000142`), reproduit de façon stable même après redémarrage complet, sans lien avec le montage de volume Docker. Les deux limitations (watcher Docker/volume, worker Turbopack sous RAM basse) sont indépendantes — si l'une des deux est un jour résolue par Next.js, revérifier l'autre séparément avant de réactiver Turbopack où que ce soit.

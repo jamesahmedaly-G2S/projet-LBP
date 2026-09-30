@@ -24,3 +24,13 @@ Epic ajouté après coup : l'onglet "Administration" figurait dans la navigation
 - Accessible depuis la navigation Studio.
 - Aucun contrôle de rôle différencié n'apparaît dans l'interface (un seul niveau "admin" visible, conforme à la décision Note de cadrage p.13).
 - Le journal d'activité reflète une transition de statut réelle effectuée ailleurs dans l'app (ex. via STU-WORKFLOW-01) sans duplication de données.
+
+---
+
+## STU-ADMIN-02 — RBAC à 5 rôles (décision consciente à trancher, pas à construire maintenant)
+
+**Ajouté (30/09/2026)**, suite à l'audit de `LBP_V9.9_Studio.html`. `stAdmin()` (L.9846) montre un vrai écran de gestion des comptes Studio avec 5 rôles réels (`super`/`admin`/`redac`/`valid`/`lecture`, objet `ROLES` L.4567 — CRUD utilisateur complet, des noms réels dans la maquette : Pauline Letourneur en super admin, une rédactrice, un alternant en lecture seule).
+
+**Ce n'est pas une régression ni un oubli** : le cahier des charges technique V9.4 §14.1 dit explicitement "la V1 Studio peut conserver des droits homogènes pour les utilisateurs internes autorisés, mais le modèle doit permettre sans refonte des rôles administrateur/rédacteur/validateur/commercial" — c'est-à-dire que rester au modèle binaire admin/client (décision Note de cadrage p.13, STU-ADMIN-01) est toujours conforme, tant que la table `profiles.role` ne bloquerait pas une évolution future. Le fichier `docs/adr/0004-modele-de-roles-a-2-valeurs.md` est référencé par le code (`lib/auth/session.ts`, `app/api/profiles/route.ts`) mais n'existe pas réellement sur disque (seul `docs/adr/0004-baseline-schema-reel-et-conventions-anglaises.md` existe, numérotation divergente) — dette de documentation à corriger séparément, indépendante de la question RBAC elle-même.
+
+**À faire, si et seulement si validé par Pauline** : passer `profiles.role` d'un simple `admin`/`client` à une énumération à 5 valeurs, avec RLS différenciée par rôle. Ne pas construire tant que ce n'est pas une demande explicite — un chantier de cette taille mérite d'être choisi, pas déduit d'une maquette.

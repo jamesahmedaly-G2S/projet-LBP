@@ -35,3 +35,19 @@
 **Critères d'acceptation**
 
 - Une demande n'a aucun effet automatique sur `companies.offer_tier` — seule une action explicite de G2S change le palier.
+
+---
+
+## STU-OFFER-03 — Rendre les 4 offres éditables depuis le Studio
+
+**Priorité : Must** · **Dépendances : —**
+
+**Ajouté (30/09/2026)**, suite à l'audit de `LBP_V9.9_Studio.html`. `stContenus()` traite les offres comme un contenu éditable au même titre que Chiffres Paie/Dictionnaire (brouillon/publié + notification client à chaque évolution, ex. "Notre offre X évolue..."). Chez nous, `lib/studio/offer-tiers.ts` est un **fichier TypeScript en dur** — non éditable sans toucher au code.
+
+**Ce n'est pas un simple manque de finition** : ça contredit directement l'exigence déjà actée cette session (voir tickets/LBP-CLIENT.md, contexte général) — "tout se fait depuis l'espace G2S, Pauline n'a aucune compétence technique et ne touchera jamais à du code ou à une ligne de commande." Les 3 autres écrans "Données de référence" (Chiffres Paie, Dictionnaire, CCN) ont déjà été corrigés sur exactement ce principe ; les offres ont été oubliées.
+
+**À faire** : extraire `StudioOfferTier`/`OFFER_TIERS` vers une vraie table (name/sub/price/users/extraUserPrice/badge/reco/promesse/desc/pourqui/inc/why/foot/cta/cta2/highlight/formula/blocs/note — cf. `lib/studio/offer-tiers.ts` pour la forme exacte des champs), écran admin CRUD sous `/administration` (même famille que chiffres-paie/dictionnaire/ccn/prise-en-main), `getAllStudioOfferTiers()`/`computeOfferPrice()` adaptés pour lire la table au lieu du fichier en dur. Rejoint STU-WORKFLOW-07 pour la notification à la publication.
+
+**Critères d'acceptation**
+
+- G2S peut modifier le prix, la description ou les droits d'une offre depuis `/administration`, sans toucher au code, et voir le changement immédiatement côté client (LBP-CLIENT-07).

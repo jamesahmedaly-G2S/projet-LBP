@@ -97,3 +97,24 @@
 
 - Accessible depuis la navigation Studio.
 - Une version publiée via l'écran fiche (STU-WORKFLOW-01/03) apparaît sans délai dans cette liste — pas de duplication de données, requête directe sur `sheet_versions`.
+
+---
+
+## STU-WORKFLOW-07 — Pattern brouillon → publication → notification pour les contenus hors référentiel
+
+**Priorité : Should** · **Dépendances : STU-WORKFLOW-01, STU-DATA-02**
+
+**Ajouté (30/09/2026)**, suite à un audit exhaustif de `LBP_V9.9_Studio.html` demandé explicitement par l'utilisateur après une recommandation trop hâtive. V9.9 regroupe Chiffres/Dictionnaire/Actu/Calendrier/Offres sous un même écran `stContenus()` (L.9075) et applique à **chacun** le même pattern : statut brouillon/publié + historique + un appel à `openPublish()` qui crée une vraie notification ciblée aux clients ("Une définition a été ajoutée...", "Notre offre X évolue..."). Côté `projet-LBP/`, ces 5 écrans écrivent tous directement en base sans statut ni notification :
+
+- **Chiffres Paie** (`administration/chiffres-paie/actions.ts`) — écriture directe, aucun brouillon, aucune notification.
+- **Dictionnaire** (`administration/dictionnaire/actions.ts`) — simple booléen `published`, aucune notification.
+- **Offres** (`lib/studio/offer-tiers.ts`) — **pas admin-éditable du tout**, en dur dans un fichier TypeScript. Contredit directement l'exigence déjà actée cette session : "tout se fait depuis l'espace G2S, Pauline ne touche jamais à du code."
+- **Actu/Décrypt** (LBP-CLIENT-04, pas construit) — V9.9 précise en fait 4 statuts (draft/scheduled/published/archived) et un éditeur riche, plus large que ce qui était supposé.
+- **Calendrier RH** (LBP-CLIENT-15, pas construit) — même pattern attendu.
+
+**À faire** : un mécanisme de notification-à-la-publication réutilisable (pas 5 implémentations séparées) — table `notifications` déjà réelle côté schéma (cf. cahier V9.4 §12, entité `Notification` : audience/canal/type/titre/contenu/lu/date), à brancher une fois sur chacun des 5 écrans plutôt qu'à réinventer par écran. Offres à sortir du fichier TypeScript en dur vers une vraie table + écran admin, priorité la plus haute des 5 car contredit une exigence déjà validée.
+
+**Critères d'acceptation**
+
+- Publier une modification sur l'un des 5 contenus crée une notification réelle visible côté client (`notifications`), pas un simple changement silencieux de valeur.
+- Une seule fonction/service de notification-à-la-publication, réutilisée par les 5 écrans — jamais 5 implémentations distinctes.

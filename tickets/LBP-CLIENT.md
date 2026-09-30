@@ -76,6 +76,8 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 **À faire** : module éditorial distinct de la veille réglementaire (STU-VEILLE) et du référentiel (STU-REF) — articles rédigés par G2S, pas des fiches de paie ni des entrées de veille brute. Aucune table en base pour ce contenu actuellement (à créer). Le workflow brouillon→publication peut réutiliser le pattern déjà établi (`workflow_status`, STU-DATA-02) plutôt qu'en inventer un nouveau.
 
+**Précision (30/09/2026)**, suite à l'audit de `LBP_V9.9_Studio.html` : le module réel (`stContenus()`, L.9075) a en fait **4 statuts** (draft/scheduled/published/archived, pas juste brouillon/publié) et un éditeur riche — plus large que ce qui était supposé. Rejoint aussi STU-WORKFLOW-07 (notification à la publication, pattern partagé avec Chiffres Paie/Dictionnaire/Offres/Calendrier).
+
 ---
 
 ## LBP-CLIENT-05 — Chiffres Paie ✅ Fait
@@ -91,6 +93,8 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 **Correctif au passage** : `key_figures.label` ajouté (migration `20260928160000`) — sans cette colonne, un repère créé depuis l'écran d'admin n'aurait eu qu'un libellé de repli (sa clé technique brute) tant qu'un développeur n'ajoute pas l'entrée dans `lib/client/key-figure-labels.ts`, contraire à l'exigence explicite de l'utilisateur ("tout doit se faire depuis l'espace G2S, Pauline ne touche jamais au code"). `keyFigureLabel()` priorise maintenant ce libellé en base sur la table de code.
 
 **Vérifié** : test réel avec la session admin réelle (Pauline) — ajout réel d'un repère de test avec son propre libellé, confirmé en base, puis confirmé **visible côté client** (`/chiffres-paie`) avec ce même libellé personnalisé, sans aucun changement de code. Modification réelle du titre de la page, persistante après rechargement. Toutes les données de test supprimées après coup, réglages restaurés à leur valeur d'origine.
+
+**Manque réel repéré (30/09/2026)**, suite à l'audit de `LBP_V9.9_Studio.html` : `stContenus()` applique brouillon/publié + notification client à chaque modification de repère/taux — ici, `administration/chiffres-paie/actions.ts` écrit directement, sans statut ni notification. Voir STU-WORKFLOW-07 (nouveau ticket, pattern partagé avec Dictionnaire/Offres/Actu/Calendrier).
 
 **Vérifié** : test réel navigateur avec la session cliente ALPHA — titre/intro réels affichés, 3 groupes réels avec leurs vraies cartes comparatives (SMIC horaire 11,88 € → 12,31 €, variation calculée +3,6 % correcte), tableau plafond réel avec les 7 périodicités (jusqu'à l'horaire, 29 € → 30 €), tableau des cotisations réel avec ses 35 lignes (ex. AGIRC-ARRCO tranche 1 : 3,15 % / 4,72 %), source réelle affichée. Lien réel ajouté depuis l'Accueil ("Tous les chiffres Paie →").
 
@@ -193,3 +197,30 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 **Réalisé (partie admin G2S, 28/09/2026)** : `app/(studio)/administration/dictionnaire/` — ajout/modification/suppression d'un terme, case "Publié" (sinon brouillon, visible uniquement dans cet écran). Politique déjà posée (`dictionary_terms_write_admin`/`update_admin`/`delete_admin`, migration `20260928130000`), jamais consommée avant. Lien ajouté au bloc "Données de référence" de `/administration`, plutôt qu'un 11e onglet Studio séparé.
 
 **Vérifié** : test réel navigateur — côté client (session ALPHA), terme réel affiché avec sa vraie définition et sa vraie source ("Bulletin de paie" → "Code du travail"), navigation alphabétique réelle (lettre B cliquable), recherche réelle ("SMIC" trouve le bon terme et exclut les termes sans rapport). Côté admin (session Pauline) : ajout réel d'un terme en brouillon, confirmé **invisible** côté client tant que non publié, puis publié depuis l'admin et confirmé **visible** côté client après republication — sans aucun changement de code. Suppression réelle confirmée, aucune donnée de test résiduelle en base après coup.
+
+**Manque réel repéré (30/09/2026)**, suite à l'audit de `LBP_V9.9_Studio.html` : publier un nouveau terme n'envoie aucune notification client (`stContenus()` le fait, ex. "Une définition a été ajoutée..."). Voir STU-WORKFLOW-07.
+
+---
+
+## LBP-CLIENT-15 — Calendrier RH
+
+**Ajouté (30/09/2026)**, suite à l'audit de `LBP_V9.9_Studio.html` : onglet "Calendrier RH" présent dans la nav réelle entre Accueil et Bibliothèque (`v-calendrier`, eyebrow "Votre année RH", section-title "Calendrier RH") — pas dans les 13 modules du cahier des charges écrit ni dans les 14 déjà tracés ici, jamais construit côté `projet-LBP/`.
+
+**Contexte** : dates clés de l'année (obligations de paie/déclaratives, temps forts nationaux, actions RH à anticiper), clic sur une journée pour le détail ou pour ajouter une échéance propre au client. Le cahier des charges V9.4 §3.1 le mentionne aussi côté Accueil ("rappels de la semaine... calendrier RH avec événements G2S et événements client"), avec la même réserve qu'à l'origine : l'objectif "façon Swile" (calendrier interactif riche) reste à industrialiser correctement, pas juste répliqué visuellement.
+
+**À faire** : à concevoir avant de coder — au minimum une table d'événements (G2S, communs à tous les clients, vs propres à une société) et le même pattern brouillon/publication/notification que les autres contenus de référence (voir STU-WORKFLOW-07). Périmètre du vrai moteur de calendrier/récurrence à clarifier (explicitement hors phase 1 selon `docs/ARCHITECTURE.md` §7.1, déjà noté pour l'Accueil).
+
+---
+
+## LBP-CLIENT-16 — Re-thème visuel (charte V37 — Archivo / framboise / carbone)
+
+**Ajouté (30/09/2026)**, suite à un audit demandé explicitement par l'utilisateur après une recommandation trop hâtive ("il ne reste que l'import Word"). Le thème actuellement construit (`.theme-client` dans `app/globals.css`, polices Plus Jakarta Sans/Inter dans `app/layout.tsx`) a été porté depuis `Nouveau dossier/LBP_V2-20.html`, une maquette **plus ancienne** que `LBP_V9.9_Studio.html`, la référence actuelle.
+
+**Constat** : `LBP_V9.9_Studio.html` L.12-45 documente en commentaire un changement de charte explicite : _"CHARTE G2S — alignée sur le site vitrine V37 — framboise · carbone · blanc · nuances minérales — typographie Archivo. Les anciens noms (sage, coral, blue…) sont conservés comme alias pour ne rien casser dans le code : seules leurs valeurs changent."_
+
+- **Police** : V9.9 charge uniquement **Archivo** (+ IBM Plex Mono pour le monospace) — remplace Plus Jakarta Sans/Inter.
+- **Couleurs** : `--ink:#445068` (bleu-gris/carbone), accent `--sage-darker:#670626` (framboise/bordeaux, utilisé pour `.eyebrow`), `--bg:#FAF9F7`, `--panel:#F5F0EC`, `--border:#DED9DB` — remplace le noir/vert sauge/crème actuel (`--color-primary:#181818`, `--color-primary-hover:#4f6139`, `--color-page-bg:#f5f3ee`).
+
+Ces variables sont posées au niveau racine du thème (`:root`/`.theme-client`) : le changement touche **les 9 pages déjà livrées** d'un coup (Accueil, Bibliothèque, Mes-quiz, Offres, Mon entreprise, Chiffres-paie, Dictionnaire, Mon-compte, Prise-en-main) — pas un correctif page par page, un remplacement de thème unique.
+
+**À faire** : remplacer les valeurs de `.theme-client` (`app/globals.css`) par la palette V37, remplacer les instances `next/font/google` Plus_Jakarta_Sans/Inter par Archivo (+ police mono pour `.mono`) dans `app/layout.tsx`. Le Studio (`--studio-*`, Geist) n'est pas concerné — vérifier explicitement l'absence de régression après coup, comme lors du premier passage de thème.
