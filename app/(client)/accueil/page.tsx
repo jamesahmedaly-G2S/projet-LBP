@@ -61,6 +61,11 @@ export default async function AccueilPage() {
     supabase.from("master_themes").select("id, family_id"),
   ]);
 
+  const currentOfferTier =
+    session.profile.offer_tier !== null
+      ? await getStudioOfferTier(supabase, session.profile.offer_tier)
+      : null;
+
   const historyByKey = new Map<string, KeyFigureRow[]>();
   for (const row of keyFigures ?? []) {
     if (!historyByKey.has(row.key)) historyByKey.set(row.key, []);
@@ -169,12 +174,12 @@ export default async function AccueilPage() {
         </div>
       </div>
 
-      {session.profile.offer_tier !== null && (
+      {currentOfferTier && (
         <div className="mt-8">
           <h2 className="text-lg font-semibold text-ink">Votre offre</h2>
           <Card className="mt-3">
             {(() => {
-              const tier = getStudioOfferTier(session.profile.offer_tier!);
+              const tier = currentOfferTier;
               const price = computeOfferPrice(tier, "annual", tier.users);
               return (
                 <div className="flex flex-wrap items-center justify-between gap-3">

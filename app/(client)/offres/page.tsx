@@ -51,7 +51,7 @@ export default async function OffresPage() {
 
       <div className="mt-6">
         <OffersClient
-          tiers={getAllStudioOfferTiers()}
+          tiers={await getAllStudioOfferTiers(supabase)}
           currentTier={session.profile.offer_tier}
           pendingRequestTier={pendingRequest?.requested_tier ?? null}
         />

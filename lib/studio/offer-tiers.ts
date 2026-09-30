@@ -1,14 +1,15 @@
 /**
- * Catalogue d'affichage des 4 offres commerciales — port 1:1 du vrai
- * contenu client (`LBP_V6_Studio.html`, `var OFFERS=[...]` lignes
- * 4942-4986, et `LVLABEL`/`offPrice()` lignes 4991-5148 — le fichier
- * contient, sous le mode Studio, la vraie appli client complète, pas
- * seulement l'admin ; jamais consulté avant que l'utilisateur ne le
- * signale). `offer_tiers` (table de James) n'est jamais modifiée : les
- * nombres (price/users/extra) correspondent déjà exactement à ses 4
- * lignes (Le Socle/La Branche/Le Référentiel/Le Sur-mesure), seul le
- * vocabulaire et le contenu marketing sont ceux du pivot Studio.
+ * Catalogue d'affichage des 4 offres commerciales — contenu marketing
+ * porté à l'origine 1:1 depuis `LBP_V6_Studio.html` (`var OFFERS=[...]`
+ * lignes 4942-4986, `LVLABEL`/`offPrice()` lignes 4991-5148), maintenant
+ * lu depuis `studio_offer_content` (migration `20260930090000`, STU-OFFER-03)
+ * plutôt qu'en dur dans ce fichier — G2S peut désormais l'éditer depuis
+ * `/administration/offres`. `offer_tiers` (table réelle de James, jamais
+ * modifiée) reste la seule source pour tier_level/includes_cba/
+ * includes_agreements/unlocks_detail/max_messages_per_month, utilisés par
+ * `getOfferTierLayers()` plus bas, indépendant de ce contenu marketing.
  */
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface StudioOfferTier {
   tierLevel: number;
@@ -47,166 +48,85 @@ export function tierLevels(tierLevel: number): boolean[] {
   return [0, 1, 2, 3].map((i) => tierLevel > i);
 }
 
-const STUDIO_OFFER_TIERS: Record<number, StudioOfferTier> = {
-  1: {
-    tierLevel: 1,
-    name: "LBP Essentiel",
-    sub: "L'essentiel de la paie, fiable, pratique et toujours accessible.",
-    price: 199,
-    users: 3,
-    extraUserPrice: 30,
-    isCustomQuote: false,
-    badge: "",
-    reco: false,
-    promesse: "Toutes les règles essentielles pour sécuriser vos pratiques Paie au quotidien.",
-    desc: "Accédez à une base claire, structurée et actualisée pour comprendre les règles de paie, les appliquer et retrouver rapidement les sources officielles.",
-    pourqui:
-      "Les entreprises qui veulent une documentation Paie fiable, sans multiplier les recherches.",
-    inc: [
-      "Réglementation Paie & droit social",
-      "Fiches pratiques structurées par thème",
-      "Règles de calcul",
-      "Régimes social et fiscal",
-      "Application concrète en paie",
-      "Exemples et points de vigilance",
-      "Sources officielles et documents opposables",
-      "Quiz pour tester ses connaissances",
-      "Actualités et calendrier RH",
-    ],
-    why: [
-      "Une base juridique fiable et actualisée",
-      "Un gain de temps immédiat pour l'équipe Paie",
-      "Des sources officielles centralisées",
-    ],
-    foot: "Idéal pour disposer d'un socle Paie fiable et opérationnel, sans multiplier les recherches.",
-    cta: "Choisir LBP Essentiel",
-    cta2: "Découvrir l'offre",
-  },
-  2: {
-    tierLevel: 2,
-    name: "LBP Métier",
-    sub: "La réglementation enrichie des règles de votre convention collective.",
-    price: 349,
-    users: 5,
-    extraUserPrice: 40,
-    isCustomQuote: false,
-    badge: "",
-    reco: false,
-    promesse:
-      "Ne vous contentez plus de la règle générale : appliquez celle de votre convention collective.",
-    desc: "LBP Métier combine la réglementation nationale avec les dispositions de votre convention collective afin de vous montrer immédiatement la règle réellement applicable.",
-    pourqui:
-      "Les entreprises qui veulent fiabiliser leurs pratiques sans comparer manuellement le Code du travail et leur convention collective.",
-    inc: [
-      "Tout LBP Essentiel",
-      "Votre convention collective intégrée",
-      "Comparaison Loi / Convention collective",
-      "Dispositions conventionnelles par thème",
-      "Spécificités propres à votre secteur",
-      "Sources conventionnelles",
-      "Accès centralisé depuis les fiches LBP",
-    ],
-    why: [
-      "La règle conventionnelle réellement applicable",
-      "Moins d'erreurs sur les minima et les majorations",
-      "Un référentiel partagé avec l'équipe",
-    ],
-    foot: "Idéal pour les entreprises qui veulent fiabiliser leurs pratiques sans devoir comparer manuellement le Code du travail et leur convention collective.",
-    cta: "Choisir LBP Métier",
-    cta2: "Découvrir l'offre",
-    highlight: "LOI + VOTRE CONVENTION COLLECTIVE",
-  },
-  3: {
-    tierLevel: 3,
-    name: "LBP Entreprise",
-    sub: "Le référentiel qui applique la réglementation à la réalité de votre entreprise.",
-    price: 600,
-    users: 10,
-    extraUserPrice: 50,
-    isCustomQuote: false,
-    badge: "RECOMMANDÉ",
-    reco: true,
-    promesse: "Une seule réponse : la règle réellement applicable dans votre entreprise.",
-    desc: "LBP Entreprise croise la réglementation, votre convention collective et vos propres accords et usages pour transformer le LBP en véritable référentiel Paie interne.",
-    pourqui:
-      "Les entreprises disposant d'accords, d'usages ou d'engagements unilatéraux à documenter et à sécuriser.",
-    inc: [
-      "Tout LBP Métier",
-      "Vos accords collectifs d'entreprise",
-      "Vos usages et engagements unilatéraux",
-      "Comparaison Loi / CCN / Entreprise",
-      "Règles réellement applicables dans votre organisation",
-      "Référentiel partagé avec l'équipe",
-      "Centralisation des sources et justificatifs",
-      "Sécurisation et harmonisation des pratiques Paie",
-    ],
-    why: [
-      "Une seule source de vérité pour toute l'équipe",
-      "La fin des divergences de pratiques entre gestionnaires",
-      "Des justificatifs centralisés en cas de contrôle",
-    ],
-    foot: "Votre équipe ne cherche plus la règle dans plusieurs sources : le LBP centralise l'environnement juridique applicable à votre entreprise.",
-    cta: "Choisir LBP Entreprise",
-    cta2: "Demander une démonstration",
-    formula: ["LOI", "CONVENTION COLLECTIVE", "ACCORDS & USAGES"],
-  },
-  4: {
-    tierLevel: 4,
-    name: "LBP Signature",
-    sub: "Votre environnement Paie & RH construit sur mesure avec G2S.",
-    price: 990,
-    users: 20,
-    extraUserPrice: null,
-    isCustomQuote: true,
-    badge: "100 % PERSONNALISÉ",
-    reco: false,
-    promesse: "Votre expertise Paie. Vos règles. Vos procédures. Un seul environnement.",
-    sousPromesse:
-      "G2S transforme le LBP en référentiel opérationnel entièrement adapté à votre organisation.",
-    desc: "Nous partons de votre environnement réel pour construire avec vous un LBP qui ne se contente plus d'expliquer la règle : il documente la manière dont votre entreprise doit concrètement la traiter.",
-    pourqui:
-      "Les organisations qui veulent capitaliser le savoir-faire de leur équipe Paie et le transmettre durablement.",
-    inc: [
-      "Tout LBP Entreprise",
-      "Intégration de vos procédures internes",
-      "Paramétrages et règles de gestion propres à l'entreprise",
-      "Consignes et modes opératoires Paie",
-      "Spécificités DSN",
-      "Justificatifs à conserver",
-      "Documents et modèles internes",
-      "Cas pratiques propres à l'entreprise",
-      "Contrôles et points de vigilance personnalisés",
-      "Organisation de vos contenus Paie/RH",
-      "Accompagnement G2S pour construire et structurer le référentiel",
-    ],
-    why: [
-      "La capitalisation du savoir-faire de votre équipe",
-      "L'harmonisation durable des méthodes",
-      "Un accompagnement G2S de bout en bout",
-    ],
-    foot: "L'objectif : transformer les connaissances et pratiques de votre équipe en un référentiel structuré, partagé et durable.",
-    cta: "Construire mon LBP",
-    cta2: "Parler de mon projet avec G2S",
-    blocs: [
-      ["VOS RÈGLES", "Accords, usages, décisions et spécificités internes."],
-      ["VOS PROCESS", "Procédures, contrôles, circuits et modes opératoires."],
-      ["VOTRE PAIE", "Paramétrage, calcul, DSN, justificatifs et cas particuliers."],
-      ["VOTRE ORGANISATION", "Documents, outils, pratiques et environnement interne."],
-    ],
-    note: "Le tarif dépend du périmètre, du niveau de personnalisation et du nombre d'utilisateurs.",
-  },
-};
-
-export function getStudioOfferTier(tierLevel: number): StudioOfferTier {
-  const tier = STUDIO_OFFER_TIERS[tierLevel];
-  if (!tier) {
-    throw new Error(`Palier d'offre inconnu : ${tierLevel}`);
-  }
-  return tier;
+interface StudioOfferContentRow {
+  tier_level: number;
+  name: string;
+  sub: string;
+  price: number;
+  users: number;
+  extra_user_price: number | null;
+  badge: string;
+  reco: boolean;
+  promesse: string;
+  sous_promesse: string | null;
+  description: string;
+  pourqui: string;
+  inc: string[];
+  why: string[];
+  foot: string;
+  cta: string;
+  cta2: string;
+  highlight: string | null;
+  formula: string[] | null;
+  blocs: [string, string][] | null;
+  note: string | null;
 }
 
-export function getAllStudioOfferTiers(): StudioOfferTier[] {
-  return [1, 2, 3, 4].map(getStudioOfferTier);
+function toStudioOfferTier(row: StudioOfferContentRow): StudioOfferTier {
+  return {
+    tierLevel: row.tier_level,
+    name: row.name,
+    sub: row.sub,
+    price: row.price,
+    users: row.users,
+    extraUserPrice: row.extra_user_price,
+    isCustomQuote: row.extra_user_price === null,
+    badge: row.badge,
+    reco: row.reco,
+    promesse: row.promesse,
+    sousPromesse: row.sous_promesse ?? undefined,
+    desc: row.description,
+    pourqui: row.pourqui,
+    inc: row.inc,
+    why: row.why,
+    foot: row.foot,
+    cta: row.cta,
+    cta2: row.cta2,
+    highlight: row.highlight ?? undefined,
+    formula: row.formula ?? undefined,
+    blocs: row.blocs ?? undefined,
+    note: row.note ?? undefined,
+  };
+}
+
+export async function getStudioOfferTier(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: SupabaseClient<any, any, any>,
+  tierLevel: number,
+): Promise<StudioOfferTier> {
+  const { data, error } = await supabase
+    .from("studio_offer_content")
+    .select("*")
+    .eq("tier_level", tierLevel)
+    .single();
+  if (error || !data) {
+    throw new Error(`Palier d'offre inconnu : ${tierLevel}`);
+  }
+  return toStudioOfferTier(data as StudioOfferContentRow);
+}
+
+export async function getAllStudioOfferTiers(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: SupabaseClient<any, any, any>,
+): Promise<StudioOfferTier[]> {
+  const { data, error } = await supabase
+    .from("studio_offer_content")
+    .select("*")
+    .order("tier_level");
+  if (error || !data) {
+    throw new Error("Impossible de charger les offres.");
+  }
+  return (data as StudioOfferContentRow[]).map(toStudioOfferTier);
 }
 
 /** Port 1:1 de offPrice() (LBP_V6_Studio.html lignes 5132-5149). */

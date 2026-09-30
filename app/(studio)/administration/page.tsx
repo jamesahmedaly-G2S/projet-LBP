@@ -177,6 +177,9 @@ export default async function AdministrationPage() {
           <LinkButton href="/administration/prise-en-main" variant="secondary">
             Prise en main
           </LinkButton>
+          <LinkButton href="/administration/offres" variant="secondary">
+            Offres
+          </LinkButton>
         </div>
       </Card>
 

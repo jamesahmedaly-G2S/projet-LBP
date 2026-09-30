@@ -20,7 +20,8 @@ export default async function OfferDetailPage({ params }: { params: Promise<{ ti
   const tierLevel = Number(tierParam);
   if (!Number.isInteger(tierLevel) || tierLevel < 1 || tierLevel > 4) notFound();
 
-  const tier = getStudioOfferTier(tierLevel);
+  const supabase = await createClient();
+  const tier = await getStudioOfferTier(supabase, tierLevel);
   const isCurrent = tierLevel === session.profile.offer_tier;
   const price = computeOfferPrice(tier, "annual", tier.users);
   const levels = tierLevels(tierLevel);
@@ -28,7 +29,6 @@ export default async function OfferDetailPage({ params }: { params: Promise<{ ti
   const companyId = session.profile.company_id;
   let pendingRequestTier: number | null = null;
   if (companyId) {
-    const supabase = await createClient();
     const { data } = await supabase
       .from("offer_change_requests")
       .select("requested_tier")
