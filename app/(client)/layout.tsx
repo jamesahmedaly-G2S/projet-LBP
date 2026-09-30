@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { Bell } from "lucide-react";
+import { Bell, Search } from "lucide-react";
 import { logout } from "@/app/login/actions";
 
 // Fondations LBP Client (ARCHITECTURE.md §4 : app/(client)/ + app/(admin)/
@@ -60,6 +60,22 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           </nav>
         </div>
         <div className="flex items-center gap-2">
+          <form
+            action="/recherche"
+            className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5"
+          >
+            <Search className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden="true" />
+            <label className="sr-only" htmlFor="gq">
+              Recherche globale dans le LBP
+            </label>
+            <input
+              type="search"
+              id="gq"
+              name="q"
+              placeholder="Rechercher dans le LBP…"
+              className="w-36 bg-transparent text-sm text-ink outline-none placeholder:text-muted sm:w-52"
+            />
+          </form>
           <Link
             href="/notifications"
             aria-label="Notifications"

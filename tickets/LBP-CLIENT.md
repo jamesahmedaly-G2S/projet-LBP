@@ -186,11 +186,15 @@ Côté admin (`app/(studio)/administration/actu/`) : liste + formulaire (titre/t
 
 ---
 
-## LBP-CLIENT-12 — Recherche globale
+## LBP-CLIENT-12 — Recherche globale ✅ Fait
 
-**Contexte** [§1.13, p.13] : recherche transversale LBP + liens sources officielles.
+**Contexte** [§1.13, p.13] : recherche transversale LBP + liens sources officielles. Vérifié contre le vrai code du prototype (`LBP_V9.9_Studio.html`, `doSearch()`/`renderSearch()`, lignes ~12068-12097) avant de construire.
 
-**À faire** : recherche multi-tables (fiches, articles LBP-CLIENT-04, quiz...) — dépend d'avoir construit plusieurs des modules ci-dessus d'abord pour avoir quelque chose de transversal à chercher. À faire en dernier logiquement, même si listé avant Assistance dans le cahier.
+**Réalisé** : algorithme de recherche porté 1:1 depuis le vrai code (`lib/client/smart-search.ts` — `norm()`/`normTokens()`/`tokenMatch()`/`smartMatch()`, déjà cité comme "à conserver impérativement en cible" par `docs/front/SPEC-FRONT-0001.md` §7). Tolérance à un préfixe commun d'au moins 4 caractères (congé/conges/congés, restaurant/restaurants) plutôt qu'une comparaison stricte — reprise telle quelle, pas réinventée. Barre de recherche réelle dans l'en-tête (`app/(client)/layout.tsx`, entrée + Entrée → `/recherche?q=...`, même ergonomie que `#gq`/`doSearch()` du prototype), page `app/(client)/recherche/` avec 3 blocs de résultats (Fiches/Actualités/Quizz, compteur par bloc, "Aucun résultat" honnête) + un 4e bloc "Sur les sources officielles" (6 liens réels portés 1:1 depuis `SOURCES`, `lib/client/external-sources.ts` : Légifrance/BOSS/Ministère du Travail/URSSAF/Code du travail/Code de la sécurité sociale, ouverture dans un nouvel onglet, avertissement explicite porté tel quel — "il ne s'agit pas d'une interrogation directe des API officielles" — jamais atténué).
+
+**Simplification assumée sur les fiches** : recherche sur le titre, les tags et le contenu de la seule couche "rg" (réglementation générale, `client_sheet_content` où `layer_kind='rg'`) — pas les couches CCN/entreprise superposées à une fiche. Le vrai prototype (`ficheBlob()`) n'a pas de notion de couches par société dans son modèle de données ; le nôtre en a une (STU-DATA-07), et fusionner les 3 couches par fiche pour la recherche aurait ajouté une complexité hors du minimum demandé par ce ticket. Respecte quand même les affectations retirées manuellement (`getCompanyAffectations`, même filtre que la Bibliothèque) et la visibilité RLS de `client_sheet_content` (aucune fuite d'une couche verrouillée par palier commercial).
+
+**Vérifié** : test réel navigateur avec la session cliente ALPHA. Recherche depuis la barre d'en-tête ("teletravail", sans accent) → redirige vers `/recherche?q=teletravail`, trouve la vraie fiche publiée "Télétravail : allocation forfaitaire" (insensible aux accents, confirmé). Tolérance de préfixe réelle vérifiée : "restaurants" (pluriel) trouve "Titres-restaurant" (singulier, fiche publiée réelle). Cas sans résultat réel ("xyzzynotfound") : les 3 blocs affichent bien "Aucun résultat", le bloc sources officielles reste affiché avec le mot-clé correctement encodé dans chaque lien externe. État vide (page sans mot-clé) : invite réelle à saisir un mot-clé, comme le prototype.
 
 ---
 
