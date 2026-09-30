@@ -8,25 +8,28 @@ import { Badge } from "@/ui-kit/Badge";
 import { Button } from "@/ui-kit/Button";
 import { TextField, SelectField } from "@/ui-kit/Field";
 
-type Resolution = { kind: "create" } | { kind: "associate"; idcc: string } | { kind: "ignore" };
+export type CcnResolution =
+  { kind: "create" } | { kind: "associate"; idcc: string } | { kind: "ignore" };
 
-// STU-IMPORT-02 : écran de résolution à 3 choix (créer/associer/ignorer)
+// STU-IMPORT-02/03 : écran de résolution à 3 choix (créer/associer/ignorer)
 // pour une CCN détectée sans correspondance dans ccn_catalog (§6.4 : "Un
-// IDCC inconnu ne doit jamais créer automatiquement une convention"). Pas
-// de table d'import en cours (STU-IMPORT-03 pas encore construit) : seul
+// IDCC inconnu ne doit jamais créer automatiquement une convention").
 // "Créer" a un effet réel et durable (réutilise saveCcn(), jamais une
-// deuxième implémentation) ; "Associer"/"Ignorer" ne font que résoudre
-// l'ambiguïté à l'écran pour cette analyse, pas encore persistés dans un
-// enregistrement d'import (à faire quand ce ticket existera).
+// deuxième implémentation) ; "Associer"/"Ignorer" ne résolvent l'ambiguïté
+// qu'à l'écran -- `resolutions` remonte au parent (ImportWordForm) pour
+// que la validation finale (STU-IMPORT-03) sache quelles couches CCN
+// créer et lesquelles ignorer.
 export default function CcnResolutionPanel({
   matches,
   catalog,
+  resolutions,
+  onResolve,
 }: {
   matches: CcnMatch[];
   catalog: CcnCatalogEntry[];
+  resolutions: Record<string, CcnResolution>;
+  onResolve: (normalizedIdcc: string, resolution: CcnResolution) => void;
 }) {
-  const [resolutions, setResolutions] = useState<Record<string, Resolution>>({});
-
   return (
     <div>
       <p className="text-xs uppercase tracking-wide text-studio-muted">
@@ -64,18 +67,9 @@ export default function CcnResolutionPanel({
                 <UnknownCcnResolver
                   normalizedIdcc={m.normalizedIdcc}
                   catalog={catalog}
-                  onCreated={() =>
-                    setResolutions((r) => ({ ...r, [m.normalizedIdcc]: { kind: "create" } }))
-                  }
-                  onAssociated={(idcc) =>
-                    setResolutions((r) => ({
-                      ...r,
-                      [m.normalizedIdcc]: { kind: "associate", idcc },
-                    }))
-                  }
-                  onIgnored={() =>
-                    setResolutions((r) => ({ ...r, [m.normalizedIdcc]: { kind: "ignore" } }))
-                  }
+                  onCreated={() => onResolve(m.normalizedIdcc, { kind: "create" })}
+                  onAssociated={(idcc) => onResolve(m.normalizedIdcc, { kind: "associate", idcc })}
+                  onIgnored={() => onResolve(m.normalizedIdcc, { kind: "ignore" })}
                 />
               )}
             </li>
