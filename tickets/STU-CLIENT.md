@@ -4,6 +4,8 @@
 
 ## STU-CLIENT-01 — Assistant guidé de création client ✅ Fait
 
+**Confirmé (30/09/2026)** : le cahier des charges technique V9.4 §4.3 redécrit ce même wizard (entreprise → établissements → questionnaire & CCN → calcul → contrôle G2S → validation → publication → accès client, 8-9 étapes selon découpage) comme un chantier structurant à part entière — déjà couvert ici en intégralité, rien à reconstruire. Vérifié que les fichiers existent toujours (`app/(studio)/clients/nouvelle/`, `WizardStepper.tsx`) avant de le confirmer, pas juste sur la foi de ce ticket.
+
 **Priorité : Must** · **Dépendances : STU-CCN-02, STU-QUEST-02, STU-AFFECT-01, STU-WORKFLOW-03**
 
 **Contexte** : scénario A en entier, wizard à 8 étapes (§6) : Entreprise → Établissements → Questionnaire & CCN → Calcul automatique → Contrôle G2S → Validation → Publication → Accès client. "G2S crée le client et remplit le questionnaire ; le client ne remplit pas lui-même l'onboarding."
