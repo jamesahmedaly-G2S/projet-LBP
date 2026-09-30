@@ -94,7 +94,9 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 **Vérifié** : test réel avec la session admin réelle (Pauline) — ajout réel d'un repère de test avec son propre libellé, confirmé en base, puis confirmé **visible côté client** (`/chiffres-paie`) avec ce même libellé personnalisé, sans aucun changement de code. Modification réelle du titre de la page, persistante après rechargement. Toutes les données de test supprimées après coup, réglages restaurés à leur valeur d'origine.
 
-**Manque réel repéré (30/09/2026)**, suite à l'audit de `LBP_V9.9_Studio.html` : `stContenus()` applique brouillon/publié + notification client à chaque modification de repère/taux — ici, `administration/chiffres-paie/actions.ts` écrit directement, sans statut ni notification. Voir STU-WORKFLOW-07 (nouveau ticket, pattern partagé avec Dictionnaire/Offres/Actu/Calendrier).
+**Manque réel repéré (30/09/2026)**, suite à l'audit de `LBP_V9.9_Studio.html` : `stContenus()` applique brouillon/publié + notification client à chaque modification de repère/taux — ici, `administration/chiffres-paie/actions.ts` écrit directement, sans statut ni notification. Voir STU-WORKFLOW-07 (pattern partagé avec Dictionnaire/Offres/Actu/Calendrier).
+
+**Corrigé partiellement (30/09/2026)** : notification client réelle ajoutée sur `saveKeyFigure`/`saveContributionRate` (STU-WORKFLOW-07). Le statut brouillon/publié reste non fait — chaque sauvegarde est immédiatement live, comme avant.
 
 **Vérifié** : test réel navigateur avec la session cliente ALPHA — titre/intro réels affichés, 3 groupes réels avec leurs vraies cartes comparatives (SMIC horaire 11,88 € → 12,31 €, variation calculée +3,6 % correcte), tableau plafond réel avec les 7 périodicités (jusqu'à l'horaire, 29 € → 30 €), tableau des cotisations réel avec ses 35 lignes (ex. AGIRC-ARRCO tranche 1 : 3,15 % / 4,72 %), source réelle affichée. Lien réel ajouté depuis l'Accueil ("Tous les chiffres Paie →").
 
@@ -164,11 +166,15 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
-## LBP-CLIENT-11 — Notifications
+## LBP-CLIENT-11 — Notifications 🟡 Partiellement fait
 
 **Contexte** [§1.12, p.13] : cloche, deux audiences (client/G2S) — module partagé, pas strictement côté client.
 
-**À faire** : aucune table de notifications en base actuellement (`legal_monitoring`/`company_interviews` etc. servent de source de vérité, mais rien ne matérialise une notification lue/non-lue par utilisateur). À concevoir avant de coder quoi que ce soit — c'est le seul des 13 modules qui touche aussi le Studio (audience G2S).
+**Correction (30/09/2026)** : la note "aucune table de notifications en base" était fausse — `notifications` existe bel et bien dans le schéma réel de James depuis le début (`baseline_schema_reel.sql` §9.5, RLS déjà réelle `is_admin() or company_id = current_company_id() or profile_id = auth.uid()`), simplement jamais consommée par aucun écran avant STU-WORKFLOW-07. Même pattern que `team_members`/`ccn_catalog`/`notifications` avant elles : table réelle oubliée, pas absente.
+
+**Réalisé (30/09/2026, dans le cadre de STU-WORKFLOW-07)** : `app/(client)/notifications/` — liste réelle, marquer comme lu (un par un ou tout d'un coup), cloche dans la nav (`app/(client)/layout.tsx`). Alimenté pour l'instant par 3 sources (Chiffres Paie/Dictionnaire/Offres, via `lib/studio/content-notifications.ts`), audience client uniquement.
+
+**Non fait** : audience G2S (le cahier dit "deux audiences" — rien construit côté Studio pour l'instant, ce ticket s'est concentré sur la boucle client pour que STU-WORKFLOW-07 soit vérifiable). Préférences de canal par type (dépend toujours de ce ticket, voir LBP-CLIENT-10) — pas de canal e-mail/SMS, uniquement "dans le LBP" pour l'instant.
 
 ---
 
@@ -199,6 +205,8 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 **Vérifié** : test réel navigateur — côté client (session ALPHA), terme réel affiché avec sa vraie définition et sa vraie source ("Bulletin de paie" → "Code du travail"), navigation alphabétique réelle (lettre B cliquable), recherche réelle ("SMIC" trouve le bon terme et exclut les termes sans rapport). Côté admin (session Pauline) : ajout réel d'un terme en brouillon, confirmé **invisible** côté client tant que non publié, puis publié depuis l'admin et confirmé **visible** côté client après republication — sans aucun changement de code. Suppression réelle confirmée, aucune donnée de test résiduelle en base après coup.
 
 **Manque réel repéré (30/09/2026)**, suite à l'audit de `LBP_V9.9_Studio.html` : publier un nouveau terme n'envoie aucune notification client (`stContenus()` le fait, ex. "Une définition a été ajoutée..."). Voir STU-WORKFLOW-07.
+
+**Corrigé (30/09/2026)** : notification réelle envoyée au passage réel brouillon→publié d'un terme (`saveTerm`), vérifiée en réel (STU-WORKFLOW-07).
 
 ---
 

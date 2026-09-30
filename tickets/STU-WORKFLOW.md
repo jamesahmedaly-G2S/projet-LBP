@@ -100,7 +100,7 @@
 
 ---
 
-## STU-WORKFLOW-07 — Pattern brouillon → publication → notification pour les contenus hors référentiel
+## STU-WORKFLOW-07 — Pattern brouillon → publication → notification pour les contenus hors référentiel 🟡 Partiellement fait
 
 **Priorité : Should** · **Dépendances : STU-WORKFLOW-01, STU-DATA-02**
 
@@ -113,6 +113,12 @@
 - **Calendrier RH** (LBP-CLIENT-15, pas construit) — même pattern attendu.
 
 **À faire** : un mécanisme de notification-à-la-publication réutilisable (pas 5 implémentations séparées) — table `notifications` déjà réelle côté schéma (cf. cahier V9.4 §12, entité `Notification` : audience/canal/type/titre/contenu/lu/date), à brancher une fois sur chacun des 5 écrans plutôt qu'à réinventer par écran. Offres à sortir du fichier TypeScript en dur vers une vraie table + écran admin, priorité la plus haute des 5 car contredit une exigence déjà validée.
+
+**Réalisé (30/09/2026)** : `lib/studio/content-notifications.ts` (`notifyAllClients()`, une ligne par société réelle dans `notifications` — table réelle de James, jamais consommée avant) branché sur Chiffres Paie (`saveKeyFigure`/`saveContributionRate`, jamais sur les lignes d'en-tête), Dictionnaire (`saveTerm`, uniquement au passage réel brouillon→publié) et Offres (`saveOfferContent`, à chaque évolution). Écran client `app/(client)/notifications/` (liste, marquer comme lu, cloche dans la nav) — sans lui la notification créée serait invisible et invérifiable ; couvre une partie de LBP-CLIENT-11 au passage.
+
+**Non fait — pas dans ce ticket** : Actu (LBP-CLIENT-04) et Calendrier RH (LBP-CLIENT-15) ne sont pas encore construits, donc pas encore branchés — `notifyAllClients()` est prêt à être réutilisé le jour où ces deux écrans existeront. Pas de vrai statut brouillon/publié ajouté à Chiffres Paie (notification à chaque sauvegarde, comme il n'existe pas de brouillon sur cet écran) — à revoir si ça s'avère trop bavard en usage réel.
+
+**Vérifié** : test réel navigateur (Playwright, session admin réelle + session cliente réelle) — publication d'un terme de dictionnaire de test depuis `/administration/dictionnaire` → notification réelle visible sur `/notifications` avec le bon texte ("Une nouvelle définition a été ajoutée au dictionnaire : ...") → clic réel sur "Marquer comme lu", bouton disparu après confirmation. Toutes les données de test (terme + notifications) supprimées après coup.
 
 **Critères d'acceptation**
 
