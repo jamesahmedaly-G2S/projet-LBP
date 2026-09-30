@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { parseUploadedDocx, type ParsePreviewResult } from "./actions";
+import CcnResolutionPanel from "./CcnResolutionPanel";
 import { Button } from "@/ui-kit/Button";
 import { Badge } from "@/ui-kit/Badge";
 
@@ -14,7 +15,12 @@ const SECTION_LABELS: Record<string, string> = {
   quiz: "Quiz",
 };
 
-const initialState: ParsePreviewResult = { error: null, parsed: null };
+const initialState: ParsePreviewResult = {
+  error: null,
+  parsed: null,
+  ccnMatches: null,
+  ccnCatalog: null,
+};
 
 export default function ImportWordForm() {
   const [state, formAction, pending] = useActionState(parseUploadedDocx, initialState);
@@ -57,24 +63,7 @@ export default function ImportWordForm() {
             </p>
           </div>
 
-          <div>
-            <p className="text-xs uppercase tracking-wide text-studio-muted">
-              Conventions collectives détectées ({state.parsed.ccnMentions.length})
-            </p>
-            {state.parsed.ccnMentions.length === 0 ? (
-              <p className="text-sm text-studio-muted">Aucune mention IDCC trouvée.</p>
-            ) : (
-              <ul className="mt-1 flex flex-col gap-1 text-sm">
-                {state.parsed.ccnMentions.map((m, i) => (
-                  <li key={i} className="text-studio-navy">
-                    <span className="font-mono">{m.raw}</span> → IDCC normalisé{" "}
-                    <b>{m.normalizedIdcc}</b>{" "}
-                    <span className="text-xs text-studio-muted">(sous « {m.headingContext} »)</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <CcnResolutionPanel matches={state.ccnMatches ?? []} catalog={state.ccnCatalog ?? []} />
 
           <div>
             <p className="text-xs uppercase tracking-wide text-studio-muted">
