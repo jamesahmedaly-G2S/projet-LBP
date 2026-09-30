@@ -24,13 +24,19 @@ Epic ajouté le 30/09/2026, suite au cahier des charges technique V9.4 (MAJ 29/0
 
 ---
 
-## STU-IMPORT-02 — Détection et normalisation des CCN
+## STU-IMPORT-02 — Détection et normalisation des CCN ✅ Fait
 
 **Priorité : Must** · **Dépendances : STU-IMPORT-01, migration `20260929160000_normalisation_idcc.sql`**
 
 **Contexte** [§6.4, §7.3] : blocs CCN détectés par motif IDCC "quel que soit le niveau de titre". Un IDCC inconnu ne doit jamais créer automatiquement une convention — le Studio doit proposer Créer / Associer à une convention existante / Ignorer pour le moment.
 
 **À faire** : regex de détection `IDCC\s*n?°?\s*\d+` sur le texte du document, passage systématique par `normalize_idcc()` (déjà en base depuis STU-CCN, réutiliser — jamais une deuxième fonction de normalisation) avant tout rapprochement avec `ccn_catalog`. Écran de résolution à 3 choix (créer/associer/ignorer) quand l'IDCC détecté ne correspond à aucune ligne normalisée existante.
+
+**Réalisé (30/09/2026)** : `lib/studio/docx-import/match-ccn.ts` (`matchCcnMentions()`, pure fonction) rapproche les mentions détectées avec `ccn_catalog` via `normalizeIdccJs()` (même fonction que le parseur). `CcnResolutionPanel.tsx` : les IDCC reconnues affichent le nom réel de la convention, les inconnues proposent Créer (réutilise `saveCcn()` de l'écran CCN existant, écriture réelle en base) / Associer à une CCN existante (sélecteur) / Ignorer pour le moment.
+
+**Non fait — limite assumée** : "Associer"/"Ignorer" ne résolvent l'ambiguïté qu'à l'écran (état React), sans effet persistant — il n'existe pas encore de table d'import en cours pour leur donner un effet durable. À revoir quand STU-IMPORT-03 existera (le mapping validé devra se souvenir de ces choix).
+
+**Vérifié** : test réel navigateur (Playwright) — IDCC 1486 (réel, dans le catalogue) affiché "Reconnue : Syntec — Bureaux d'études techniques" ; IDCC 9999 (absent) affiché "Aucune CCN correspondante" → "Créer cette CCN" → vraie ligne insérée dans `ccn_catalog` (confirmée par requête directe), badge passé à "Sera créée". Donnée de test supprimée après coup.
 
 ---
 
