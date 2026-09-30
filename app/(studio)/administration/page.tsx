@@ -183,6 +183,9 @@ export default async function AdministrationPage() {
           <LinkButton href="/administration/actu" variant="secondary">
             Actu
           </LinkButton>
+          <LinkButton href="/administration/calendrier-rh" variant="secondary">
+            Calendrier RH
+          </LinkButton>
         </div>
       </Card>
 
