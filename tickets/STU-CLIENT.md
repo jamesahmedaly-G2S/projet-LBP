@@ -98,6 +98,8 @@ Contenu extrait en composants partagés (jamais une deuxième implémentation) :
 
 **Vérifié (30/09/2026)** : session admin réelle — les 9 pages de prévisualisation répondent 200 avec le vrai contenu de la société (chiffres clés, offre actuelle "LBP Métier", bibliothèque, établissements, quiz) ; 0 bouton Ajouter/Modifier/Supprimer sur Mon entreprise ; page Offres avec bouton désactivé et palier actuel affiché ; redirection `/lbp-client` → société la plus récente confirmée (`Location` header réel).
 
+**Point ouvert (30/09/2026)** : l'utilisateur n'est pas convaincu que rediriger vers la société la plus récente soit le bon comportement pour le bouton "LBP Client" du Studio — laissé tel quel pour l'instant, à corriger une fois le vrai besoin mieux compris (pas de nouvelle piste à date). Le reste de l'extension (9 pages de prévisualisation en lecture seule) n'est pas remis en cause.
+
 **Critères d'acceptation**
 
 - Ce mode n'accorde aucun droit d'écriture supplémentaire — il affiche exactement ce que verrait un vrai profil client de cette société, en lecture.
