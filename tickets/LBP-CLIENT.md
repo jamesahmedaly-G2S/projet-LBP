@@ -44,7 +44,9 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
-## LBP-CLIENT-02 — Mon équipe 🟡 Partiellement fait
+## LBP-CLIENT-02 — Mon équipe (renommé "Mon entreprise") 🟡 Partiellement fait
+
+**Correctif (29/09/2026)** : renommé "Mon entreprise" — cahier des charges technique V9.4 (MAJ 29/09/2026) §3.3 remplace explicitement "Mon équipe" par "Mon entreprise" comme nom du module. Route déplacée `app/(client)/mon-equipe/` → `app/(client)/mon-entreprise/`, nav et titre de page mis à jour. Contenu/schéma inchangés — voir ce qui suit pour le détail d'origine, resté vrai.
 
 **Contexte** [§1.3, p.9 — vérifié verbatim "1.3 Mon équipe" dans le texte du cahier des charges, pas seulement le résumé] : identité société (1.3.1), organigramme (1.3.2, 124 avatars), organisation de la paie (1.3.3), outils RH (1.3.4), documents (1.3.5 — CC, accords, grille de salaire).
 
