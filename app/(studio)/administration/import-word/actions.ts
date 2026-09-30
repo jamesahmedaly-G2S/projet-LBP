@@ -75,6 +75,13 @@ export interface ValidateSheetInput {
   subthemeId: string | null;
   content: SheetContent;
   ccnLayerIdccs: string[];
+  /** STU-IMPORT-05 : jamais mis dans `content` (jsonb) -- client_sheet_content
+   * sélectionne cette colonne en entier, y stocker l'annexe l'exposerait au
+   * client dès publication. Colonne dédiée (migration 20260930100000),
+   * jamais sélectionnée par cette vue. */
+  internalAnnexe: string | null;
+  /** Format `.qz` déjà consommé par parseQuiz() -- jamais un nouveau format. */
+  quizQz: string | null;
 }
 
 export interface ValidateSheetResult {
@@ -141,6 +148,7 @@ export async function validateAndCreateSheet(
     version: 1,
     status: "draft",
     content: input.content,
+    internal_annexe: input.internalAnnexe,
     author_id: session.userId,
   });
   if (versionError) {
@@ -148,6 +156,25 @@ export async function validateAndCreateSheet(
       error: `Fiche créée mais erreur sur la version initiale : ${versionError.message}`,
       sheetId: sheet.id,
     };
+  }
+
+  // STU-IMPORT-05 : réutilise quizzes/master_sheet_id (STU-QUIZ, migration
+  // 20260928090000) -- jamais un nouveau mécanisme de stockage pour le
+  // quiz d'une fiche importée. Publié=false : G2S doit relire avant
+  // diffusion, comme toute création de contenu par cet écran.
+  if (input.quizQz) {
+    const { error: quizError } = await supabase.from("quizzes").insert({
+      master_sheet_id: sheet.id,
+      title: input.titre,
+      questions: input.quizQz,
+      published: false,
+    });
+    if (quizError) {
+      return {
+        error: `Fiche créée mais erreur sur le quiz : ${quizError.message}`,
+        sheetId: sheet.id,
+      };
+    }
   }
 
   // Couches CCN : même forme que createCcnLayer() (referentiel/actions.ts,

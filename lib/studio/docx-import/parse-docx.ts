@@ -18,7 +18,7 @@ import JSZip from "jszip";
  */
 
 export type SheetSectionField =
-  "essentiel" | "comprendre" | "maitriser" | "application" | "vigilance" | "quiz";
+  "essentiel" | "comprendre" | "maitriser" | "application" | "vigilance" | "quiz" | "annexe";
 
 export interface ParsedDocxTable {
   headers: string[];
@@ -70,6 +70,11 @@ const SECTION_KEYWORDS: { field: SheetSectionField; keywords: string[] }[] = [
   },
   { field: "vigilance", keywords: ["points de vigilance", "vigilance"] },
   { field: "quiz", keywords: ["quiz"] },
+  // Port 1:1 de wordAnalyseElements() (LBP_V9.9_Studio.html, L.5281) :
+  // "annexe" en tête de titre, quel que soit ce qui suit -- jamais un
+  // texte exact, le vrai algorithme de référence utilise déjà un simple
+  // préfixe.
+  { field: "annexe", keywords: ["annexe"] },
 ];
 
 function normalizeHeadingText(raw: string): string {

@@ -47,7 +47,9 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
   // celle-ci reste la version courante affichée/éditable.
   const { data: version } = await supabase
     .from("sheet_versions")
-    .select("id, content, status, version, layer_kind, ccn_idcc, company_id, scheduled_at")
+    .select(
+      "id, content, status, version, layer_kind, ccn_idcc, company_id, scheduled_at, internal_annexe",
+    )
     .eq("master_sheet_id", id)
     .eq("layer_kind", "rg")
     .order("version", { ascending: false })
@@ -146,6 +148,16 @@ export default async function FichePage({ params }: { params: Promise<{ id: stri
             <NewVersionButton masterSheetId={sheet.id} />
           ) : (
             <EditContentForm versionId={version.id} content={version.content as SheetContent} />
+          )}
+          {version.internal_annexe && (
+            <div className="mt-5 rounded-md border border-studio-line bg-studio-bg p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-studio-muted">
+                Annexe interne G2S (STU-IMPORT-05 — jamais visible côté client)
+              </p>
+              <p className="mt-1 whitespace-pre-wrap text-sm text-studio-navy">
+                {version.internal_annexe}
+              </p>
+            </div>
           )}
         </Card>
       ) : (

@@ -3,7 +3,8 @@
 import { useActionState, useMemo, useState } from "react";
 import { parseUploadedDocx, validateAndCreateSheet, type ParsePreviewResult } from "./actions";
 import CcnResolutionPanel, { type CcnResolution } from "./CcnResolutionPanel";
-import type { SheetSectionField } from "@/lib/studio/docx-import/parse-docx";
+import type { ParsedDocxBlock, SheetSectionField } from "@/lib/studio/docx-import/parse-docx";
+import { extractQuizFromBlocks, quizToQzFormat } from "@/lib/studio/docx-import/extract-quiz";
 import { Button } from "@/ui-kit/Button";
 import { Badge } from "@/ui-kit/Badge";
 import { SelectField } from "@/ui-kit/Field";
@@ -21,6 +22,7 @@ const SECTION_LABELS: Record<SheetSectionField, string> = {
   application: "Application concrète en paie",
   vigilance: "Points de vigilance",
   quiz: "Quiz",
+  annexe: "Annexe interne G2S (jamais visible côté client)",
 };
 
 const CONTENT_FIELDS: Exclude<SheetSectionField, "quiz">[] = [
@@ -82,6 +84,18 @@ export default function ImportWordForm({
   const fieldFor = (sectionIndex: number, autoField: SheetSectionField | null) =>
     sectionOverrides[sectionIndex] ?? autoField ?? "ignore";
 
+  const quizBlocks: ParsedDocxBlock[] = useMemo(() => {
+    if (!state.parsed) return [];
+    const blocks: ParsedDocxBlock[] = [];
+    state.parsed.sections.forEach((s, i) => {
+      if (fieldFor(i, s.field) === "quiz") blocks.push(...s.blocks);
+    });
+    return blocks;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.parsed, sectionOverrides]);
+
+  const quizExtraction = useMemo(() => extractQuizFromBlocks(quizBlocks), [quizBlocks]);
+
   async function handleValidate() {
     if (!state.parsed) return;
     setValidating(true);
@@ -94,10 +108,15 @@ export default function ImportWordForm({
       application: "",
       vigilance: "",
     };
+    let annexeText = "";
     state.parsed.sections.forEach((s, i) => {
       const field = fieldFor(i, s.field);
       if (field === "ignore" || field === "quiz") return;
       const text = s.blocks.map(blockToText).join("\n");
+      if (field === "annexe") {
+        annexeText = annexeText ? `${annexeText}\n\n${text}` : text;
+        return;
+      }
       content[field] = content[field] ? `${content[field]}\n\n${text}` : text;
     });
 
@@ -120,6 +139,8 @@ export default function ImportWordForm({
       subthemeId: subthemeId || null,
       content,
       ccnLayerIdccs,
+      internalAnnexe: annexeText || null,
+      quizQz: quizExtraction.questions.length > 0 ? quizToQzFormat(quizExtraction.questions) : null,
     });
 
     setValidating(false);
@@ -262,7 +283,8 @@ export default function ImportWordForm({
                           {SECTION_LABELS[f]}
                         </option>
                       ))}
-                      <option value="quiz">Quiz (aperçu seul — STU-IMPORT-05)</option>
+                      <option value="quiz">{SECTION_LABELS.quiz}</option>
+                      <option value="annexe">{SECTION_LABELS.annexe}</option>
                     </SelectField>
                   </div>
                   <p className="mt-1 text-xs text-studio-muted">
@@ -287,10 +309,58 @@ export default function ImportWordForm({
             </div>
           </div>
 
+          {quizBlocks.length > 0 && (
+            <div className="rounded-md border border-studio-line p-3">
+              <p className="text-xs uppercase tracking-wide text-studio-muted">
+                Quiz extrait ({quizExtraction.questions.length} question(s))
+              </p>
+              {quizExtraction.questions.map((q, i) => (
+                <div key={i} className="mt-2 text-sm text-studio-navy">
+                  <p className="font-medium">
+                    {i + 1}. {q.q}
+                  </p>
+                  <ul className="ml-4 list-disc text-xs text-studio-muted">
+                    {q.options.map((opt, oi) => (
+                      <li
+                        key={oi}
+                        className={oi === q.correct ? "font-semibold text-studio-green" : ""}
+                      >
+                        {opt} {oi === q.correct && "(bonne réponse)"}
+                      </li>
+                    ))}
+                  </ul>
+                  {q.explication && (
+                    <p className="ml-4 text-xs italic text-studio-muted">{q.explication}</p>
+                  )}
+                </div>
+              ))}
+              {quizExtraction.unrecognized.length > 0 && (
+                <div className="mt-2 rounded-md bg-studio-amber-bg p-2">
+                  <p className="text-xs font-medium text-studio-amber">
+                    {quizExtraction.unrecognized.length} ligne(s) non reconnue(s) dans le quiz :
+                  </p>
+                  {quizExtraction.unrecognized.map((line, i) => (
+                    <p key={i} className="text-xs text-studio-muted">
+                      « {line} »
+                    </p>
+                  ))}
+                </div>
+              )}
+              {quizExtraction.questions.length === 0 && (
+                <p className="mt-1 text-xs text-studio-muted">
+                  Aucune question reconnue (format attendu : &laquo;&nbsp;1. Question&nbsp;&raquo;,
+                  options &laquo;&nbsp;A./B./...&nbsp;&raquo;, &laquo;&nbsp;Bonne réponse :
+                  X&nbsp;&raquo;, &laquo;&nbsp;Explication : ...&nbsp;&raquo;).
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="rounded-md border border-studio-line bg-studio-bg p-3">
             <p className="text-xs text-studio-muted">
               Aucune écriture en base n&apos;a encore eu lieu. La validation crée la fiche, sa
-              version régime général et une couche par CCN reconnue/créée/associée.
+              version régime général, une couche par CCN reconnue/créée/associée, l&apos;annexe
+              interne (si rattachée) et le quiz (si des questions ont été reconnues).
             </p>
             <Button
               type="button"
