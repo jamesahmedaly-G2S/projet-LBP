@@ -49,36 +49,42 @@
   --color-danger-bg: var(--studio-red-bg);
 }
 
-/* STU-CLIENT (fondations) : palette sauge/encre/crème du vrai prototype
-   LBP Client (lib/design-tokens-client.ts, port 1:1 de LBP_V2-20.html) —
-   appliquée en scope sur app/(client)/layout.tsx uniquement. Pas de
-   --color-warning-bg propre au client : le prototype vitrine n'en définit
-   aucun (pas de couleur ajoutée), donc cette teinte retombe sur celle du
-   Studio plutôt que d'en inventer une. --color-danger-bg est calculée à
-   partir du seul rouge réel du prototype (color-mix), pas une teinte
-   choisie au hasard. */
+/* STU-CLIENT / LBP-CLIENT-16 : charte G2S V37 (framboise · carbone ·
+   minéral), port 1:1 du bloc de fin de feuille de LBP_V9.9_Studio.html
+   ("COUCHE CHARTE G2S — alignée sur le site vitrine V37", placé en fin de
+   fichier pour primer sur les styles historiques — c'est donc cette
+   cascade finale, pas les règles plus haut dans le fichier, qui fait foi).
+   Remplace la palette sage/encre/crème (LBP_V2-20.html) portée avant que
+   cette mise à jour n'existe. Appliquée en scope sur
+   app/(client)/layout.tsx uniquement.
+   --color-primary = framboise (--framboise:#670626) : boutons ET
+   .eyebrow/.section-title (même teinte dans le vrai CSS, pas une couleur
+   "hover" différente — Eyebrow.tsx et SectionTitle.tsx consomment donc
+   `text-primary`, jamais `text-primary-hover`, qui reste réservé au vrai
+   état :hover des boutons, `--framboise-dark:#3E0417`).
+   --color-success/-bg = "statuts" du prototype (--st-green/-bg, un vert
+   d'eau/teal, pas un vert classique) ; --color-danger/-bg = --st-red/-bg
+   (distinct de --framboise, qui est la couleur de marque, pas un état
+   d'erreur) ; --color-warning/-bg = --st-amber/-bg (le prototype précédent
+   n'en définissait aucun côté client, cette version en a un réel). */
 .theme-client {
-  --color-primary: #181818;
-  --color-primary-hover: #4f6139;
-  --color-primary-soft: #cbd9e3;
+  --color-primary: #670626;
+  --color-primary-hover: #3e0417;
+  --color-primary-soft: #eaecef;
   --color-surface: #ffffff;
-  --color-page-bg: #f5f3ee;
-  --color-border: #e7e3d9;
-  --color-ink: #181818;
-  --color-muted: #78766e;
-  --color-success: #6f8657;
-  --color-success-bg: #e7e4dc;
-  --color-danger: #c24a3a;
-  --color-danger-bg: color-mix(in srgb, #c24a3a 12%, white);
+  --color-page-bg: #faf9f7;
+  --color-border: #ded9db;
+  --color-ink: #445068;
+  --color-muted: #6b656b;
+  --color-success: #0e8a87;
+  --color-success-bg: #eaf7f6;
+  --color-warning: #b8860b;
+  --color-warning-bg: #fdf8e8;
+  --color-danger: #c0343c;
+  --color-danger-bg: #fdeeef;
 
-  /* Port 1:1 de LBP_V2-20.html : Inter en corps de texte (ligne 37),
-     Plus Jakarta Sans pour .disp/.eyebrow/.section-title/.btn (ligne 38) —
-     le Studio garde Geist, --font-sans global n'est pas touché ici. */
-  font-family: var(--font-inter-client), sans-serif;
-}
-.theme-client button,
-.theme-client [class*="rounded-full"] {
-  font-family: var(--font-jakarta), sans-serif;
+  font-family: var(--font-archivo), sans-serif;
+  --font-mono: var(--font-plex-mono-client);
 }
 
 @theme inline {
@@ -88,8 +94,11 @@
   --font-mono: var(--font-geist-mono);
   /* LBP Client uniquement (voir .theme-client) — jamais utilisé côté
      Studio, qui n'a pas cette variable définie et retomberait sur
-     --font-sans (Geist) si jamais appliqué par erreur. */
-  --font-display: var(--font-jakarta);
+     --font-sans (Geist) si jamais appliqué par erreur. Devenu redondant
+     avec --font-sans côté client depuis la charte V37 (Archivo partout,
+     plus de split police corps/titres) -- conservé pour ne pas devoir
+     changer Eyebrow/SectionTitle, qui consomment déjà `font-display`. */
+  --font-display: var(--font-archivo);
 
   --color-studio-navy: var(--studio-navy);
   --color-studio-navy2: var(--studio-navy2);

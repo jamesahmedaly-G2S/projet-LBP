@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Geist, Geist_Mono, Archivo, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,21 +12,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// LBP Client (app/(client)/) uniquement — port 1:1 de la vraie typographie
-// du prototype (LBP_V2-20.html ligne 9 : Google Fonts Plus Jakarta Sans +
-// Inter ; ligne 37-38 : Inter en corps de texte, Plus Jakarta Sans pour
-// .disp/.eyebrow/.section-title/.btn). N'affecte pas le Studio, qui garde
-// Geist (--font-sans reste inchangé, voir globals.css).
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+// LBP Client (app/(client)/) uniquement — port 1:1 de la charte G2S V37
+// (LBP_V9.9_Studio.html ligne 11 : Google Fonts Archivo + IBM Plex Mono ;
+// ligne 68-69 : Archivo pour le corps ET les titres/boutons — remplace
+// l'ancien split Plus Jakarta Sans/Inter, plus nécessaire puisque le
+// prototype utilise désormais une seule police partout). N'affecte pas le
+// Studio, qui garde Geist (--font-sans reste inchangé, voir globals.css).
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
 });
 
-const inter = Inter({
-  variable: "--font-inter-client",
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono-client",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -38,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${jakarta.variable} ${inter.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${archivo.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
