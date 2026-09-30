@@ -90,6 +90,14 @@
 
 **Vérifié** : test réel navigateur — bandeau confirmé présent avec le vrai nom de société sur la liste ET sur une fiche ; ALPHA (CCN 1486 + offre incluant les conventions) voit bien la section "Complément conventionnel — [nom CCN]" en plus du régime général, avec les 5 champs réellement remplis ; BETA (n'a pas cette CCN) ne voit **pas** cette section sur la même fiche — confirme que le filtrage par société fonctionne réellement, pas un affichage systématique. "Retour au LBP Studio" ramène bien à la fiche client, sans bandeau résiduel.
 
+**Étendu (30/09/2026)**, suite à un retour explicite de l'utilisateur ("le LBP Client sur le Studio devrait permettre à l'admin de basculer directement sur la vraie vue client") vérifié contre le vrai comportement de `LBP_V9.9_Studio.html` (`closeStudio()`/`setMode('client')` : bascule directement vers l'appli client complète, `profile` est une persona fixe, jamais un choix par société). Ce mode ne couvrait jusque-là que la Bibliothèque, sur 9 pages réelles.
+
+Contenu extrait en composants partagés (jamais une deuxième implémentation) : `AccueilContent`/`ChiffresPaieContent`/`DictionnaireContent`/`PriseEnMainContent`/`OffresContent`/`OfferDetailContent`, paramétrés (`companyId`/`offerTier`/`linkPrefix`) plutôt que dépendants de la session — consommés à la fois par les vraies pages client et par `vue-client/*`. `OffersClient` : nouveau `readOnly` (masque la demande de changement d'offre). Mon entreprise et Quiz : nouvelles pages de prévisualisation dédiées en lecture seule directe, jamais les composants réels `EstablishmentsSection`/`TeamSection`/`PayrollForm`/`ToolsForm`/`QuizPlayer` (actions d'écriture attribuées à un profil précis). **Mon compte exclu** : intrinsèquement personnel à un utilisateur, sans équivalent au niveau d'une société.
+
+`vue-client/layout.tsx` : nav complète (8 items) ajoutée en plus du bandeau. Nouvelle route `/lbp-client` (redirection vers la société la plus récente, équivalent le plus proche d'un "profil par défaut") — le bouton "LBP Client" du header Studio y pointe désormais directement, sans étape de sélection intermédiaire (corrige une première version du 30/09/2026 qui pointait vers `/clients`, jugée insuffisante).
+
+**Vérifié (30/09/2026)** : session admin réelle — les 9 pages de prévisualisation répondent 200 avec le vrai contenu de la société (chiffres clés, offre actuelle "LBP Métier", bibliothèque, établissements, quiz) ; 0 bouton Ajouter/Modifier/Supprimer sur Mon entreprise ; page Offres avec bouton désactivé et palier actuel affiché ; redirection `/lbp-client` → société la plus récente confirmée (`Location` header réel).
+
 **Critères d'acceptation**
 
 - Ce mode n'accorde aucun droit d'écriture supplémentaire — il affiche exactement ce que verrait un vrai profil client de cette société, en lecture.
