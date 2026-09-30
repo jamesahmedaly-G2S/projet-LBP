@@ -1,6 +1,8 @@
 # STU-IMPORT — Import Word natif (DOCX)
 
-Epic ajouté le 30/09/2026, suite au cahier des charges technique V9.4 (MAJ 29/09/2026) §7 "Import Word natif — nouveau processus de référence" et à l'analyse de la maquette de référence `LBP_V9.9_Studio.html`. Aucun de ces tickets n'est construit côté `projet-LBP/` à ce jour — l'import de fiches se fait uniquement à la main via les écrans du référentiel (STU-REF).
+Epic ajouté le 30/09/2026, suite au cahier des charges technique V9.4 (MAJ 29/09/2026) §7 "Import Word natif — nouveau processus de référence" et à l'analyse de la maquette de référence `LBP_V9.9_Studio.html`.
+
+**Statut (30/09/2026)** : 4 tickets sur 5 faits et vérifiés en réel le jour même (01, 02, 03, 05) — `/administration/import-word` lit un vrai .docx, détecte sa structure, rapproche/résout les CCN, laisse G2S corriger le mapping puis crée réellement la fiche (référentiel + couches CCN + quiz + annexe interne) après validation explicite. Seul **STU-IMPORT-04** (idempotence, mise à jour par numéro de fiche) reste bloqué, faute des deux fiches étalons réelles du cahier (§7.6, Annexe A) — l'utilisateur ne les a pas encore.
 
 **Ce que remplace cet epic** : le cahier des charges est explicite (§1.1, §7.2) — l'ancien chemin "Word → Page Web filtrée" et le duo Mammoth/`extractRawText` sont supprimés comme processus normal, tout comme l'auto-remplissage silencieux du formulaire et les identifiants aléatoires dans le mapping. Ne pas les reprendre, même comme point de départ.
 
@@ -66,10 +68,16 @@ Epic ajouté le 30/09/2026, suite au cahier des charges technique V9.4 (MAJ 29/0
 
 ---
 
-## STU-IMPORT-05 — Import du quiz et de l'annexe interne G2S
+## STU-IMPORT-05 — Import du quiz et de l'annexe interne G2S ✅ Fait
 
 **Priorité : Should** · **Dépendances : STU-IMPORT-01, STU-QUIZ**
 
 **Contexte** [§7.3, §8.2] : quiz (questions, options, bonne réponse, explication) et annexe interne G2S à préserver depuis le Word — l'annexe interne (sources de contrôle, notes internes) ne doit jamais sortir du Studio, jamais visible côté Client (règle déjà appliquée ailleurs pour `layer_kind`, cf. STU-DATA/STU-WORKFLOW — pas une nouvelle règle de visibilité à inventer).
 
 **À faire** : extraction des questions/options/réponses/explications vers le format déjà utilisé par STU-QUIZ (`parseQuiz`, réutiliser le format existant plutôt qu'en créer un nouveau), extraction de l'annexe interne vers un champ/couche non exposée côté `client_sheet_content`.
+
+**Réalisé (30/09/2026)** : `lib/studio/docx-import/extract-quiz.ts` — port 1:1 de la branche quiz de `wordAnalyseElements()` (`LBP_V9.9_Studio.html` L.5313-5326) : options `A./B./.../E.`, `Bonne réponse : X`, `Explication : ...`, questions en simples paragraphes numérotés. Sérialise vers le format `.qz` déjà consommé par `parseQuiz()`. "annexe" ajouté comme 7e champ reconnu (mot-clé "annexe" en tête de titre). Migration `20260930100000` : colonne additive `sheet_versions.internal_annexe`, jamais dans `content` (jsonb, sélectionné en entier par `client_sheet_content`). `validateAndCreateSheet()` crée une vraie ligne `quizzes` si des questions sont reconnues et remplit `internal_annexe` sur la version rg. Affichage en lecture seule sur la fiche (`referentiel/[id]/page.tsx`), sinon la donnée serait invisible même côté admin.
+
+**Non fait — dette connue** : le découpage d'une question par sous-titre Word (une question = un Heading2/3, aussi supporté par le prototype en plus des paragraphes numérotés) n'est pas porté — STU-IMPORT-01 ne modélise pas de sous-titres imbriqués dans une section. À revoir avec les vraies fiches étalons (même dette que STU-IMPORT-01/04).
+
+**Vérifié** : test réel (Playwright + requêtes directes en base) — 2 questions extraites avec bonnes réponses et explication correctement identifiées, annexe auto-détectée et stockée hors de `content`, confirmée absente de `client_sheet_content` (vue interrogée directement, pas supposée). Cascade de suppression confirmée. Données de test supprimées après coup.

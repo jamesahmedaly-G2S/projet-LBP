@@ -13,24 +13,24 @@ Ancrée sur les 6 scénarios que le dossier Studio exige de pouvoir démontrer (
 
 ## Index des epics
 
-| Epic          | Sujet                                                                        | Tickets | Fichier                              |
-| ------------- | ---------------------------------------------------------------------------- | ------- | ------------------------------------ |
-| STU-DATA      | Fondations base de données (schéma Studio)                                   | 8       | [STU-DATA.md](STU-DATA.md)           |
-| STU-REF       | Référentiel maître (familles/thèmes/fiches)                                  | 5       | [STU-REF.md](STU-REF.md)             |
-| STU-CCN       | Multi-CCN                                                                    | 3       | [STU-CCN.md](STU-CCN.md)             |
-| STU-QUEST     | Questionnaire maître                                                         | 3       | [STU-QUEST.md](STU-QUEST.md)         |
-| STU-AFFECT    | Moteur d'affectation                                                         | 4       | [STU-AFFECT.md](STU-AFFECT.md)       |
-| STU-WORKFLOW  | Versioning & publication (7 statuts)                                         | 7       | [STU-WORKFLOW.md](STU-WORKFLOW.md)   |
-| STU-VEILLE    | Veille connectée au référentiel                                              | 4       | [STU-VEILLE.md](STU-VEILLE.md)       |
-| STU-INTERVIEW | Entretiens annuels clients                                                   | 2       | [STU-INTERVIEW.md](STU-INTERVIEW.md) |
-| STU-CLIENT    | Gestion clients (assistant + fiche + vue client)                             | 4       | [STU-CLIENT.md](STU-CLIENT.md)       |
-| STU-DASH      | Tableau de bord Studio                                                       | 2       | [STU-DASH.md](STU-DASH.md)           |
-| STU-DESIGN    | Identité visuelle Studio                                                     | 4       | [STU-DESIGN.md](STU-DESIGN.md)       |
-| STU-OFFER     | Offres et droits de contenu par couche                                       | 3       | [STU-OFFER.md](STU-OFFER.md)         |
-| STU-QUIZ      | Quiz rattachés au référentiel maître                                         | 3       | [STU-QUIZ.md](STU-QUIZ.md)           |
-| STU-AUTH      | Login minimal (ajouté en cours de route)                                     | 1       | [STU-AUTH.md](STU-AUTH.md)           |
-| STU-ADMIN     | Administration Studio (ajouté en cours de route)                             | 2       | [STU-ADMIN.md](STU-ADMIN.md)         |
-| STU-IMPORT    | Import Word natif (DOCX) — ajouté 30/09/2026, cahier V9.4 §7, rien construit | 5       | [STU-IMPORT.md](STU-IMPORT.md)       |
+| Epic          | Sujet                                                                                                  | Tickets | Fichier                              |
+| ------------- | ------------------------------------------------------------------------------------------------------ | ------- | ------------------------------------ |
+| STU-DATA      | Fondations base de données (schéma Studio)                                                             | 8       | [STU-DATA.md](STU-DATA.md)           |
+| STU-REF       | Référentiel maître (familles/thèmes/fiches)                                                            | 5       | [STU-REF.md](STU-REF.md)             |
+| STU-CCN       | Multi-CCN                                                                                              | 3       | [STU-CCN.md](STU-CCN.md)             |
+| STU-QUEST     | Questionnaire maître                                                                                   | 3       | [STU-QUEST.md](STU-QUEST.md)         |
+| STU-AFFECT    | Moteur d'affectation                                                                                   | 4       | [STU-AFFECT.md](STU-AFFECT.md)       |
+| STU-WORKFLOW  | Versioning & publication (7 statuts)                                                                   | 7       | [STU-WORKFLOW.md](STU-WORKFLOW.md)   |
+| STU-VEILLE    | Veille connectée au référentiel                                                                        | 4       | [STU-VEILLE.md](STU-VEILLE.md)       |
+| STU-INTERVIEW | Entretiens annuels clients                                                                             | 2       | [STU-INTERVIEW.md](STU-INTERVIEW.md) |
+| STU-CLIENT    | Gestion clients (assistant + fiche + vue client)                                                       | 4       | [STU-CLIENT.md](STU-CLIENT.md)       |
+| STU-DASH      | Tableau de bord Studio                                                                                 | 2       | [STU-DASH.md](STU-DASH.md)           |
+| STU-DESIGN    | Identité visuelle Studio                                                                               | 4       | [STU-DESIGN.md](STU-DESIGN.md)       |
+| STU-OFFER     | Offres et droits de contenu par couche                                                                 | 3       | [STU-OFFER.md](STU-OFFER.md)         |
+| STU-QUIZ      | Quiz rattachés au référentiel maître                                                                   | 3       | [STU-QUIZ.md](STU-QUIZ.md)           |
+| STU-AUTH      | Login minimal (ajouté en cours de route)                                                               | 1       | [STU-AUTH.md](STU-AUTH.md)           |
+| STU-ADMIN     | Administration Studio (ajouté en cours de route)                                                       | 2       | [STU-ADMIN.md](STU-ADMIN.md)         |
+| STU-IMPORT    | Import Word natif (DOCX) — ajouté 30/09/2026, cahier V9.4 §7, 4/5 faits (04 bloqué sur fiches étalons) | 5       | [STU-IMPORT.md](STU-IMPORT.md)       |
 
 **Total : 60 tickets.** Le backlog LBP Client (14 modules + 2 ajoutés le 30/09/2026 — Calendrier RH, re-thème visuel V37) est suivi séparément dans [LBP-CLIENT.md](LBP-CLIENT.md), pas compté ici.
 
