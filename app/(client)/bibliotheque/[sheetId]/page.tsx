@@ -13,6 +13,11 @@ const LAYER_LABEL: Record<string, string> = {
   proc: "Procédure interne",
 };
 
+interface AssociatedQuiz {
+  id: string;
+  title: string;
+}
+
 // Pendant client réel de app/(studio)/clients/[id]/vue-client/[sheetId]/page.tsx
 // (STU-CLIENT-04), mais via getSheetLayersForClient() plutôt que
 // getVisibleLayersForCompany() — cette dernière interroge sheet_versions
@@ -57,6 +62,20 @@ export default async function BibliothequeFichePage({
   const rg = layers.find((l) => l.layerKind === "rg");
   const overlays = layers.filter((l) => l.layerKind !== "rg");
 
+  // LBP-CLIENT-03 (finitions, 30/09/2026) : lien vers le quiz associé à la
+  // fiche. Le vrai prototype (selLevel()/quizPlayerHTML()) joue le quiz en
+  // ligne, comme un onglet de plus sur la fiche elle-même -- mais
+  // LBP-CLIENT-06 a déjà construit un vrai lecteur de quiz dédié
+  // (/mes-quiz/[id], QuizPlayer.tsx, historique des scores compris) :
+  // reproduire une deuxième implémentation de lecture de quiz ici aurait
+  // dupliqué cette logique. Un lien suffit.
+  const { data: quiz } = await supabase
+    .from("quizzes")
+    .select("id, title")
+    .eq("master_sheet_id", sheetId)
+    .eq("published", true)
+    .maybeSingle<AssociatedQuiz>();
+
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <Link href="/bibliotheque" className="text-sm text-primary hover:underline">
@@ -79,6 +98,23 @@ export default async function BibliothequeFichePage({
           <ContentFields content={layer.content} />
         </Card>
       ))}
+
+      {quiz && (
+        <Card className="mt-6">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-ink">Testez vos connaissances</h2>
+              <p className="text-sm text-muted">{quiz.title}</p>
+            </div>
+            <Link
+              href={`/mes-quiz/${quiz.id}`}
+              className="shrink-0 rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
+            >
+              Faire le quiz →
+            </Link>
+          </div>
+        </Card>
+      )}
     </main>
   );
 }

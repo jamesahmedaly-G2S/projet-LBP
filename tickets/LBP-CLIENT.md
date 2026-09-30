@@ -62,13 +62,21 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
-## LBP-CLIENT-03 — La bibliothèque ✅ Fait (fondations), 🟡 reste la recherche/filtre
+## LBP-CLIENT-03 — La bibliothèque ✅ Fait
 
 **Contexte** [§1.4, p.9-10] : 3 familles → 18 thèmes → 139 sous-fiches, fiche en 3 niveaux de lecture (En bref / Comprendre / Dans le détail) + vigilance + quiz.
 
 **Réalisé** : voir LBP-CLIENT-00 ci-dessus — arborescence complète, fiche filtrée par CCN/offre réels, lecture seule. Les "3 niveaux de lecture + vigilance" du cahier correspondent aux 5 champs déjà portés côté Studio (`SHEET_CONTENT_FIELDS` : essentiel/comprendre/maîtriser/application/vigilance — proche mais pas un mappage 1:1 exact avec "En bref/Comprendre/Dans le détail", à clarifier si ça devient bloquant).
 
-**Reste à faire** : recherche/filtre dans l'arborescence, lien vers le quiz associé à une fiche (dépend de LBP-CLIENT-06), favoris (mentionnés dans le prototype, pas dans cette table du cahier — à vérifier avant de construire).
+**Finitions (30/09/2026)** :
+
+- **Recherche/filtre dans l'arborescence** : vérifié contre le vrai code du prototype (`LBP_V9.9_Studio.html`, `renderBiblio()`/`subMatches()`/`ficheBlob()`, lignes ~10727-10783) avant de construire — un seul champ de recherche libre (pas de filtres famille/thème séparés dans le vrai code), même algorithme `smartMatch()` déjà porté pour LBP-CLIENT-12 (recherche globale) et réutilisé ici tel quel (cohérence explicitement exigée par le cahier — `docs/G2S-LBP-01.md` ligne 477 : "utilisée de façon cohérente dans la recherche bibliothèque, la recherche globale et le filtre d'actualités"). Masque les familles/thèmes sans aucune fiche correspondante plutôt que de les afficher vides, "Aucun résultat pour «q»" sinon. Recherche sur le titre, les tags et le contenu de la couche "rg" — même simplification assumée que LBP-CLIENT-12 (pas les couches CCN/entreprise superposées).
+- **Lien vers le quiz associé à une fiche** (dépendait de LBP-CLIENT-06, ✅ Fait) : le vrai prototype (`selLevel()`/`quizPlayerHTML()`) joue le quiz en ligne, comme un onglet de plus sur la fiche elle-même — mais LBP-CLIENT-06 a déjà construit un vrai lecteur de quiz dédié (`/mes-quiz/[id]`, historique des scores compris) : reproduire une deuxième implémentation de lecture de quiz sur la fiche aurait dupliqué cette logique. Un bouton "Faire le quiz →" suffit, affiché uniquement si un quiz publié est rattaché à cette fiche (`quizzes.master_sheet_id`).
+- **Favoris** : levée l'incertitude laissée ouverte précédemment ("mentionnés dans le prototype, à vérifier avant de construire") — recherche explicite de "favoris"/"favorite" dans les 3 versions réelles du prototype disponibles (`LBP_V9.9_Studio.html`, `LBP_V6_Studio.html`, `Nouveau dossier/LBP_V2-20.html`) : **aucune occurrence, nulle part**. Absent aussi du cahier des charges écrit. Rien à porter — construire des favoris aurait été une pure invention, jamais tenté.
+
+**Vérifié** : test réel navigateur avec la session cliente ALPHA. Recherche "teletravail" (sans accent) trouve la vraie fiche publiée "Télétravail : allocation forfaitaire" et masque les fiches non correspondantes (ex. "Titres-restaurant") ; recherche sans résultat ("xyzzynotfound") affiche bien "Aucun résultat" ; sans filtre, l'arborescence complète reste affichée. Lien quiz : absent tant qu'aucun quiz n'est rattaché à la fiche (vrai état initial, aucun quiz n'existait encore en base), création réelle d'un quiz de test rattaché à cette même fiche via le vrai formulaire admin (`/quiz/nouveau`), confirmé **apparu** sur la fiche avec son vrai titre et un lien correct vers `/mes-quiz/[id]`, destination confirmée ouvrant le vrai lecteur de quiz (`QuizPlayer.tsx`, LBP-CLIENT-06) avec la vraie question. Donnée de test supprimée après coup.
+
+**Anecdote de vérification** : un premier essai de création du quiz de test a échoué de façon trompeuse — la requête POST a réellement appelé `logout()` (déconnexion) au lieu de `createQuiz()`, provoquant un aller-retour vers `/login` sans aucun message d'erreur. Cause réelle isolée : le script de test utilisait un sélecteur Playwright ambigu (`button[type="submit"]`), qui correspondait à la fois au bouton "Créer" du formulaire et au bouton "Déconnexion" de l'en-tête Studio (également `type="submit"`), et cliquait le premier des deux dans le DOM — un bug du script de vérification, pas de l'application. Corrigé en ciblant le bouton par son texte ("Créer").
 
 ---
 
