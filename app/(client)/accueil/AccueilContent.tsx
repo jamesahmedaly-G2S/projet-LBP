@@ -13,6 +13,24 @@ import ChiffreCard, { type KpiVariant } from "./ChiffreCard";
 import FamilyCard, { type FamilyVariant } from "./FamilyCard";
 
 const KEY_FIGURE_ORDER = ["smic-h", "smic-m", "pmss", "pass"];
+
+// LBP-CLIENT-01 (correctif design, 01/10/2026) : vérifié contre le vrai
+// code (`chiffreVal()`, LBP_V9.9_Studio.html ligne ~6060) -- la carte de
+// l'Accueil n'affiche que la VALEUR COURANTE simple ("12,31 €"), jamais
+// `note`, qui chez nous peut contenir le détail des révisions
+// intra-année ("12,02 € (janv.) · 12,31 € (juin)", réel pour le SMIC
+// 2026 -- deux revalorisations la même année). Cette confusion (note
+// utilisée comme valeur affichée) faisait déborder les cartes sur
+// plusieurs lignes -- pas un problème de largeur de conteneur. `note`
+// reste utilisée telle quelle dans l'historique déroulant de la carte
+// (ChiffreCard.tsx), où le détail par année a sa place.
+function formatAmount(value: number, unit: string): string {
+  const formatted = new Intl.NumberFormat("fr-FR", {
+    minimumFractionDigits: value % 1 !== 0 ? 2 : 0,
+    maximumFractionDigits: 2,
+  }).format(value);
+  return `${formatted} ${unit}`;
+}
 const KPI_VARIANTS: KpiVariant[] = ["ka", "kb", "kc", "kd"];
 
 // LBP-CLIENT-01 (finitions design, 01/10/2026) : couleur par famille portée
@@ -154,7 +172,7 @@ export default async function AccueilContent({
           Tous les chiffres Paie →
         </Link>
       </div>
-      <div className="mt-3 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {KEY_FIGURE_ORDER.map((key, i) => {
           const history = historyByKey.get(key) ?? [];
           const current = history[0];
@@ -164,7 +182,7 @@ export default async function AccueilContent({
               key={key}
               variant={KPI_VARIANTS[i % KPI_VARIANTS.length]}
               label={keyFigureLabel(key, current.label)}
-              currentNote={current.note ?? `${current.value} ${current.unit}`}
+              currentNote={formatAmount(current.value, current.unit)}
               history={history.map((h) => ({
                 year: h.year,
                 note: h.note ?? `${h.value} ${h.unit}`,

@@ -51,7 +51,7 @@ export default function ChiffreCard({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className={`rounded-2xl px-4 py-5 ${VARIANT_CLASSES[variant]}`}>
+    <div className={`rounded-2xl px-[18px] py-4 ${VARIANT_CLASSES[variant]}`}>
       <button type="button" className="w-full text-left" onClick={() => setOpen((o) => !o)}>
         <p
           className={`text-[11px] font-semibold tracking-wide uppercase ${VARIANT_SUBTLE[variant]}`}
