@@ -100,53 +100,6 @@ export interface AccueilContentProps {
 // réutilisé par la vraie page client (companyId/greetingName/offerTier
 // dérivés de la session) et la prévisualisation admin (dérivés de l'URL) --
 // jamais deux implémentations de ce tableau de bord.
-// LBP-CLIENT-01 (finitions fidélité, 01/10/2026) : amorce "Vos rappels de
-// la semaine" avec les échéances calendrier de la semaine en cours, une
-// seule fois (si aucune tâche n'existe encore pour ce profil) -- porté 1:1
-// depuis seedTasks() (LBP_V9.9_Studio.html, ligne ~4384 : "wk.slice(0,4)").
-// Une fois copiées, ces tâches sont indépendantes du calendrier (titre/
-// statut modifiables sans jamais répercuter sur calendar_events) --
-// fidèle au modèle du prototype, où TASKS est un tableau autonome, pas un
-// lien vivant vers CAL_BASE/RH_CAL.
-async function seedWeeklyTasks(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  userId: string,
-): Promise<TaskRow[]> {
-  const now = new Date();
-  const dayOfWeek = now.getDay() || 7;
-  const monday = new Date(now);
-  monday.setDate(now.getDate() - (dayOfWeek - 1));
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-  const iso = (d: Date) => d.toISOString().slice(0, 10);
-
-  const { data: weekEvents } = await supabase
-    .from("calendar_events")
-    .select("title, event_date, category")
-    .gte("event_date", iso(monday))
-    .lte("event_date", iso(sunday))
-    .order("event_date")
-    .limit(4);
-
-  if (!weekEvents || weekEvents.length === 0) return [];
-
-  const { data: inserted } = await supabase
-    .from("tasks")
-    .insert(
-      weekEvents.map((e) => ({
-        profile_id: userId,
-        title: e.title,
-        due_date: e.event_date,
-        note: e.category,
-        status: "todo" as const,
-      })),
-    )
-    .select("id, title, due_date, note, status")
-    .returns<TaskRow[]>();
-
-  return inserted ?? [];
-}
-
 export default async function AccueilContent({
   companyId,
   greetingName,
@@ -165,18 +118,17 @@ export default async function AccueilContent({
   const effectiveCalYear = calYear ?? today.getFullYear();
   const effectiveCalMonth = calMonth ?? today.getMonth() + 1;
 
+  // LBP-CLIENT-01 (correctif, 01/10/2026) : amorçage + lecture faits en un
+  // seul appel atomique côté base (seed_weekly_tasks, migration
+  // 20261001130000) -- un "SELECT puis INSERT si vide" fait ici en JS
+  // n'est pas atomique et se dupliquait en usage réel (deux rendus quasi
+  // simultanés du Server Component, ex. pré-chargement de <Link> par
+  // Next.js + navigation réelle, voyaient chacun "aucune tâche" et
+  // inséraient chacun leur lot).
   let weeklyTasks: TaskRow[] = [];
   if (userId) {
-    const { data: existingTasks } = await supabase
-      .from("tasks")
-      .select("id, title, due_date, note, status")
-      .eq("profile_id", userId)
-      .order("due_date", { ascending: true, nullsFirst: false })
-      .returns<TaskRow[]>();
-    weeklyTasks =
-      existingTasks && existingTasks.length > 0
-        ? existingTasks
-        : await seedWeeklyTasks(supabase, userId);
+    const { data } = await supabase.rpc("seed_weekly_tasks", { p_profile_id: userId });
+    weeklyTasks = (data as TaskRow[] | null) ?? [];
   }
 
   const [{ data: keyFigures }, { data: families }, { data: themes }, { data: recentArticles }] =

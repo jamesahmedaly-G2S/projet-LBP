@@ -2,13 +2,11 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { pad2, monthWeeks } from "@/lib/client/month-grid";
 import {
-  CALENDAR_THEMES,
-  EVENT_TYPE_LABEL,
-  EVENT_SCOPE_LABEL,
   TYPE_DOT_CLASS,
   type CalendarEventType,
   type CalendarEventScope,
 } from "@/lib/client/calendar-taxonomy";
+import CalendarFilters from "./CalendarFilters";
 
 // LBP-CLIENT-01 (finitions fidélité, 01/10/2026) : widget calendrier
 // compact de l'Accueil -- manquait entièrement, signalé par l'utilisateur
@@ -24,6 +22,37 @@ import {
 // global) -- un clic sur un jour navigue directement vers la vraie page
 // /calendrier-rh (déjà construite, détail + ajout), plutôt que dupliquer
 // cette logique ici.
+//
+// Correctif (01/10/2026), suite à un retour direct de l'utilisateur
+// ("le design du calendrier toujours pas fidèle") : la première version
+// réinventait la mise en forme (cellules carrées, filtres empilés avec
+// bouton "Filtrer", pas de libellé "Filtrer par", pas de texte d'aide, pas
+// de distinction visuelle "jour avec événement", conteneur sans ombre).
+// Reporté ligne à ligne contre le vrai CSS (`.dh-cal`/`.cal-*`, feuille de
+// style ~L608-631 et ~L661-673 -- ces règles arrivent APRÈS celles
+// ~L549-569 dans le fichier et les emportent en cascade, à spécificité
+// égale) :
+// - `.dh-cal{border-radius:18px;box-shadow:var(--shadow-sm)}` puis
+//   `.dh-cal{padding:18px 20px}` (règle plus tardive, ne change QUE le
+//   padding) -- jamais un `rounded-2xl p-4` deviné.
+// - `.cal-nav{background:var(--panel);border-radius:8px;width/height:26px}`
+//   -- de vrais boutons carrés, pas juste du texte `‹ ›` sans fond.
+// - `.cal-cell{padding:9px 0 15px;border-radius:9px}` + points positionnés
+//   en absolu en bas (`.cal-dots{position:absolute;bottom:4px}`) -- pas des
+//   cellules carrées (`aspect-square`) avec contenu centré en colonne.
+// - `.cal-cell.hasev{background:#FAF9F7;font-weight:700}` (jour avec
+//   événement, distinct de "aujourd'hui") et `.cal-cell.today{background:
+//   var(--sage-deep)}` -- `--sage-deep` vaut en réalité `#445068` (le nom
+//   de variable date d'une itération "vert sauge" antérieure à la charte
+//   G2S, jamais renommé), exactement notre `--color-ink` (carbone) --
+//   jamais `primary-soft`/`text-primary` (framboise) deviné.
+// - `.cal-flabel`/`.cal-hint` (libellé "Filtrer par" et texte d'aide sous
+//   la grille) absents de notre version -- ajoutés.
+// - Les filtres s'appliquent au changement (`onchange='...;renderCalendar()'`),
+//   aucun bouton "Filtrer" dans le vrai marquage -- extrait dans
+//   `CalendarFilters.tsx` (Client Component, `requestSubmit()` au
+//   `onChange`) pour porter ce comportement sans rendre tout le widget
+//   client.
 const MONTH_NAMES = [
   "Janvier",
   "Février",
@@ -115,102 +144,69 @@ export default async function CompactCalendar({
   return (
     <div
       id="calendrier"
-      className="rounded-2xl border border-border bg-white/60 p-4 backdrop-blur-[1px]"
+      className="rounded-[18px] border border-border bg-white/60 px-5 py-[18px] shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)] backdrop-blur-[1px]"
     >
       <div className="flex items-center justify-between">
         <Link
           href={buildHref({ year: prevMonth.year, month: prevMonth.month })}
-          className="px-1 text-muted hover:text-primary"
+          className="grid h-[26px] w-[26px] place-items-center rounded-lg bg-[#F5F0EC] text-[15px] text-ink hover:bg-[#EFE7E1]"
         >
           ‹
         </Link>
-        <p className="text-[13.5px] font-bold text-ink">
+        <p className="text-[15px] font-extrabold text-ink capitalize">
           {MONTH_NAMES[month - 1]} {year}
         </p>
         <Link
           href={buildHref({ year: nextMonth.year, month: nextMonth.month })}
-          className="px-1 text-muted hover:text-primary"
+          className="grid h-[26px] w-[26px] place-items-center rounded-lg bg-[#F5F0EC] text-[15px] text-ink hover:bg-[#EFE7E1]"
         >
           ›
         </Link>
       </div>
 
-      <form action={`${linkPrefix}/accueil`} className="mt-3 flex flex-col gap-1.5">
-        <input type="hidden" name="cal_annee" value={year} />
-        <input type="hidden" name="cal_mois" value={month} />
-        <select
-          name="cal_theme"
-          defaultValue={theme ?? ""}
-          className="rounded-md border border-border px-2 py-1 text-[11.5px] text-ink"
-        >
-          <option value="">Toutes les thématiques</option>
-          {CALENDAR_THEMES.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-        <div className="flex gap-1.5">
-          <select
-            name="cal_type"
-            defaultValue={typeEv ?? ""}
-            className="flex-1 rounded-md border border-border px-2 py-1 text-[11.5px] text-ink"
-          >
-            <option value="">Type d&apos;événement</option>
-            {(Object.keys(EVENT_TYPE_LABEL) as CalendarEventType[]).map((t) => (
-              <option key={t} value={t}>
-                {EVENT_TYPE_LABEL[t]}
-              </option>
-            ))}
-          </select>
-          <select
-            name="cal_portee"
-            defaultValue={scope ?? ""}
-            className="flex-1 rounded-md border border-border px-2 py-1 text-[11.5px] text-ink"
-          >
-            <option value="">Portée</option>
-            {(Object.keys(EVENT_SCOPE_LABEL) as CalendarEventScope[]).map((s) => (
-              <option key={s} value={s}>
-                {EVENT_SCOPE_LABEL[s]}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
-          type="submit"
-          className="rounded-full bg-primary py-1 text-[11.5px] font-semibold text-white hover:bg-primary-hover"
-        >
-          Filtrer
-        </button>
-      </form>
+      <CalendarFilters
+        action={`${linkPrefix}/accueil`}
+        year={year}
+        month={month}
+        theme={theme}
+        typeEv={typeEv}
+        scope={scope}
+      />
 
-      <div className="mt-3 grid grid-cols-7 gap-0.5 text-center text-[10px] font-semibold text-muted">
+      <div className="mt-3 grid grid-cols-7 text-center text-[11px] font-extrabold text-muted">
         {WEEKDAY_LABELS.map((w, i) => (
-          <div key={i}>{w}</div>
+          <div key={i} className="py-[3px]">
+            {w}
+          </div>
         ))}
       </div>
-      <div className="mt-1 grid grid-cols-7 gap-0.5">
+      <div className="grid grid-cols-7 gap-1">
         {weeks.flatMap((week, wi) =>
           week.map((d, di) => {
             if (d === null) return <div key={`${wi}-${di}`} />;
             const ds = `${year}-${pad2(month)}-${pad2(d)}`;
             const dEvents = byDate.get(ds) ?? [];
             const isToday = ds === todayStr;
+            const hasEvents = dEvents.length > 0;
             return (
               <Link
                 key={ds}
                 href={`${linkPrefix}/calendrier-rh?annee=${year}&mois=${month}&jour=${ds}`}
-                className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded text-[11px] hover:bg-primary-soft ${
-                  isToday ? "bg-primary-soft font-bold text-primary" : "text-ink"
+                className={`relative rounded-[9px] py-[9px] pb-[15px] text-center text-[13.5px] hover:bg-[#F5F0EC] ${
+                  isToday
+                    ? "bg-ink font-extrabold text-white"
+                    : hasEvents
+                      ? "bg-[#FAF9F7] font-bold text-ink"
+                      : "text-ink"
                 }`}
               >
                 {d}
-                {dEvents.length > 0 && (
-                  <span className="flex gap-[1.5px]">
+                {hasEvents && (
+                  <span className="absolute right-0 bottom-1 left-0 flex justify-center gap-0.5">
                     {dEvents.slice(0, 3).map((e) => (
                       <span
                         key={e.id}
-                        className={`h-1 w-1 rounded-full ${e.event_type ? TYPE_DOT_CLASS[e.event_type] : "bg-muted"}`}
+                        className={`h-[7px] w-[7px] rounded-full ${e.event_type ? TYPE_DOT_CLASS[e.event_type] : "bg-muted"}`}
                       />
                     ))}
                   </span>
@@ -221,17 +217,21 @@ export default async function CompactCalendar({
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-x-2.5 gap-y-1 text-[10px] text-muted">
+      <div className="mt-3 flex flex-wrap gap-x-3.5 gap-y-1 text-[11.5px] text-muted">
         <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-danger" /> Obligatoire
+          <span className="h-[9px] w-[9px] rounded-full bg-danger" /> Obligatoire
         </span>
         <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-warning" /> Conseil
+          <span className="h-[9px] w-[9px] rounded-full bg-warning" /> Conseil
         </span>
         <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Actualité
+          <span className="h-[9px] w-[9px] rounded-full bg-primary" /> Actualité
         </span>
       </div>
+
+      <p className="mt-[10px] text-[11.5px] text-muted italic">
+        Cliquez sur un jour pour consulter ou ajouter un événement.
+      </p>
 
       <Link
         href={`${linkPrefix}/calendrier-rh`}
