@@ -80,6 +80,12 @@ Vérifié en détail contre `LBP_V9.9_Studio.html` avant de construire :
 
 **Vérifié** : test réel navigateur, session cliente ALPHA -- sablier et piles de pièces bien visibles en fond d'Accueil, voile minéral laissant les encarts parfaitement lisibles, carte calendrier translucide laissant deviner le sablier derrière (capture zoomée dédiée). `/actu` revérifié sans fond (aucune entrée dans la table) -- rendu identique à avant ce correctif, aucune régression.
 
+**Correctif (01/10/2026)**, suite à un retour de l'utilisateur ("trop zoomé, le sablier est tronqué, les pièces ne sont pas visibles, la couleur de fond n'est pas pareil avec le référentiel v9") : `public/page-bg/accueil.jpg` était la photo Pexels **brute** (portrait, 3766×5648) -- `background-size:cover;background-position:center` sur un viewport large (ex. 1440×1000) ne garde que la bande centrale de cette image très haute, qui coupe le sablier et sort entièrement les pièces du cadre (en bas de la photo d'origine).
+
+Plutôt que de deviner un nouveau recadrage, extraction directe du JPEG réellement intégré dans `LBP_V9.9_Studio.html` (`body:has(#v-overview.active)`, base64 décodé) : Pauline n'utilise pas la photo Pexels telle quelle, mais un cadrage **paysage** déjà préparé (2400×1600, ton sépia plus chaud que l'original, sablier + pièces repoussés au tiers droit avec une grande zone neutre à gauche pour les encarts) -- exactement l'image à reproduire pour être fidèle, pas une réinterprétation de la photo source. `public/page-bg/accueil.jpg` remplacé par cette image exacte.
+
+**Vérifié** : capture réelle navigateur (session cliente ALPHA, même viewport 1440×1000) -- sablier entier et 3 piles de pièces visibles en bas à droite, ton de fond conforme à la référence.
+
 ---
 
 ## LBP-CLIENT-02 — Mon équipe (renommé "Mon entreprise") 🟡 Partiellement fait
