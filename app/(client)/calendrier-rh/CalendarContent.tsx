@@ -6,11 +6,14 @@ import { Eyebrow } from "../_components/Eyebrow";
 import { SectionTitle } from "../_components/SectionTitle";
 import AddEventForm from "./AddEventForm";
 import DeleteEventButton from "./DeleteEventButton";
+import { pad2, monthWeeks } from "@/lib/client/month-grid";
 import {
   CALENDAR_THEMES,
   EVENT_TYPE_LABEL,
   EVENT_SCOPE_LABEL,
   PRIORITY_LABEL,
+  TYPE_BADGE_TONE,
+  TYPE_DOT_CLASS,
   type CalendarEventType,
   type CalendarEventScope,
 } from "@/lib/client/calendar-taxonomy";
@@ -23,26 +26,9 @@ import {
 // Pâques par l'algorithme de Meeus) est explicitement hors phase 1
 // (docs/ARCHITECTURE.md §7.1), laissé intact et non consommé ici.
 //
-// Couleurs par type : le prototype utilise 3 teintes propres (EVCOL, roses/
-// jaune/violet) distinctes de la charte V37 déjà appliquée à tout le reste
-// du LBP Client (LBP-CLIENT-16). Reprendre ces couleurs telles quelles
-// aurait réintroduit une palette concurrente -- utilisé à la place les
-// tons sémantiques déjà réutilisés partout ailleurs (Badge : "red" pour
-// Obligatoire, "amber" pour Conseil, "blue" pour Actualité).
-const TYPE_BADGE_TONE: Record<CalendarEventType, "red" | "amber" | "blue"> = {
-  mandatory: "red",
-  advisory: "amber",
-  news: "blue",
-};
-
-// Classes Tailwind complètes (jamais interpolées : le JIT de Tailwind ne
-// détecte pas `bg-${x}`, seulement des classes littérales présentes dans
-// le source).
-const TYPE_DOT_CLASS: Record<CalendarEventType, string> = {
-  mandatory: "bg-danger",
-  advisory: "bg-warning",
-  news: "bg-primary",
-};
+// Couleurs par type, taxonomie, pad2/monthWeeks : voir
+// lib/client/calendar-taxonomy.ts et lib/client/month-grid.ts, partagés
+// avec CompactCalendar.tsx (widget compact de l'Accueil, LBP-CLIENT-01).
 
 const MONTH_NAMES = [
   "Janvier",
@@ -71,23 +57,6 @@ interface CalendarEventRow {
   note: string | null;
   company_id: string | null;
   profile_id: string | null;
-}
-
-function pad2(n: number): string {
-  return String(n).padStart(2, "0");
-}
-
-function monthWeeks(year: number, month: number): (number | null)[][] {
-  const firstWeekday = (new Date(year, month - 1, 1).getDay() + 6) % 7; // 0 = lundi
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const cells: (number | null)[] = [
-    ...Array(firstWeekday).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ];
-  while (cells.length % 7 !== 0) cells.push(null);
-  const weeks: (number | null)[][] = [];
-  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
-  return weeks;
 }
 
 export default async function CalendarContent({

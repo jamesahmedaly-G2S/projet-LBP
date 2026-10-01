@@ -6,11 +6,12 @@ import {
   type StudioOfferTier,
 } from "@/lib/studio/offer-tiers";
 import { keyFigureLabel } from "@/lib/client/key-figure-labels";
+import type { CalendarEventType, CalendarEventScope } from "@/lib/client/calendar-taxonomy";
 import { Card } from "@/ui-kit/Card";
-import { Eyebrow } from "../_components/Eyebrow";
-import { SectionTitle } from "../_components/SectionTitle";
 import ChiffreCard, { type KpiVariant } from "./ChiffreCard";
 import FamilyCard, { type FamilyVariant } from "./FamilyCard";
+import RemindersWidget, { type TaskRow } from "./RemindersWidget";
+import CompactCalendar from "./CompactCalendar";
 
 const KEY_FIGURE_ORDER = ["smic-h", "smic-m", "pmss", "pass"];
 
@@ -84,19 +85,99 @@ export interface AccueilContentProps {
    * étendu), pour ne jamais renvoyer l'admin vers une route qui lui
    * répondrait "Accès refusé". */
   linkPrefix: string;
+  /** Absent en prévisualisation admin (pas de vrai profil client dont
+   * afficher/amorcer les tâches personnelles) -- le widget "Vos rappels de
+   * la semaine" ne s'affiche alors pas. */
+  userId?: string;
+  calYear?: number;
+  calMonth?: number;
+  calTheme?: string | null;
+  calType?: CalendarEventType | null;
+  calScope?: CalendarEventScope | null;
 }
 
 // LBP-CLIENT-01 : "Accueil" [§1.2, p.8-9]. Contenu extrait pour être
 // réutilisé par la vraie page client (companyId/greetingName/offerTier
 // dérivés de la session) et la prévisualisation admin (dérivés de l'URL) --
 // jamais deux implémentations de ce tableau de bord.
+// LBP-CLIENT-01 (finitions fidélité, 01/10/2026) : amorce "Vos rappels de
+// la semaine" avec les échéances calendrier de la semaine en cours, une
+// seule fois (si aucune tâche n'existe encore pour ce profil) -- porté 1:1
+// depuis seedTasks() (LBP_V9.9_Studio.html, ligne ~4384 : "wk.slice(0,4)").
+// Une fois copiées, ces tâches sont indépendantes du calendrier (titre/
+// statut modifiables sans jamais répercuter sur calendar_events) --
+// fidèle au modèle du prototype, où TASKS est un tableau autonome, pas un
+// lien vivant vers CAL_BASE/RH_CAL.
+async function seedWeeklyTasks(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+): Promise<TaskRow[]> {
+  const now = new Date();
+  const dayOfWeek = now.getDay() || 7;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (dayOfWeek - 1));
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+
+  const { data: weekEvents } = await supabase
+    .from("calendar_events")
+    .select("title, event_date, category")
+    .gte("event_date", iso(monday))
+    .lte("event_date", iso(sunday))
+    .order("event_date")
+    .limit(4);
+
+  if (!weekEvents || weekEvents.length === 0) return [];
+
+  const { data: inserted } = await supabase
+    .from("tasks")
+    .insert(
+      weekEvents.map((e) => ({
+        profile_id: userId,
+        title: e.title,
+        due_date: e.event_date,
+        note: e.category,
+        status: "todo" as const,
+      })),
+    )
+    .select("id, title, due_date, note, status")
+    .returns<TaskRow[]>();
+
+  return inserted ?? [];
+}
+
 export default async function AccueilContent({
   companyId,
   greetingName,
   offerTier,
   linkPrefix,
+  userId,
+  calYear,
+  calMonth,
+  calTheme = null,
+  calType = null,
+  calScope = null,
 }: AccueilContentProps) {
   const supabase = await createClient();
+
+  const today = new Date();
+  const effectiveCalYear = calYear ?? today.getFullYear();
+  const effectiveCalMonth = calMonth ?? today.getMonth() + 1;
+
+  let weeklyTasks: TaskRow[] = [];
+  if (userId) {
+    const { data: existingTasks } = await supabase
+      .from("tasks")
+      .select("id, title, due_date, note, status")
+      .eq("profile_id", userId)
+      .order("due_date", { ascending: true, nullsFirst: false })
+      .returns<TaskRow[]>();
+    weeklyTasks =
+      existingTasks && existingTasks.length > 0
+        ? existingTasks
+        : await seedWeeklyTasks(supabase, userId);
+  }
 
   const [{ data: keyFigures }, { data: families }, { data: themes }, { data: recentArticles }] =
     await Promise.all([
@@ -154,17 +235,44 @@ export default async function AccueilContent({
     }
   }
 
-  const dateStr = new Date().toLocaleDateString("fr-FR", {
+  const dateStr = today.toLocaleDateString("fr-FR", {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
   });
+  const timeStr = today.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <Eyebrow>{dateStr}</Eyebrow>
-      <SectionTitle>Bonjour {greetingName} 👋</SectionTitle>
+    <main className="mx-auto max-w-5xl px-6 py-10">
+      {/* LBP-CLIENT-01 (finitions fidélité, 01/10/2026) : "Vos rappels de la
+          semaine" + calendrier compact manquaient entièrement -- signalé par
+          l'utilisateur après vérification directe de la V9.9. Layout
+          dash-top porté 1:1 (grid 1fr 380px -- colonne gauche : date/heure +
+          bandeau "Bonjour" + rappels ; colonne droite : calendrier compact),
+          LBP_V9.9_Studio.html lignes ~10121-10128. L'heure est figée au
+          rendu serveur (pas de minuteur temps réel comme #dashClock, qui
+          tick côté client toutes les secondes dans le prototype) --
+          simplification assumée, sans impact fonctionnel. */}
+      <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
+        <div className="flex flex-col gap-3">
+          <p className="text-[13.5px] font-semibold text-muted capitalize">
+            🗓️ {dateStr} · {timeStr}
+          </p>
+          <div className="rounded-2xl bg-ink p-5 text-white">
+            <p className="text-xl font-extrabold">Bonjour {greetingName} 👋</p>
+          </div>
+          {userId && <RemindersWidget tasks={weeklyTasks} />}
+        </div>
+        <CompactCalendar
+          year={effectiveCalYear}
+          month={effectiveCalMonth}
+          theme={calTheme}
+          typeEv={calType}
+          scope={calScope}
+          linkPrefix={linkPrefix}
+        />
+      </div>
 
       <div className="mt-8 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-ink">Les chiffres clés</h2>

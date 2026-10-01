@@ -50,3 +50,23 @@ export const PRIORITY_LABEL: Record<number, string> = {
   2: "normale",
   3: "haute",
 };
+
+// Partagé entre CalendarContent.tsx (/calendrier-rh) et CompactCalendar.tsx
+// (widget compact de l'Accueil) -- jamais deux copies de ce mapping. Tons
+// sémantiques V37 (voir calendrier-rh/CalendarContent.tsx), pas les
+// couleurs propres EVCOL du prototype (EVENT_TYPE_COLOR ci-dessus),
+// délibérément pour rester cohérent avec le reste du LBP Client re-thémé.
+export const TYPE_BADGE_TONE: Record<CalendarEventType, "red" | "amber" | "blue"> = {
+  mandatory: "red",
+  advisory: "amber",
+  news: "blue",
+};
+
+// Classes Tailwind complètes (jamais interpolées : le JIT de Tailwind ne
+// détecte pas `bg-${x}`, seulement des classes littérales présentes dans
+// le source).
+export const TYPE_DOT_CLASS: Record<CalendarEventType, string> = {
+  mandatory: "bg-danger",
+  advisory: "bg-warning",
+  news: "bg-primary",
+};
