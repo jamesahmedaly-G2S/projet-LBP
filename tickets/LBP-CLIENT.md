@@ -51,6 +51,8 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 **Vérifié** : test réel navigateur avec la session cliente ALPHA — 4 cartes chiffres clés avec leurs 4 teintes réelles, contraste du texte vérifié lisible sur la carte à fond clair (zoom dédié, le rendu semblait pâle en captures pleine page mais est net en réel), 3 cartes famille avec leurs vraies couleurs, cohérent avec la vraie capture du prototype comparée en amont.
 
+**Correctif (01/10/2026)**, suite à un retour de l'utilisateur ("la largeur des bandeaux entourant les chiffres clés est trop grand") : dans le vrai prototype, les cartes chiffres clés n'occupent que la colonne de gauche du tableau de bord (`.dash-top{grid-template-columns:1fr 380px}`, le calendrier compact prenant les 380px de droite) — vraisemblablement plus étroite que notre pleine largeur, puisque notre page n'a pas cette colonne de calendrier (toujours hors phase 1). Corrigé en limitant le conteneur de la grille à `max-w-2xl` (au lieu de la pleine largeur du `<main>`) et en augmentant le padding vertical de `ChiffreCard` (`p-4` → `px-4 py-5`) — cartes plus étroites et un peu plus hautes, vérifié en réel.
+
 **Non fait — reste ouvert** : rappels de semaine interactifs et calendrier compact (toujours hors phase 1, inchangé).
 
 ---

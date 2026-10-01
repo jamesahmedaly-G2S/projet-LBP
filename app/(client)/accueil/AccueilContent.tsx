@@ -154,7 +154,7 @@ export default async function AccueilContent({
           Tous les chiffres Paie →
         </Link>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mt-3 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
         {KEY_FIGURE_ORDER.map((key, i) => {
           const history = historyByKey.get(key) ?? [];
           const current = history[0];
