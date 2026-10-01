@@ -9,22 +9,32 @@ import { keyFigureLabel } from "@/lib/client/key-figure-labels";
 import { Card } from "@/ui-kit/Card";
 import { Eyebrow } from "../_components/Eyebrow";
 import { SectionTitle } from "../_components/SectionTitle";
-import ChiffreCard from "./ChiffreCard";
+import ChiffreCard, { type KpiVariant } from "./ChiffreCard";
+import FamilyCard, { type FamilyVariant } from "./FamilyCard";
 
 const KEY_FIGURE_ORDER = ["smic-h", "smic-m", "pmss", "pass"];
+const KPI_VARIANTS: KpiVariant[] = ["ka", "kb", "kc", "kd"];
 
-const FAMILY_DECOR: Record<string, { icon: string; example: string }> = {
+// LBP-CLIENT-01 (finitions design, 01/10/2026) : couleur par famille portée
+// 1:1 depuis le vrai prototype (.fam-card.ta/tb/tc, "COUCHE CHARTE G2S") --
+// voir FamilyCard.tsx pour le détail des couleurs. Associée par code plutôt
+// que par index : robuste si l'ordre réel en base (display_order) diverge
+// de l'ordre du prototype.
+const FAMILY_DECOR: Record<string, { icon: string; example: string; variant: FamilyVariant }> = {
   "FAM-VIE": {
     icon: "👤",
     example: "Embauche · contrat · période d'essai · absences · protection sociale · départ",
+    variant: "ta",
   },
   "FAM-REM": {
     icon: "💶",
     example: "Salaire · primes · avantages en nature · congés · frais · net",
+    variant: "tb",
   },
   "FAM-COT": {
     icon: "📊",
     example: "Cotisations sociales · exonérations · réductions · charges patronales · DSN",
+    variant: "tc",
   },
 };
 
@@ -145,13 +155,14 @@ export default async function AccueilContent({
         </Link>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {KEY_FIGURE_ORDER.map((key) => {
+        {KEY_FIGURE_ORDER.map((key, i) => {
           const history = historyByKey.get(key) ?? [];
           const current = history[0];
           if (!current) return null;
           return (
             <ChiffreCard
               key={key}
+              variant={KPI_VARIANTS[i % KPI_VARIANTS.length]}
               label={keyFigureLabel(key, current.label)}
               currentNote={current.note ?? `${current.value} ${current.unit}`}
               history={history.map((h) => ({
@@ -262,17 +273,15 @@ export default async function AccueilContent({
         {(families ?? []).map((f) => {
           const decor = FAMILY_DECOR[f.code];
           return (
-            <Link key={f.id} href={`${linkPrefix}/bibliotheque`}>
-              <Card className="h-full hover:border-primary">
-                <p className="text-lg">
-                  {decor?.icon} {f.name}
-                </p>
-                {decor && <p className="mt-1 text-xs text-muted">{decor.example}</p>}
-                <p className="mt-2 text-xs text-primary">
-                  {themeCountByFamily.get(f.id) ?? 0} thématiques →
-                </p>
-              </Card>
-            </Link>
+            <FamilyCard
+              key={f.id}
+              href={`${linkPrefix}/bibliotheque`}
+              icon={decor?.icon ?? "📁"}
+              name={f.name}
+              example={decor?.example}
+              themeCount={themeCountByFamily.get(f.id) ?? 0}
+              variant={decor?.variant ?? "tb"}
+            />
           );
         })}
       </div>

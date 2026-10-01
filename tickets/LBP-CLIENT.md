@@ -44,6 +44,15 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 **Vérifié** : test réel navigateur — parcours complet de login jusqu'à `/accueil`, salutation réelle, 4 chiffres clés réels avec valeurs exactes (12,31 € etc.), historique réel déroulé au clic (2021 → 10,25 €), offre réelle affichée (LBP Métier, 349 € HT/an), 3 familles réelles avec comptage exact de thèmes (5/10/4, cohérent avec les 153 fiches importées + les thèmes de démo). Un vrai bug trouvé et corrigé en testant : le symbole "€" apparaissait en double lorsque la valeur stockée dans `note` le contenait déjà.
 
+**Alignement visuel (01/10/2026)**, suite à la refonte du chrome (LBP-CLIENT-16) : les cartes "Les chiffres clés" et "La bibliothèque" étaient restées en `Card` blanc neutre, pas encore alignées sur le vrai rendu coloré du prototype. Vérifié contre le vrai CSS (`LBP_V9.9_Studio.html`, "COUCHE CHARTE G2S" en fin de feuille, seule couche qui fait foi) avant de construire :
+
+- **4 cartes chiffres clés** (`ChiffreCard.tsx`) : couleurs portées 1:1 (`.kpi-card.ka/kb/kc/kd`) — carbone, framboise, framboise foncé (texte blanc les 3), cream-3 (seule variante à fond clair/texte carbone, `.kpi-card.kd *{color:var(--carbone)}` dans le vrai CSS — piège repéré avant de coder, pas après).
+- **3 cartes famille** (`FamilyCard.tsx`, nouveau) : couleurs portées 1:1 (`.fam-card.ta/tb/tc`) — cream-3/framboise foncé, bleu-gris-clair/carbone foncé, rose clair/framboise. Délibérément un composant et des variantes **distincts** de `ChiffreCard` malgré une coïncidence de fond apparente (`ta` et `kd` partagent le même cream-3, mais pas la même couleur de texte) — jamais réutilisé un type pour masquer une vraie différence.
+
+**Vérifié** : test réel navigateur avec la session cliente ALPHA — 4 cartes chiffres clés avec leurs 4 teintes réelles, contraste du texte vérifié lisible sur la carte à fond clair (zoom dédié, le rendu semblait pâle en captures pleine page mais est net en réel), 3 cartes famille avec leurs vraies couleurs, cohérent avec la vraie capture du prototype comparée en amont.
+
+**Non fait — reste ouvert** : rappels de semaine interactifs et calendrier compact (toujours hors phase 1, inchangé).
+
 ---
 
 ## LBP-CLIENT-02 — Mon équipe (renommé "Mon entreprise") 🟡 Partiellement fait
