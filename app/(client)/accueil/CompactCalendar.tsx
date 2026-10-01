@@ -113,7 +113,10 @@ export default async function CompactCalendar({
   const nextMonth = month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 };
 
   return (
-    <div id="calendrier" className="rounded-2xl border border-border bg-surface p-4">
+    <div
+      id="calendrier"
+      className="rounded-2xl border border-border bg-white/60 p-4 backdrop-blur-[1px]"
+    >
       <div className="flex items-center justify-between">
         <Link
           href={buildHref({ year: prevMonth.year, month: prevMonth.month })}

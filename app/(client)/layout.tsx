@@ -7,6 +7,7 @@ import ClientNav from "./_components/ClientNav";
 import MobileNav from "./_components/MobileNav";
 import AccountBadge from "./_components/AccountBadge";
 import AssistanceButton from "./_components/AssistanceButton";
+import PageBackdrop from "./_components/PageBackdrop";
 
 // Fondations LBP Client (ARCHITECTURE.md §4 : app/(client)/ + app/(admin)/
 // dans le même projet Next.js, même base Supabase — jamais deux applis
@@ -47,7 +48,8 @@ import AssistanceButton from "./_components/AssistanceButton";
 // Construit indépendamment du prototype sur ce point précis.
 export default function ClientLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="theme-client min-h-screen bg-page-bg">
+    <div className="theme-client min-h-screen">
+      <PageBackdrop />
       <header className="sticky top-0 z-50 bg-primary px-6 py-2.5 text-white">
         <div className="flex flex-wrap items-center gap-3">
           <Link href="/accueil" className="flex shrink-0 items-center gap-2.5">
