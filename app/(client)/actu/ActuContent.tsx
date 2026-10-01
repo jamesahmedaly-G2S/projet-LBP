@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/ui-kit/Card";
-import { Badge } from "@/ui-kit/Badge";
 import { Eyebrow } from "../_components/Eyebrow";
 import { SectionTitle } from "../_components/SectionTitle";
+import ArticleCover from "./ArticleCover";
 
 interface ArticleRow {
   id: string;
@@ -138,50 +138,74 @@ export default async function ActuContent({
         <>
           {featured && (
             <Link href={`${linkPrefix}/actu/${featured.id}`} className="mt-6 block">
-              <Card className="hover:border-primary">
-                <div className="flex flex-col gap-4 sm:flex-row">
-                  {featured.image_url && (
+              <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-primary sm:flex-row">
+                <div className="relative sm:w-[46%] sm:shrink-0">
+                  {featured.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={featured.image_url}
                       alt=""
-                      className="h-40 w-full rounded-md object-cover sm:w-56"
+                      className="aspect-video h-full w-full object-cover sm:aspect-auto sm:min-h-[260px]"
                     />
+                  ) : (
+                    <ArticleCover category={featured.category} type={featured.type} featured />
                   )}
-                  <div>
-                    {featured.category && <Badge tone="blue">{featured.category}</Badge>}
-                    <h2 className="mt-2 text-lg font-semibold text-ink">{featured.title}</h2>
-                    <p className="mt-1 text-sm text-ink">{excerpt(featured.content, 260)}</p>
-                    <p className="mt-2 text-xs text-muted">
-                      {featured.author && <>{featured.author} · </>}
-                      {new Date(featured.published_at).toLocaleDateString("fr-FR")}
-                      {featured.type === "pdf"
-                        ? " · Dossier PDF"
-                        : featured.reading_time && ` · ${featured.reading_time}`}
-                    </p>
-                  </div>
+                  <span className="absolute top-3.5 left-3.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-extrabold tracking-wide text-primary uppercase">
+                    À la une
+                  </span>
                 </div>
-              </Card>
+                <div className="flex flex-1 flex-col p-5 sm:p-6">
+                  <p className="mb-1.5 text-[11px] font-bold tracking-[0.16em] text-primary uppercase">
+                    {featured.category ?? "Analyse"}
+                  </p>
+                  <h2 className="text-xl font-extrabold text-ink">{featured.title}</h2>
+                  <p className="mt-2 flex-1 text-[13.5px] leading-relaxed text-muted">
+                    {excerpt(featured.content, 260)}
+                  </p>
+                  <p className="mt-3 text-[11.5px] text-muted">
+                    {featured.author && <>{featured.author} · </>}
+                    {new Date(featured.published_at).toLocaleDateString("fr-FR")}
+                    {featured.type === "pdf"
+                      ? " · Dossier PDF"
+                      : featured.reading_time && ` · ${featured.reading_time}`}
+                  </p>
+                  <span className="mt-4 self-start rounded-full bg-primary px-4 py-2 text-sm font-bold text-white">
+                    {featured.type === "pdf" ? "Ouvrir le dossier →" : "Lire l'article →"}
+                  </span>
+                </div>
+              </div>
             </Link>
           )}
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {pageItems.map((a) => (
-              <Link key={a.id} href={`${linkPrefix}/actu/${a.id}`}>
-                <Card className="h-full hover:border-primary">
-                  {a.image_url && (
+              <Link key={a.id} href={`${linkPrefix}/actu/${a.id}`} className="group">
+                <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-all group-hover:-translate-y-0.5 group-hover:border-[#ded9db]">
+                  {a.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={a.image_url} alt="" className="h-32 w-full rounded-md object-cover" />
+                    <img src={a.image_url} alt="" className="aspect-video w-full object-cover" />
+                  ) : (
+                    <ArticleCover category={a.category} type={a.type} />
                   )}
-                  {a.category && <Badge tone="blue">{a.category}</Badge>}
-                  <h3 className="mt-2 text-sm font-semibold text-ink">{a.title}</h3>
-                  <p className="mt-1 text-xs text-muted">{excerpt(a.content, 130)}</p>
-                  <p className="mt-2 text-xs text-muted">
-                    {a.author && <>{a.author} · </>}
-                    {new Date(a.published_at).toLocaleDateString("fr-FR")}
-                    {a.type === "pdf" ? " · Dossier PDF" : a.reading_time && ` · ${a.reading_time}`}
-                  </p>
-                </Card>
+                  <div className="flex flex-1 flex-col p-4">
+                    <p className="mb-1.5 text-[11px] font-bold tracking-[0.16em] text-primary uppercase">
+                      {a.category ?? "Analyse"}
+                    </p>
+                    <h3 className="text-[16.5px] leading-snug font-extrabold text-ink group-hover:text-primary">
+                      {a.title}
+                    </h3>
+                    <p className="mt-2 flex-1 text-[13px] leading-relaxed text-muted">
+                      {excerpt(a.content, 130)}
+                    </p>
+                    <p className="mt-3 text-[11.5px] text-muted">
+                      {a.author && <>{a.author} · </>}
+                      {new Date(a.published_at).toLocaleDateString("fr-FR")}
+                      {a.type === "pdf"
+                        ? " · Dossier PDF"
+                        : a.reading_time && ` · ${a.reading_time}`}
+                    </p>
+                  </div>
+                </div>
               </Link>
             ))}
           </div>

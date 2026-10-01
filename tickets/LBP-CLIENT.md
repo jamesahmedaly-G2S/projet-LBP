@@ -103,6 +103,14 @@ Côté admin (`app/(studio)/administration/actu/`) : liste + formulaire (titre/t
 
 **Vérifié** : test réel navigateur, sessions GoTrue réelles (admin Pauline + client ALPHA `c.moreau@alpha.fr`) — création réelle d'un article en brouillon via le vrai formulaire admin, confirmé **invisible** côté client (`/actu` et notifications), puis publication réelle, confirmé visible côté client (liste, filtre par catégorie, page de détail avec contenu + chips), notification réelle reçue côté client à cet instant précis (pas avant). Accueil confirmé affichant le nouvel article. **Bug réel trouvé et corrigé en testant avec plus de 6 articles publiés** : la une (featured) se répétait à l'identique en haut de chaque page de pagination (page 2, 3...) au lieu de n'apparaître que sur la page 1 — `ActuContent.tsx` calculait `featured` indépendamment de `currentPage`. Corrigé en ne l'affichant que quand `currentPage === 1`, re-vérifié avec 8 articles publiés (1 une + grille de 6 en page 1 + 1 en page 2, sans répétition). Toutes les données de test supprimées après coup (articles + notifications).
 
+**Alignement visuel (01/10/2026)**, suite à la refonte du chrome (LBP-CLIENT-16) : les cartes étaient restées en `Card` blanc neutre. Vérifié contre le vrai code (`avCard()`/`avMedia()`/`AV_COVER`/`AV_MOTIF`, `LBP_V9.9_Studio.html` lignes ~3656-3706) avant de construire : quand un article n'a pas d'image, le prototype génère une couverture — motif SVG (deux arcs concentriques), logo "G2S", libellé en grand — sur l'un de 3 fonds (framboise/carbone/minéral clair), choisis depuis un tag fixe à 3 valeurs.
+
+`ArticleCover.tsx` (nouveau) porte ce motif 1:1 (SVG inline, pas une image à extraire). Adaptation nécessaire sur le choix de couleur : notre `articles.category` est un champ texte **libre** (l'admin tape ce qu'il veut, `ArticlesManager.tsx`), pas les 3 valeurs fixes du prototype — remplacé par un hash déterministe de la catégorie vers l'une des 3 teintes (même catégorie toujours même couleur, sans liste figée). **Bug réel trouvé et corrigé en testant** : un premier hash (`h*31+c`) dégénérait en simple somme de codes de caractères modulo 3 (31 ≡ 1 mod 3), retombant quasi toujours sur la même teinte — vérifié avec les 3 vraies catégories du prototype, qui donnaient toutes 0. Remplacé par FNV-1a, qui distribue correctement même sur un petit modulo.
+
+Carte "à la une" reconstruite en vrai layout 2 colonnes (médias 46 % + corps), badge "À LA UNE", CTA pleine couleur en bas ; cartes de grille avec médias en 16:9, catégorie/titre/extrait/méta.
+
+**Vérifié** : test réel navigateur, 4 articles de test réels (3 catégories différentes + 1 dossier PDF partageant la catégorie de la une) — 3 couleurs de couverture bien distinctes confirmées à l'écran après le correctif du hash, la une et le dossier PDF partageant la même catégorie affichant bien la même couleur. Toutes les données de test supprimées après coup.
+
 ---
 
 ## LBP-CLIENT-05 — Chiffres Paie ✅ Fait
