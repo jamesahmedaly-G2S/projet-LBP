@@ -4,6 +4,7 @@ import { Card } from "@/ui-kit/Card";
 import { Eyebrow } from "../_components/Eyebrow";
 import { SectionTitle } from "../_components/SectionTitle";
 import ArticleCover from "./ArticleCover";
+import ActuFilters from "./ActuFilters";
 
 interface ArticleRow {
   id: string;
@@ -31,6 +32,32 @@ interface ArticleRow {
 // sous-rubriques à 3 thèmes/11 tags par thème (embellissement du
 // prototype, absent du cahier écrit) : filtre simple par catégorie +
 // recherche texte.
+//
+// Correctif fidélité (03/10/2026), suite à un retour de l'utilisateur
+// ("compare bien mot pour mot et taille pour taille") : revérifié contre
+// le vrai marquage (`<div id="v-decrypt">`, ~L2618-2632) et
+// `renderActuGrid()` (~L3762-3796) --
+// - Titre réel : "Actu-Veille · Décrypt RH&Paie" (avec "Veille"), pas
+//   "Actu · Décrypt RH&Paie" -- tronqué par erreur. Correspond au vrai
+//   libellé du bouton de nav lui-même.
+// - Intro réelle : "Lois, décrets, arrêtés, doctrine BOSS,
+//   jurisprudence : la veille sociale de G2S, sourcée et datée, avec ce
+//   qu'il faut vérifier sur vos bulletins et vos déclarations sociales."
+//   (`max-width:720px`) -- la nôtre était une paraphrase inventée.
+// - Option de filtre réelle : "Tous les thèmes" (`av-theme-sel`), pas
+//   "Toutes les catégories".
+// - Placeholder de recherche réel : "Rechercher un article, un
+//   mot-clé…", pas tronqué.
+// - Deux titres de section manquaient entièrement : "À la une" au-dessus
+//   de l'article vedette (`ico('news')+" À la une"`), et "Les dernières
+//   analyses · du plus récent au plus ancien" (non filtré) / "Résultats
+//   · N contenu(s)" (filtré) au-dessus de la grille -- ajoutés.
+// - Le filtre catégorie s'applique au changement dans le vrai marquage
+//   (`onchange="avSetTheme(this.value)"`), pas via un bouton "Filtrer"
+//   (mot absent du vrai marquage) -- même correctif déjà appliqué à
+//   CompactCalendar.tsx (LBP-CLIENT-01) : extrait dans
+//   `ActuFilters.tsx` (Client Component, `requestSubmit()` au
+//   `onChange`).
 const PER_PAGE = 6;
 
 function excerpt(content: string | null, max: number): string {
@@ -72,6 +99,7 @@ export default async function ActuContent({
   const categories = [...new Set((categoryRows ?? []).map((r) => r.category as string))].sort();
 
   const noFilter = !category && !q;
+  const filtered = !noFilter;
   const potentialFeatured = noFilter ? (all[0] ?? null) : null;
   const rest = noFilter ? all.slice(1) : all;
   const pageCount = Math.max(1, Math.ceil(rest.length / PER_PAGE));
@@ -97,38 +125,18 @@ export default async function ActuContent({
   return (
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Actualités &amp; analyses</Eyebrow>
-      <SectionTitle>Actu · Décrypt RH&amp;Paie</SectionTitle>
-      <p className="-mt-3 text-sm text-muted">
-        Les évolutions sociales et réglementaires qui concernent la paie et la masse salariale.
+      <SectionTitle>Actu-Veille · Décrypt RH&amp;Paie</SectionTitle>
+      <p className="mt-1 mb-[18px] max-w-[720px] text-sm text-muted">
+        Lois, décrets, arrêtés, doctrine BOSS, jurisprudence : la veille sociale de G2S, sourcée et
+        datée, avec ce qu&apos;il faut vérifier sur vos bulletins et vos déclarations sociales.
       </p>
 
-      <form className="mt-4 flex flex-wrap gap-2" action={`${linkPrefix}/actu`}>
-        <select
-          name="categorie"
-          defaultValue={category ?? ""}
-          className="rounded-md border border-border px-3 py-2 text-sm text-ink"
-        >
-          <option value="">Toutes les catégories</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <input
-          type="text"
-          name="q"
-          defaultValue={q ?? ""}
-          placeholder="Rechercher un article..."
-          className="flex-1 rounded-md border border-border px-3 py-2 text-sm text-ink"
-        />
-        <button
-          type="submit"
-          className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
-        >
-          Filtrer
-        </button>
-      </form>
+      <ActuFilters
+        action={`${linkPrefix}/actu`}
+        categories={categories}
+        category={category}
+        q={q}
+      />
 
       {all.length === 0 ? (
         <Card className="mt-6">
@@ -137,47 +145,67 @@ export default async function ActuContent({
       ) : (
         <>
           {featured && (
-            <Link href={`${linkPrefix}/actu/${featured.id}`} className="mt-6 block">
-              <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-primary sm:flex-row">
-                <div className="relative sm:w-[46%] sm:shrink-0">
-                  {featured.image_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={featured.image_url}
-                      alt=""
-                      className="aspect-video h-full w-full object-cover sm:aspect-auto sm:min-h-[260px]"
-                    />
-                  ) : (
-                    <ArticleCover category={featured.category} type={featured.type} featured />
-                  )}
-                  <span className="absolute top-3.5 left-3.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-extrabold tracking-wide text-primary uppercase">
-                    À la une
-                  </span>
+            <>
+              <h2 className="mt-6 text-lg font-semibold text-ink">📰 À la une</h2>
+              <Link href={`${linkPrefix}/actu/${featured.id}`} className="mt-3 block">
+                <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-primary sm:flex-row">
+                  <div className="relative sm:w-[46%] sm:shrink-0">
+                    {featured.image_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={featured.image_url}
+                        alt=""
+                        className="aspect-video h-full w-full object-cover sm:aspect-auto sm:min-h-[260px]"
+                      />
+                    ) : (
+                      <ArticleCover category={featured.category} type={featured.type} featured />
+                    )}
+                    <span className="absolute top-3.5 left-3.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-extrabold tracking-wide text-primary uppercase">
+                      À la une
+                    </span>
+                  </div>
+                  <div className="flex flex-1 flex-col p-5 sm:p-6">
+                    <p className="mb-1.5 text-[11px] font-bold tracking-[0.16em] text-primary uppercase">
+                      {featured.category ?? "Analyse"}
+                    </p>
+                    <h2 className="text-xl font-extrabold text-ink">{featured.title}</h2>
+                    <p className="mt-2 flex-1 text-[13.5px] leading-relaxed text-muted">
+                      {excerpt(featured.content, 260)}
+                    </p>
+                    <p className="mt-3 text-[11.5px] text-muted">
+                      {featured.author && <>{featured.author} · </>}
+                      {new Date(featured.published_at).toLocaleDateString("fr-FR")}
+                      {featured.type === "pdf"
+                        ? " · Dossier PDF"
+                        : featured.reading_time && ` · ${featured.reading_time}`}
+                    </p>
+                    <span className="mt-4 self-start rounded-full bg-primary px-4 py-2 text-sm font-bold text-white">
+                      {featured.type === "pdf" ? "Ouvrir le dossier →" : "Lire l'article →"}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-1 flex-col p-5 sm:p-6">
-                  <p className="mb-1.5 text-[11px] font-bold tracking-[0.16em] text-primary uppercase">
-                    {featured.category ?? "Analyse"}
-                  </p>
-                  <h2 className="text-xl font-extrabold text-ink">{featured.title}</h2>
-                  <p className="mt-2 flex-1 text-[13.5px] leading-relaxed text-muted">
-                    {excerpt(featured.content, 260)}
-                  </p>
-                  <p className="mt-3 text-[11.5px] text-muted">
-                    {featured.author && <>{featured.author} · </>}
-                    {new Date(featured.published_at).toLocaleDateString("fr-FR")}
-                    {featured.type === "pdf"
-                      ? " · Dossier PDF"
-                      : featured.reading_time && ` · ${featured.reading_time}`}
-                  </p>
-                  <span className="mt-4 self-start rounded-full bg-primary px-4 py-2 text-sm font-bold text-white">
-                    {featured.type === "pdf" ? "Ouvrir le dossier →" : "Lire l'article →"}
-                  </span>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            </>
           )}
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <h2 className="mt-6 text-lg font-semibold text-ink">
+            {filtered ? (
+              <>
+                Résultats{" "}
+                <span className="text-sm font-normal text-muted">
+                  {rest.length} contenu{rest.length > 1 ? "s" : ""}
+                </span>
+              </>
+            ) : (
+              <>
+                Les dernières analyses{" "}
+                <span className="text-sm font-normal text-muted">
+                  du plus récent au plus ancien
+                </span>
+              </>
+            )}
+          </h2>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
             {pageItems.map((a) => (
               <Link key={a.id} href={`${linkPrefix}/actu/${a.id}`} className="group">
                 <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-all group-hover:-translate-y-0.5 group-hover:border-[#ded9db]">
