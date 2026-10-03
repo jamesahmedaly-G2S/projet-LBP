@@ -61,6 +61,10 @@ Suite à deux retours successifs de l'utilisateur : d'abord sur Prise en main ("
 
 **Vérifié** : capture réelle desktop et mobile (session cliente ALPHA) -- "LBP" / "RÉFÉRENTIEL PAIE · BY G2S" avec liseré framboise sur les deux affichages.
 
+**Correctif (03/10/2026)**, suite à un retour de l'utilisateur relayant Pauline ("la barre de recherche n'est pas à sa place... en bas en dessous de déconnexion et des autres onglets... ne doit pas prendre toute cette longueur") : la recherche vivait dans la ligne du haut, en `flex-1` (toute la largeur disponible). Le vrai marquage a deux éléments de recherche distincts : un vrai champ texte (`#gsearch`/`#gq`, ligne du haut) et un second élément purement visuel (deux boutons icône, pas un champ), `.globalsearch.nav-search` (`LBP_V9.9_Studio.html` ~L2548-2551), placé **dans** `<nav class="topnav">` avec `margin-left:auto` (poussé à droite de la ligne des onglets) et `max-width:240px` (~L482) -- jamais toute la largeur. Un seul vrai champ fonctionnel gardé (pas deux widgets pour la même action), déplacé à la position du second élément -- celle que Pauline désigne.
+
+**Vérifié** : capture réelle desktop (session cliente ALPHA) -- recherche désormais sous la ligne compte/déconnexion, alignée à droite de la ligne des onglets, largeur plafonnée à 240px.
+
 ---
 
 ## LBP-CLIENT-01 — Accueil 🟡 Partiellement fait

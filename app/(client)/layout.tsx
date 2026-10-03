@@ -53,6 +53,21 @@ import PageBackdrop from "./_components/PageBackdrop";
 // masquent, MobileNav (menu burger plein écran) prend le relais avec les
 // mêmes liens + les actions qu'il masque de la ligne principale.
 // Construit indépendamment du prototype sur ce point précis.
+//
+// Correctif fidélité (03/10/2026), suite à un retour direct de
+// l'utilisateur relayant Pauline ("la barre de recherche n'est pas à sa
+// place... en bas en dessous de déconnexion et des autres onglets... ne
+// doit pas prendre toute cette longueur") : la recherche vivait dans la
+// ligne du haut (pleine largeur disponible, flex-1). Le vrai marquage a
+// DEUX éléments de recherche distincts -- un champ texte réel
+// (`#gsearch`/`#gq`, ligne du haut) et un second élément, purement
+// visuel (deux boutons icône "🔎", pas un champ), `.globalsearch.nav-search`
+// (`LBP_V9.9_Studio.html` ~L2548-2551), placé DANS `<nav class="topnav">`
+// avec `margin-left:auto` (poussé à droite de la ligne des onglets) et
+// `max-width:240px` (~L482) -- jamais toute la largeur. On n'a qu'un seul
+// vrai champ de recherche fonctionnel (plus simple, pas deux widgets pour
+// la même action) : déplacé à la position du second élément plutôt que du
+// premier, qui est l'emplacement que Pauline désigne.
 export default function ClientLayout({ children }: { children: ReactNode }) {
   return (
     <div className="theme-client min-h-screen">
@@ -79,22 +94,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
             </span>
           </Link>
 
-          <form
-            action="/recherche"
-            className="flex min-w-0 flex-1 items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5"
-          >
-            <Search className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden="true" />
-            <label className="sr-only" htmlFor="gq">
-              Recherche globale dans le LBP
-            </label>
-            <input
-              type="search"
-              id="gq"
-              name="q"
-              placeholder="Rechercher…"
-              className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-muted"
-            />
-          </form>
+          <div className="flex-1" />
 
           <Link
             href="/notifications"
@@ -120,8 +120,24 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           <MobileNav />
         </div>
 
-        <div className="hidden md:mt-2 md:block">
+        <div className="hidden md:mt-2 md:flex md:items-start md:justify-between md:gap-3">
           <ClientNav />
+          <form
+            action="/recherche"
+            className="flex w-full max-w-[240px] shrink-0 items-center gap-1.5 rounded-full border border-border bg-white px-3.5 py-1.5"
+          >
+            <Search className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden="true" />
+            <label className="sr-only" htmlFor="gq">
+              Recherche globale dans le LBP
+            </label>
+            <input
+              type="search"
+              id="gq"
+              name="q"
+              placeholder="Rechercher…"
+              className="w-full min-w-0 bg-transparent text-sm text-ink outline-none placeholder:text-muted"
+            />
+          </form>
         </div>
       </header>
 
