@@ -263,6 +263,13 @@ Carte "à la une" reconstruite en vrai layout 2 colonnes (médias 46 % + corps),
 
 **Vérifié** : capture réelle navigateur (session cliente ALPHA, 10 utilisateurs) -- "10 utilisateurs · 3 inclus" / "+ 7 supplémentaires : 210 € HT" / "Total : 411 € HT / an" sur LBP Essentiel, cohérent avec les 2 autres paliers affichés simultanément (549 €, 600 €).
 
+**Correctif (03/10/2026)**, suite à un retour de l'utilisateur ("ce n'est pas aligné" + message de tarification personnalisée manquant sur LBP Signature) :
+
+- **Alignement** : `.off-badge` (`LBP_V9.9_Studio.html` ~L1224) réserve toujours `min-height:20px;margin-bottom:12px`, même sans badge réel -- un `.off-badge.ghost` transparent (`&nbsp;`) occupe la même place. Notre version rendait `null` pour la carte sans badge (LBP Essentiel, seule des 4 sans badge réel), qui démarrait donc son titre ~20px plus haut que les 3 autres. Corrigé avec un badge fantôme de même hauteur.
+- **Message manquant** : le vrai `renderOffres()` (~L11397) affiche, pour un palier à devis (`o.extra==null`), un encart "Tarification personnalisée selon le projet et le nombre d'utilisateurs." -- **toujours**, indépendamment du nombre d'utilisateurs simulé (contrairement à l'encart de calcul des 3 autres paliers, qui lui n'apparaît que si `extraUsers>0`). Notre condition (`price.extraUsers > 0`) ne couvrait jamais ce cas pour LBP Signature (devis, `extraUsers` toujours 0 avec 20 utilisateurs inclus). Ajouté en branche séparée (`tier.isCustomQuote`).
+
+**Vérifié** : capture réelle navigateur -- les 4 titres de carte démarrent à la même hauteur, LBP Signature affiche bien le message de tarification personnalisée dans son propre encart.
+
 ---
 
 ## LBP-CLIENT-08 — Veille réglementaire (mode G2S) — hors périmètre LBP Client

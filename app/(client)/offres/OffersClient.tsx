@@ -9,7 +9,6 @@ import {
   tierLevels,
   type StudioOfferTier,
 } from "@/lib/studio/offer-tiers";
-import { Badge } from "@/ui-kit/Badge";
 import { Button } from "@/ui-kit/Button";
 import RequestOfferButton from "./RequestOfferButton";
 
@@ -52,6 +51,19 @@ const COMPARISON_ROWS: [string, [number, number, number, number]][] = [
   ["Cas pratiques personnalisés", [0, 0, 0, 1]],
   ["Accompagnement G2S", [0, 0, 0, 1]],
 ];
+
+// LBP-CLIENT-07 (correctif fidélité, 03/10/2026), suite à un retour de
+// l'utilisateur ("ce n'est pas aligné") : `.off-badge` (LBP_V9.9_Studio.html
+// ~L1224) réserve toujours `min-height:20px;margin-bottom:12px`, même
+// sans badge réel -- un `.off-badge.ghost` transparent (`&nbsp;`) occupe
+// la même place, pour que le titre de chaque carte démarre à la même
+// hauteur. Un `null` à la place (notre première version) décale "LBP
+// Essentiel" (seule carte sans badge) vers le haut par rapport aux 3
+// autres. `.reco`/`.prem` pointent toutes deux vers `--sage-deep`/`--ink`,
+// la même couleur carbone dans ce fichier -- jamais deux teintes
+// distinctes à reproduire, une seule classe suffit ici.
+const badgeClass =
+  "mb-3 inline-flex min-h-[20px] items-center self-start rounded-full px-[11px] py-1 text-[9.5px] font-extrabold tracking-[0.05em] uppercase";
 
 const HELP_QUESTIONS: [string, number][] = [
   ["Je veux disposer d'une base Paie fiable", 1],
@@ -147,12 +159,14 @@ export default function OffersClient({
               className={`flex flex-col rounded-[18px] border bg-white px-[22px] py-6 ${isCurrent ? "border-danger" : tier.reco ? "border-ink shadow-[0_0_0_2px_rgba(103,6,38,0.16)]" : "border-border"}`}
             >
               {isCurrent ? (
-                <Badge tone="blue">Votre offre actuelle</Badge>
+                <span className={badgeClass + " bg-primary text-white"}>Votre offre actuelle</span>
               ) : tier.badge ? (
-                <Badge tone={tier.reco ? "blue" : "amber"}>{tier.badge}</Badge>
-              ) : null}
+                <span className={badgeClass + " bg-ink text-white"}>{tier.badge}</span>
+              ) : (
+                <span className={badgeClass + " bg-transparent"}>&nbsp;</span>
+              )}
 
-              <h2 className="mt-2 text-[19px] font-extrabold text-ink">{tier.name}</h2>
+              <h2 className="text-[19px] font-extrabold text-ink">{tier.name}</h2>
               <p className="mt-[5px] mb-4 min-h-[38px] text-[12.5px] text-muted">{tier.sub}</p>
 
               <div className="flex flex-wrap items-baseline gap-[5px]">
@@ -165,19 +179,25 @@ export default function OffersClient({
                 Jusqu&apos;à <b>{tier.users}</b> utilisateurs inclus
               </p>
               <p className="mt-[3px] text-[11.5px] text-muted">{price.extraText}</p>
-              {price.extraUsers > 0 && (
+              {tier.isCustomQuote ? (
                 <div className="mt-[11px] rounded-[10px] bg-[#F5F0EC] px-3 py-[9px] text-[11.5px] leading-[1.6] text-ink">
-                  <div>
-                    {userCount} utilisateurs · {tier.users} inclus
-                  </div>
-                  <div>
-                    + {price.extraUsers} supplémentaire{price.extraUsers > 1 ? "s" : ""} :{" "}
-                    {price.extraCostText}
-                  </div>
-                  <div className="mt-[3px] font-extrabold text-primary">
-                    Total : {price.totalText}
-                  </div>
+                  Tarification personnalisée selon le projet et le nombre d&apos;utilisateurs.
                 </div>
+              ) : (
+                price.extraUsers > 0 && (
+                  <div className="mt-[11px] rounded-[10px] bg-[#F5F0EC] px-3 py-[9px] text-[11.5px] leading-[1.6] text-ink">
+                    <div>
+                      {userCount} utilisateurs · {tier.users} inclus
+                    </div>
+                    <div>
+                      + {price.extraUsers} supplémentaire{price.extraUsers > 1 ? "s" : ""} :{" "}
+                      {price.extraCostText}
+                    </div>
+                    <div className="mt-[3px] font-extrabold text-primary">
+                      Total : {price.totalText}
+                    </div>
+                  </div>
+                )
               )}
 
               <p className="mt-[18px] mb-2 text-[10.5px] font-extrabold tracking-[0.04em] text-muted uppercase">
