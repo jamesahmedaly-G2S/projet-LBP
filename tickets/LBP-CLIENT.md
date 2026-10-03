@@ -65,6 +65,10 @@ Suite à deux retours successifs de l'utilisateur : d'abord sur Prise en main ("
 
 **Vérifié** : capture réelle desktop (session cliente ALPHA) -- recherche désormais sous la ligne compte/déconnexion, alignée à droite de la ligne des onglets, largeur plafonnée à 240px.
 
+**Correction (03/10/2026)** : retour de l'utilisateur ("la recherche ne doit pas être vers la ligne des onglets mais en dessous... c'est très bien de ce côté gauche de l'écran") -- la position choisie juste avant (alignée à droite, sur la même ligne que les onglets) n'était pas la bonne lecture de la demande de Pauline. Corrigé : `ClientNav` et la recherche redeviennent deux lignes empilées (chacune pleine largeur) au lieu d'une seule ligne flex partagée -- recherche sur sa propre ligne, sous les onglets, alignée à gauche, toujours plafonnée à 240px.
+
+**Vérifié** : capture réelle desktop -- recherche sur sa propre ligne sous les onglets, alignée à gauche.
+
 ---
 
 ## LBP-CLIENT-01 — Accueil 🟡 Partiellement fait

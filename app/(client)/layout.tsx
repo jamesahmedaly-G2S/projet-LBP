@@ -54,20 +54,23 @@ import PageBackdrop from "./_components/PageBackdrop";
 // mêmes liens + les actions qu'il masque de la ligne principale.
 // Construit indépendamment du prototype sur ce point précis.
 //
-// Correctif fidélité (03/10/2026), suite à un retour direct de
-// l'utilisateur relayant Pauline ("la barre de recherche n'est pas à sa
-// place... en bas en dessous de déconnexion et des autres onglets... ne
-// doit pas prendre toute cette longueur") : la recherche vivait dans la
-// ligne du haut (pleine largeur disponible, flex-1). Le vrai marquage a
-// DEUX éléments de recherche distincts -- un champ texte réel
-// (`#gsearch`/`#gq`, ligne du haut) et un second élément, purement
-// visuel (deux boutons icône "🔎", pas un champ), `.globalsearch.nav-search`
-// (`LBP_V9.9_Studio.html` ~L2548-2551), placé DANS `<nav class="topnav">`
-// avec `margin-left:auto` (poussé à droite de la ligne des onglets) et
-// `max-width:240px` (~L482) -- jamais toute la largeur. On n'a qu'un seul
-// vrai champ de recherche fonctionnel (plus simple, pas deux widgets pour
-// la même action) : déplacé à la position du second élément plutôt que du
-// premier, qui est l'emplacement que Pauline désigne.
+// Correctif fidélité (03/10/2026), en deux temps, suite aux retours
+// directs de l'utilisateur relayant Pauline :
+// 1) "la barre de recherche n'est pas à sa place... en bas en dessous de
+//    déconnexion et des autres onglets... ne doit pas prendre toute
+//    cette longueur" -- sortie de la ligne du haut (pleine largeur,
+//    flex-1), d'abord replacée à droite de la ligne des onglets (position
+//    du second élément de recherche du vrai marquage, purement visuel,
+//    `.globalsearch.nav-search`, `margin-left:auto`, `LBP_V9.9_Studio.html`
+//    ~L2548-2551/482).
+// 2) Correction : "la recherche ne doit pas être vers la ligne des
+//    onglets mais en dessous... c'est très bien de ce côté gauche de
+//    l'écran" -- Pauline veut une ligne à part, sous les onglets, alignée
+//    à gauche (pas poussée à droite avec eux). `ClientNav` et la
+//    recherche redeviennent donc deux lignes empilées, chacune sur toute
+//    la largeur, plutôt qu'une seule ligne flex partagée -- la largeur
+//    plafonnée (240px) et un seul vrai champ fonctionnel restent comme au
+//    point 1.
 export default function ClientLayout({ children }: { children: ReactNode }) {
   return (
     <div className="theme-client min-h-screen">
@@ -120,11 +123,14 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           <MobileNav />
         </div>
 
-        <div className="hidden md:mt-2 md:flex md:items-start md:justify-between md:gap-3">
+        <div className="hidden md:mt-2 md:block">
           <ClientNav />
+        </div>
+
+        <div className="hidden md:mt-2 md:block">
           <form
             action="/recherche"
-            className="flex w-full max-w-[240px] shrink-0 items-center gap-1.5 rounded-full border border-border bg-white px-3.5 py-1.5"
+            className="flex w-full max-w-[240px] items-center gap-1.5 rounded-full border border-border bg-white px-3.5 py-1.5"
           >
             <Search className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden="true" />
             <label className="sr-only" htmlFor="gq">
