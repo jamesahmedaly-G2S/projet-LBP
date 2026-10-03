@@ -19,11 +19,12 @@ export default async function DictionnaireContent() {
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Les mots de la paie</Eyebrow>
       <SectionTitle>Dictionnaire</SectionTitle>
-      <p className="-mt-3 text-sm text-muted">
-        Les termes essentiels de la paie et du droit social.
+      <p className="mb-4 max-w-[720px] text-[14px] text-muted">
+        Les notions de paie et de droit social, classées par ordre alphabétique. Les définitions
+        s&apos;appuient sur la doctrine officielle (BOSS, URSSAF, Code du travail).
       </p>
 
-      <div className="mt-6">
+      <div>
         <DictionaryList terms={terms ?? []} />
       </div>
     </main>

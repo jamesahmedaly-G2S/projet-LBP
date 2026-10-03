@@ -69,14 +69,12 @@ export default async function BibliothequePage({
   const supabase = await createClient();
 
   const [
-    { data: company },
     { data: families },
     { data: themes },
     { data: subthemes },
     { data: allSheets },
     affectations,
   ] = await Promise.all([
-    supabase.from("companies").select("company_name").eq("id", companyId).single(),
     supabase.from("master_families").select("id, name").order("display_order"),
     supabase.from("master_themes").select("id, name, family_id").order("display_order"),
     supabase.from("master_subthemes").select("id, name, theme_id").order("display_order"),
@@ -120,7 +118,7 @@ export default async function BibliothequePage({
       <Eyebrow>La bibliothèque RH &amp; Paie</Eyebrow>
       <SectionTitle>Bibliothèque</SectionTitle>
       <p className="-mt-3 text-sm text-muted">
-        L&apos;ensemble des fiches accessibles pour {company?.company_name ?? "votre société"}.
+        Choisissez une famille pour accéder à ses thèmes et à ses fiches.
       </p>
 
       <form action="/bibliotheque" className="mt-4 flex gap-2">
