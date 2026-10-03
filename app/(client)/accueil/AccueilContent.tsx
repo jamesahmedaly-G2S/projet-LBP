@@ -196,7 +196,7 @@ export default async function AccueilContent({
   const timeStr = today.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
+    <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       {/* LBP-CLIENT-01 (finitions fidélité, 01/10/2026) : "Vos rappels de la
           semaine" + calendrier compact manquaient entièrement -- signalé par
           l'utilisateur après vérification directe de la V9.9. Layout

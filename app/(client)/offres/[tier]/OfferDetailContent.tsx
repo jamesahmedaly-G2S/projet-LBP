@@ -52,7 +52,7 @@ export default async function OfferDetailContent({
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Link href={`${linkPrefix}/offres`} className="text-sm text-primary hover:underline">
         ← Retour aux offres
       </Link>

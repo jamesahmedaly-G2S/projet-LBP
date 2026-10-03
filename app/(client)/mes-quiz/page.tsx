@@ -48,7 +48,7 @@ export default async function ClientQuizListPage() {
   const rows = quizzes ?? [];
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Évaluation</Eyebrow>
       <SectionTitle>Testez vos connaissances</SectionTitle>
       <p className="-mt-3 text-sm text-muted">Les quizz de vos fiches, à faire directement ici.</p>

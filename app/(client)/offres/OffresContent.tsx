@@ -30,7 +30,7 @@ export default async function OffresContent({
     .maybeSingle();
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
+    <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Nos offres</Eyebrow>
       <SectionTitle>Les offres LBP</SectionTitle>
       <p className="-mt-3 text-sm text-muted">

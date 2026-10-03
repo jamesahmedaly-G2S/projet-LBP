@@ -58,7 +58,7 @@ export default async function BibliothequePage({
 
   if (!companyId) {
     return (
-      <main className="mx-auto max-w-2xl px-6 py-10">
+      <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
         <p className="text-sm text-danger">
           Aucune société rattachée à ce compte — contactez votre référent G2S.
         </p>
@@ -116,7 +116,7 @@ export default async function BibliothequePage({
     (themes ?? []).some((t: Row) => t.family_id === familyId && themeHasMatch(t.id));
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>La bibliothèque RH &amp; Paie</Eyebrow>
       <SectionTitle>Bibliothèque</SectionTitle>
       <p className="-mt-3 text-sm text-muted">

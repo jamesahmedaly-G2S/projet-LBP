@@ -29,7 +29,7 @@ export default async function MonEntreprisePage() {
 
   if (!companyId) {
     return (
-      <main className="mx-auto max-w-2xl px-6 py-10">
+      <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
         <p className="text-sm text-danger">
           Aucune société rattachée à ce compte — contactez votre référent G2S.
         </p>
@@ -75,7 +75,7 @@ export default async function MonEntreprisePage() {
   ]);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Mon espace</Eyebrow>
       <SectionTitle>Mon entreprise</SectionTitle>
       <p className="-mt-3 text-sm text-muted">

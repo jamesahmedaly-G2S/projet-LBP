@@ -20,7 +20,7 @@ export default async function NotificationsPage() {
     .returns<NotificationRow[]>();
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Mon espace</Eyebrow>
       <SectionTitle>Notifications</SectionTitle>
 

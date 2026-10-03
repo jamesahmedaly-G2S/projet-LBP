@@ -77,7 +77,7 @@ export default async function ChiffresPaieContent() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Données de référence</Eyebrow>
       <SectionTitle>{settings?.title ?? "Les chiffres de la paie"}</SectionTitle>
       {settings?.intro && <p className="mt-2 max-w-2xl text-sm text-muted">{settings.intro}</p>}

@@ -23,7 +23,7 @@ export default async function ClientQuizPage({ params }: { params: Promise<{ id:
   if (questions.length === 0) notFound();
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Link href="/mes-quiz" className="text-sm text-primary hover:underline">
         ← Retour aux quiz
       </Link>

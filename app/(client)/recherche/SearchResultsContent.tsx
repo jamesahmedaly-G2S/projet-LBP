@@ -124,7 +124,7 @@ export default async function SearchResultsContent({
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Résultats de recherche</Eyebrow>
       <SectionTitle>{q.trim() ? `« ${q} »` : "Recherche globale"}</SectionTitle>
 
