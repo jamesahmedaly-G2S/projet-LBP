@@ -259,6 +259,12 @@ Carte "à la une" reconstruite en vrai layout 2 colonnes (médias 46 % + corps),
 
 **Vérifié** : capture réelle navigateur (session cliente ALPHA) -- en-têtes avec emoji et bordure basse, coches carbone sur les 5 points, emplacement vidéo en pointillés/italique conforme.
 
+**Correctif (03/10/2026)**, suite à un retour direct de l'utilisateur ("regarde bien la taille ce n'est pas bien ajusté") : le conteneur `<main>` utilisait `max-w-3xl` (768px, deviné) au lieu du vrai conteneur global du client (`main{max-width:1240px;padding:24px 30px 90px}`, `LBP_V9.9_Studio.html` ~L119) -- les deux cartes étaient ~40 % plus étroites que la vraie maquette. Corrigé en valeurs exactes (`max-w-[1240px] px-[30px] pt-6 pb-[90px]`) plutôt qu'une classe Tailwind approximative. Point de bascule 1/2 colonnes aussi recalé sur le vrai `@media(max-width:820px)` (`min-[820px]:grid-cols-2`, pas le `sm:` à 640px deviné).
+
+**Constat plus large, non traité ici** : ce même `max-w-3xl`/`max-w-2xl`/`max-w-4xl`/`max-w-5xl` deviné (jamais 1240px) se retrouve sur la quasi-totalité des pages client (`grep max-w- app/(client)`) -- un même conteneur global mal recopié partout plutôt qu'une erreur isolée à cette page. Signalé à l'utilisateur, pas corrigé partout sans confirmation explicite du périmètre (changement large, touche ~20 fichiers).
+
+**Vérifié** : capture réelle navigateur (1440px) -- cartes nettement plus larges, proportions conformes à la maquette.
+
 ---
 
 ## LBP-CLIENT-10 — Mon compte ✅ Fait
