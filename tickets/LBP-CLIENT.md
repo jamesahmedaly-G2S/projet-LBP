@@ -359,6 +359,14 @@ Ces variables sont posées au niveau racine du thème (`:root`/`.theme-client`) 
 
 **Réalisé (30/09/2026)** : cascade complète relue jusqu'au bloc de fin de feuille de `LBP_V9.9_Studio.html` ("COUCHE CHARTE G2S", placé en fin de fichier pour primer sur les styles historiques) — c'est cette version-là, pas la première règle rencontrée dans le fichier, qui fait foi. Deux précisions trouvées au passage : `.eyebrow`/`.section-title` sont dans la **même** teinte que les boutons (`--framboise`), pas une variante "hover" — `Eyebrow.tsx`/`SectionTitle.tsx` migrés de `text-primary-hover`/`text-ink` vers `text-primary` (le vrai hover, `--framboise-dark`, reste réservé au `:hover` des boutons) ; `.section-title` passe aussi de 23px à 26px et de `-.01em` à `-.03em` de letter-spacing. `app/layout.tsx` : Archivo unique (plus de split body/titres, IBM Plex Mono pour les valeurs tabulaires). `globals.css` : `.theme-client` entièrement re-mappé, success/danger/warning alignés sur les vraies couleurs de statut du prototype (teal, pas vert générique).
 
+**Correctif (03/10/2026)**, suite à un retour de l'utilisateur ("là où il y a Camille Moreau mode client lecture seule... ça ne correspond pas avec la v9 en terme de contenu mais aussi en terme de fond") : `AccountBadge.tsx` (pastille nom + avatar dans l'en-tête) avait été construit de mémoire plutôt que vérifié contre le vrai code. Revérifié contre `updateClientBtn()` (`LBP_V9.9_Studio.html` ~L2829-2837) et `.client-btn` (~L90-95) :
+
+- **Contenu** : le vrai texte est `"Mode client · lecture"` (`cbRole.textContent`), pas "Mode client" seul -- tronqué par erreur.
+- **Fond** : `.client-btn{background:var(--card)}` -- un **fond blanc plein**, délibérément distinct des autres boutons translucides du même bandeau (cloche, déconnexion). Notre version utilisait `bg-white/10` comme ces derniers, confondant visuellement un élément que le prototype distingue exprès.
+- Dimensions (padding `7px 8px 7px 14px`, gap `10px`, avatar `32px`, texte nom `12.5px`) calées sur les vraies valeurs CSS plutôt que des classes Tailwind approximatives.
+
+**Vérifié** : capture réelle navigateur (session cliente ALPHA) -- pastille blanche bien visible et distincte sur le bandeau framboise, texte "Mode client · lecture" complet, avatar carbone 32px.
+
 **Non fait — hors périmètre de cette passe (jetons uniquement)** : les éléments plus élaborés du site vitrine (bandeau héros framboise sur l'Accueil, cartes KPI colorées par catégorie, cartes de familles de bibliothèque colorées) ne sont pas répliqués — demanderaient de nouvelles variantes de composants, pas juste un changement de jetons de design.
 
 **Vérifié** : test réel navigateur (Playwright, session client + admin réelles) — eyebrow/h1 confirmés `rgb(103,6,38)` (= `#670626` framboise), police Archivo confirmée sur `.theme-client`, Studio inchangé (Geist/navy, aucune régression). Accueil et Offres cohérents visuellement (boutons, badges, tableau comparatif).
