@@ -250,6 +250,15 @@ Carte "à la une" reconstruite en vrai layout 2 colonnes (médias 46 % + corps),
 
 **Vérifié** : test réel navigateur — côté client, titre et 5 points réels affichés, emplacement vidéo vide par défaut (aucune URL configurée dans le seed). Côté admin, modification réelle du titre et ajout d'une URL vidéo, confirmés **immédiatement visibles côté client** (titre modifié affiché, vraie iframe vidéo rendue) — sans changement de code. Réglages restaurés à leur état d'origine après le test.
 
+**Correctif (03/10/2026)**, suite à un retour de l'utilisateur ("regarde bien la v9 et corrige de notre côté") : le ticket d'origine citait `LBP_V6_Studio.html` (une version plus ancienne que `LBP_V9.9_Studio.html`, la référence actuelle). Revérifié : les valeurs de contenu (titre, 5 points, titre/texte vidéo) sont identiques dans `LBP_V9.9_Studio.html` (`var HELP`) -- pas de vrai bug de contenu, juste une mauvaise attribution de source en commentaire. En revanche la mise en forme avait été devinée plutôt que portée (`renderHelp()` ~L11267-11277 et son CSS, `.card-h`/`.help-list`/`.help-video-ph` ~L595-611/921) :
+
+- En-têtes de carte avec emoji intégré ("🚀 L'essentiel en 5 points" hardcodé dans `renderHelp()` ; "🎬 La vidéo de présentation" porté par la donnée elle-même, `HELP.videoTitle`), style `.card-h` (Archivo 800, bordure basse 2px `--panel`) -- pas un `<h2>` nu.
+- Puces `.help-list li::before{content:'✓'}` en carbone (`--sage-deep`) -- pas un point framboise générique.
+- Emplacement vidéo vide : bordure en pointillés, fond `--panel`, texte en italique (`.help-video-ph`) -- pas une bordure pleine sans italique.
+- **Vraie valeur en base corrigée** (migration `20261003160000`) : `video_title` avait perdu l'emoji intégré au texte éditable réel ("La vidéo de présentation" au lieu de "🎬 La vidéo de présentation") -- mise à jour sous garde (ne touche jamais une valeur déjà modifiée par un admin réel).
+
+**Vérifié** : capture réelle navigateur (session cliente ALPHA) -- en-têtes avec emoji et bordure basse, coches carbone sur les 5 points, emplacement vidéo en pointillés/italique conforme.
+
 ---
 
 ## LBP-CLIENT-10 — Mon compte ✅ Fait
