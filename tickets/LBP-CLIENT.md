@@ -101,6 +101,23 @@ Plutôt que de deviner un nouveau recadrage, extraction directe du JPEG réellem
 
 **Vérifié** : capture réelle zoomée du widget (session cliente ALPHA) -- boutons de navigation carrés, libellé "Filtrer par", aujourd'hui en carbone plein, jour avec événement en fond distinct, texte d'aide présent. Changement de filtre testé en réel (sélection "Jours fériés") : navigation confirmée vers `/accueil?...&cal_theme=Jours+f%C3%A9ri%C3%A9s` sans action supplémentaire -- un premier test avait semblé échouer (`waitForNavigation` non détecté), revérifié avec un écouteur d'événement direct : le `submit` se déclenche bien, c'était un artefact de timing du script de test, pas un bug réel.
 
+**Complété (03/10/2026)** : les 8 autres fonds de page (`lib/client/page-backgrounds.ts`), laissés de côté lors du premier correctif du fond d'Accueil. Même discipline que pour `/accueil` -- extraction directe des JPEG réellement intégrés dans `LBP_V9.9_Studio.html` (`body:has(#v-xxx.active)`, base64 décodé ligne par ligne), jamais les photos Pexels brutes de `image_design/` (le recadrage `cover/center` sur une photo portrait non préparée avait déjà posé problème sur l'Accueil). Chaque image est déjà un cadrage paysage préparé par Pauline (motif flouté/étiré sur les bords pour un fond pleine largeur), pas une réinterprétation de notre part. Opacités de voile copiées telles quelles depuis chaque règle CSS :
+
+| Page              | Image réelle                             | Voile |
+| ----------------- | ---------------------------------------- | ----- |
+| `/actu`           | pile de journaux                         | 0.82  |
+| `/mon-entreprise` | pot à stylos vert sur marbre             | 0.82  |
+| `/calendrier-rh`  | calendrier et punaise                    | 0.8   |
+| `/bibliotheque`   | pile de livres                           | 0.8   |
+| `/chiffres-paie`  | pièces en euros                          | 0.72  |
+| `/dictionnaire`   | écran de dictionnaire (teinte éclaircie) | 0.8   |
+| `/mes-quiz`       | main en bois et point d'interrogation    | 0.8   |
+| `/offres`         | ordinateur et lunettes                   | 0.7   |
+
+Aucun changement de code au-delà de la table `PAGE_BACKGROUNDS` : `PageBackdrop.tsx` lit déjà `usePathname()` génériquement, le mécanisme construit pour l'Accueil s'applique tel quel aux 8 autres pages.
+
+**Vérifié** : capture réelle des 8 pages (session cliente ALPHA) -- chaque image correspond bien à sa description réelle (journaux/pot à stylos/calendrier+punaise/livres/pièces/dictionnaire/main en bois/ordinateur+lunettes), voile laissant les encarts et le texte parfaitement lisibles sur les 8, aucune régression sur le contenu fonctionnel des pages.
+
 ---
 
 ## LBP-CLIENT-02 — Mon équipe (renommé "Mon entreprise") 🟡 Partiellement fait
