@@ -9,6 +9,33 @@ Supabase, ui-kit/ partagé — jamais deux applis séparées.
 
 ---
 
+## Audit de fidélité mot-pour-mot / taille-pour-taille (03/10/2026)
+
+Suite à deux retours successifs de l'utilisateur : d'abord sur Prise en main ("regarde bien la taille ce n'est pas bien ajusté"), puis un constat plus large ("corrige partout en respectant les attentes, s'il faut compare bien mot pour mot et taille pour taille"). Deux correctifs en cascade :
+
+**1. Largeur de conteneur généralisée** — `max-w-3xl`/`-2xl`/`-4xl`/`-5xl` deviné remplacé par le vrai conteneur global (`main{max-width:1240px;margin:0 auto;padding:24px 30px 90px}`, `LBP_V9.9_Studio.html` ~L119, une règle unique pour tout le client) sur les 18 pages qui en avaient besoin. Détail dans LBP-CLIENT-09.
+
+**2. Correctif global le plus structurant trouvé** : `SectionTitle.tsx`/`Eyebrow.tsx` (composants partagés par TOUTES les pages client) portaient encore la valeur de la couche "COUCHE CHARTE G2S" (~L2169/2171), alors qu'un bloc **plus tardif**, `!important`, existe dans la même feuille : `/* TITRES — renforcement demandé */` (~L2461-2474). Ce bloc l'emporte sans ambiguïté. Vraies valeurs : `.section-title` 29px (24px à ≤760px)/800/`color:var(--titre)=#33405A` (pas framboise !)/letter-spacing -.018em ; `.eyebrow` 11.5px/800/letter-spacing .14em (couleur framboise inchangée) ; `.sec-title.big` (sous-titres de bloc, Accueil/Mon entreprise/etc.) 23px/800/#33405A/-.015em. Jamais vérifié jusqu'ici malgré plusieurs passes de "re-thème" (LBP-CLIENT-16) — corrigé une fois dans les composants partagés, impact sur tout l'écran.
+
+**Audit page par page** (5 vérifications en parallèle, chacune contre le vrai `render*()` de `LBP_V9.9_Studio.html` identifié via son dispatcheur `goView()`, jamais `LBP_V6_Studio.html`/`LBP_V2-20.html`) :
+
+- **Accueil** (`renderOverview()`) : ordre des blocs inversé (Actualités à gauche, Dernières mises à jour à droite — nous avions l'inverse), bouton "Dernières mises à jour" pointait vers `/bibliotheque` au lieu de `/mon-entreprise`, "Voir le détail de mon offre" avait une flèche finale en trop, titres de bloc sans icône/mauvaise taille. Voir LBP-CLIENT-01.
+- **Bibliothèque** (`renderBiblio()`) : intro inventée remplacée par le vrai texte. **Écart structurel signalé, non corrigé** : le vrai écran est un drill-down (familles → thèmes de la famille, pas tout l'arbre à plat) — décision d'architecture, pas un ajustement de taille, à traiter comme ticket à part. Idem pour la fiche détail (vrais onglets 5 niveaux, pas un empilement vertical). Voir LBP-CLIENT-03.
+- **Dictionnaire** (`renderDico()`) : intro, recherche, lettres d'alphabet, carte de terme recalées sur les vraies tailles (`.dico-*`). Voir LBP-CLIENT-14.
+- **Actu** (`renderDecrypt()`) : titre "Actu-Veille" (le mot "Veille" manquait), intro inventée remplacée, filtre "Tous les thèmes" (pas "Toutes les catégories"), bouton "Filtrer" retiré (auto-submit, nouveau `ActuFilters.tsx`), titres de section manquants ajoutés. Détail article : lien retour, largeur de colonne de lecture (780px, pas 1240px), tailles réelles. Voir LBP-CLIENT-04.
+- **Chiffres Paie** (`renderChiffres()`) : bug réel — tri alphabétique désordonnait "Autres repères"/PMSS/PASS, "SS" en trop dans 2 libellés (`lib/client/key-figure-labels.ts`, partagé avec l'Accueil). Voir LBP-CLIENT-05.
+- **Quizz** (`renderQuizModule()`) : écran reconstruit (cockpit de 4 indicateurs, panneau de progression par quizz, liste enrichie) — l'ancienne version n'affichait qu'une liste nue sous un titre inventé. Voir LBP-CLIENT-06.
+- **Calendrier RH** (`renderCalFull()`, PAS `renderCalendar()` le widget compact de l'Accueil) : réécriture complète — grille à 42 cellules débordant sur les mois voisins (pas des cases vides), événements en puces de texte lisibles (pas des points), navigation année en plus du mois, compteur d'échéances, légende + indice, filtres à application instantanée sans "portée" (qui n'existe pas dans le vrai filtre — invention retirée). Voir LBP-CLIENT-15.
+- **Mon entreprise** (`renderDocs()`) : 4 en-têtes de bloc sans icône/mauvaise taille, corrigés (`.sec-title.big`) ; CCN (`companies.cba`, donnée déjà réelle, jamais affichée) ajoutée sous la raison sociale. SIRET/logo restent absents : hors schéma réel (`companies` n'a ni colonne SIRET ni logo), pas un oubli de texte/taille. Voir LBP-CLIENT-02.
+- **Offres** (`renderOffres()`) : intro réelle ("entonnoir") et paragraphe final manquants, ajoutés ; libellés de section, tailles de carte, points de rupture de grille recalés sur les vraies valeurs. Voir LBP-CLIENT-07.
+- **Mon compte** (`renderAccount()`) : 3 en-têtes de panneau sans emoji/mauvaise taille, corrigés (`.ov-panel h3`). Voir LBP-CLIENT-10.
+- **Notifications** : le vrai prototype n'a pas de page dédiée (seulement un panneau déroulant `#notifPanel`) — écart architectural assumé et documenté, pas corrigé de force. Voir LBP-CLIENT-11.
+- **Recherche globale** (`renderSearch()`) : contenu déjà conforme (vérifié dans une passe antérieure) ; tailles recalées sur `.ov-panel`/`.sr-item`/`.src-link` réels, icônes ajoutées aux 4 blocs.
+
+**Méthode de vérification** : chaque correctif relu dans un vrai navigateur (session cliente réelle, c.moreau@alpha.fr), `npx tsc --noEmit` et `npx eslint` propres sur l'ensemble avant commit.
+
+---
+
 ## LBP-CLIENT-00 — Fondations (layout, thème, authentification, premier écran réel) ✅ Fait
 
 **Contexte** : poser la base technique avant d'attaquer les 13 modules un par un — layout, palette visuelle distincte du Studio (exigée par STU-DESIGN-01), authentification, et un premier écran réel bout en bout pour valider que la base tient, plutôt que 13 squelettes vides.
