@@ -24,8 +24,11 @@ export default async function ClientQuizPage({ params }: { params: Promise<{ id:
 
   return (
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
-      <Link href="/mes-quiz" className="text-sm text-primary hover:underline">
-        ← Retour aux quiz
+      {/* .back (LBP_V9.9_Studio.html ~L1151-1152, règle qui prime sur
+          celle ~L178 : 13px, carbone, 700, souligné au survol seulement)
+          -- texte exact de startQuizModule(). */}
+      <Link href="/mes-quiz" className="text-[13px] font-bold text-ink hover:underline">
+        ← Retour à la liste des quizz
       </Link>
 
       <div className="mt-4">

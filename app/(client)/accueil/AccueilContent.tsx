@@ -7,7 +7,6 @@ import {
 } from "@/lib/studio/offer-tiers";
 import { keyFigureLabel } from "@/lib/client/key-figure-labels";
 import type { CalendarEventType, CalendarEventScope } from "@/lib/client/calendar-taxonomy";
-import { Card } from "@/ui-kit/Card";
 import ChiffreCard, { type KpiVariant } from "./ChiffreCard";
 import FamilyCard, { type FamilyVariant } from "./FamilyCard";
 import RemindersWidget, { type TaskRow } from "./RemindersWidget";
@@ -252,38 +251,41 @@ export default async function AccueilContent({
         })}
       </div>
 
+      {/* Correctif fidélité (03/10/2026), suite à un retour de l'utilisateur
+          ("compare bien mot pour mot et taille pour taille") : revérifié
+          contre renderOverview() (LBP_V9.9_Studio.html ~L10134-10154) --
+          3 écarts de contenu trouvés, pas seulement de taille :
+          - Ordre réel : Actualités (gauche) PUIS Dernières mises à jour
+            (droite) -- nous avions l'inverse.
+          - Le bouton du bloc "Dernières mises à jour" pointe vers
+            goView('documents') libellé "Mon entreprise →", jamais
+            "La bibliothèque →" (qui n'a aucun rapport avec ce bloc).
+          - "Votre offre" : le vrai bouton dit "Voir le détail de mon
+            offre" SANS flèche finale (homeOfferHTML(), ~L11308).
+          Titres recalés sur `.sec-title.big` -- la véritable valeur
+          gagnante n'est PAS celle de la couche "CHARTE G2S" (20px) mais
+          un bloc PLUS TARDIF dans le fichier ("TITRES — renforcement
+          demandé", ~L2460-2474, en `!important`) : 23px, poids 800,
+          letter-spacing -.015em, couleur `--titre:#33405A` -- une teinte
+          bleu-gris plus sombre que le carbone courant, dédiée aux titres
+          uniquement. Sous-titre ("3 grandes familles") recalé sur
+          `.sec-title span` (~L656, la règle qui prime sur celle de
+          ~L548) : 12px, italique, #9A959A, poids 500.
+          ATTENTION (hors périmètre de ce fichier) : ce même bloc
+          "TITRES — renforcement demandé" redéfinit aussi `.section-title`
+          en 29px/`--titre`/-.018em (pas 26px/framboise) et `.eyebrow` en
+          11.5px/800/.14em (pas 11px/700/.16em) -- `SectionTitle.tsx` et
+          `Eyebrow.tsx` (composants partagés par TOUTES les pages client)
+          ont donc la même erreur de source partout où ils sont utilisés.
+          Pas corrigé ici (hors des 3 fichiers de ce correctif), à traiter
+          en priorité séparément vu l'ampleur (un seul composant, impact
+          sur chaque écran). */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         <div>
-          <h2 className="text-lg font-semibold text-ink">Dernières mises à jour de votre LBP</h2>
-          <Card className="mt-3">
-            {recentUpdates.length === 0 ? (
-              <p className="text-sm text-muted">Aucune mise à jour récente.</p>
-            ) : (
-              <ul className="flex flex-col gap-2 text-sm">
-                {recentUpdates.map((u, i) => (
-                  <li key={i} className="text-ink">
-                    {u.title}
-                    {u.publishedAt && (
-                      <span className="ml-2 text-xs text-muted">
-                        {new Date(u.publishedAt).toLocaleDateString("fr-FR")}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Link
-              href={`${linkPrefix}/bibliotheque`}
-              className="mt-3 block text-center text-sm text-primary hover:underline"
-            >
-              La bibliothèque →
-            </Link>
-          </Card>
-        </div>
-
-        <div>
-          <h2 className="text-lg font-semibold text-ink">Actualités RH &amp; juridiques</h2>
-          <Card className="mt-3">
+          <h2 className="flex items-baseline gap-[10px] text-[23px] font-extrabold tracking-[-0.015em] text-[#33405A]">
+            📰 Actualités RH &amp; juridiques
+          </h2>
+          <div className="mt-3 rounded-2xl border border-border bg-surface px-5 py-[18px] shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)]">
             {(recentArticles ?? []).length === 0 ? (
               <p className="text-sm text-muted">Aucune actualité pour l&apos;instant.</p>
             ) : (
@@ -305,18 +307,50 @@ export default async function AccueilContent({
             )}
             <Link
               href={`${linkPrefix}/actu`}
-              className="mt-3 block text-center text-sm text-primary hover:underline"
+              className="mt-2.5 block rounded-full border-[1.5px] border-primary py-[9px] text-center text-[12.5px] font-bold text-primary hover:bg-primary hover:text-white"
             >
               Toute l&apos;actu →
             </Link>
-          </Card>
+          </div>
+        </div>
+
+        <div>
+          <h2 className="flex items-baseline gap-[10px] text-[23px] font-extrabold tracking-[-0.015em] text-[#33405A]">
+            📁 Dernières mises à jour de votre LBP
+          </h2>
+          <div className="mt-3 rounded-2xl border border-border bg-surface px-5 py-[18px] shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)]">
+            {recentUpdates.length === 0 ? (
+              <p className="text-sm text-muted">Aucune mise à jour récente.</p>
+            ) : (
+              <ul className="flex flex-col gap-2 text-sm">
+                {recentUpdates.map((u, i) => (
+                  <li key={i} className="text-ink">
+                    {u.title}
+                    {u.publishedAt && (
+                      <span className="ml-2 text-xs text-muted">
+                        {new Date(u.publishedAt).toLocaleDateString("fr-FR")}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link
+              href={`${linkPrefix}/mon-entreprise`}
+              className="mt-2.5 block rounded-full border-[1.5px] border-primary py-[9px] text-center text-[12.5px] font-bold text-primary hover:bg-primary hover:text-white"
+            >
+              Mon entreprise →
+            </Link>
+          </div>
         </div>
       </div>
 
       {currentOfferTier && (
         <div className="mt-8">
-          <h2 className="text-lg font-semibold text-ink">Votre offre</h2>
-          <Card className="mt-3">
+          <h2 className="flex items-baseline gap-[10px] text-[23px] font-extrabold tracking-[-0.015em] text-[#33405A]">
+            🏷️ Votre offre
+          </h2>
+          <div className="mt-3 rounded-2xl border border-border bg-surface px-5 py-[18px] shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)]">
             {(() => {
               const tier = currentOfferTier;
               const price = computeOfferPrice(tier, "annual", tier.users);
@@ -327,25 +361,26 @@ export default async function AccueilContent({
                     <p className="text-sm text-muted">{tier.sub}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-semibold text-ink">
+                    <p className="mb-2 text-lg font-semibold text-ink">
                       {price.main} <span className="text-sm text-muted">{price.unit}</span>
                     </p>
                     <Link
                       href={`${linkPrefix}/offres`}
-                      className="text-sm text-primary hover:underline"
+                      className="inline-block rounded-full bg-ink px-[18px] py-[9px] text-[12.5px] font-bold text-white hover:bg-primary"
                     >
-                      Voir le détail de mon offre →
+                      Voir le détail de mon offre
                     </Link>
                   </div>
                 </div>
               );
             })()}
-          </Card>
+          </div>
         </div>
       )}
 
-      <h2 className="mt-8 text-lg font-semibold text-ink">
-        La bibliothèque <span className="text-sm font-normal text-muted">3 grandes familles</span>
+      <h2 className="mt-8 flex items-baseline gap-[10px] text-[23px] font-extrabold tracking-[-0.015em] text-[#33405A]">
+        📚 La bibliothèque{" "}
+        <span className="text-[12px] font-medium text-[#9A959A] italic">3 grandes familles</span>
       </h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
         {(families ?? []).map((f) => {
@@ -364,7 +399,7 @@ export default async function AccueilContent({
         })}
       </div>
       <Link href={`${linkPrefix}/bibliotheque`}>
-        <button className="mt-4 w-full rounded-full bg-primary py-2.5 text-sm font-medium text-white hover:bg-primary-hover">
+        <button className="mt-3.5 w-full rounded-full bg-ink py-[9px] text-[12.5px] font-bold text-white hover:bg-primary">
           Ouvrir toute la bibliothèque →
         </button>
       </Link>
