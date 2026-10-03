@@ -139,6 +139,7 @@ export interface OfferPrice {
   extraText: string;
   extraUsers: number;
   extraCost: number;
+  extraCostText: string;
   totalText: string;
 }
 
@@ -167,6 +168,7 @@ export function computeOfferPrice(
           : "Tarification personnalisée",
       extraUsers,
       extraCost,
+      extraCostText: `${fmtEur(extraCost)} € HT`,
       totalText: `${fmtEur(tier.price + extraCost)} € HT / an`,
     };
   }
@@ -176,7 +178,8 @@ export function computeOfferPrice(
   const extraAnnual =
     tier.extraUserPrice !== null ? Math.round(tier.extraUserPrice * (1 + MONTHLY_MARKUP)) : null;
   const extraMonthly = extraAnnual !== null ? Math.round(extraAnnual / 12) : null;
-  const totalAnnual = monthlyAnnual + (extraAnnual !== null ? extraUsers * extraAnnual : 0);
+  const extraCost = extraAnnual !== null ? extraUsers * extraAnnual : 0;
+  const totalAnnual = monthlyAnnual + extraCost;
 
   return {
     main: fmtEur(monthly),
@@ -187,7 +190,8 @@ export function computeOfferPrice(
         ? `+ ${fmtEur(extraMonthly)} € HT/mois par utilisateur supplémentaire`
         : "Tarification personnalisée",
     extraUsers,
-    extraCost: extraAnnual !== null ? extraUsers * extraAnnual : 0,
+    extraCost,
+    extraCostText: `${fmtEur(extraCost)} € HT`,
     totalText: `${fmtEur(totalAnnual / 12)} € HT / mois · soit ${fmtEur(totalAnnual)} € HT/an`,
   };
 }

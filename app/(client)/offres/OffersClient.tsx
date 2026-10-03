@@ -16,6 +16,16 @@ import RequestOfferButton from "./RequestOfferButton";
 // Port 1:1 du tableau comparatif et de l'aide au choix réels
 // (LBP_V9.9_Studio.html, renderOffres(), ~L11415-11430).
 //
+// Correctif fidélité (03/10/2026), suite à un retour de l'utilisateur
+// ("+30€ HT/an par utilisateur supplémentaire... Total: 411€ HT/an...
+// ça ne colle pas") : le calcul lui-même était déjà correct
+// (computeOfferPrice), mais le détail intermédiaire manquait -- le vrai
+// `offPrice()`/`renderOffres()` (~L11397-11402) affiche un encart
+// `.off-sim` ("{N} utilisateurs · {M} inclus" / "+ {X} supplémentaire(s)
+// : {coût} € HT" / "Total : ...") entre le taux et le total, seulement
+// quand il y a des utilisateurs en plus des inclus -- on sautait
+// directement du taux au total, sans montrer d'où il sortait.
+//
 // Correctif fidélité (03/10/2026) : cartes et titres recalés sur le vrai
 // CSS (.off-card/.off-name/.off-sub/.off-price/.off-h2, ~L1217-1261) --
 // tailles exactes en valeurs arbitraires, pas les classes Tailwind
@@ -156,7 +166,18 @@ export default function OffersClient({
               </p>
               <p className="mt-[3px] text-[11.5px] text-muted">{price.extraText}</p>
               {price.extraUsers > 0 && (
-                <p className="mt-1 text-xs font-medium text-primary">Total : {price.totalText}</p>
+                <div className="mt-[11px] rounded-[10px] bg-[#F5F0EC] px-3 py-[9px] text-[11.5px] leading-[1.6] text-ink">
+                  <div>
+                    {userCount} utilisateurs · {tier.users} inclus
+                  </div>
+                  <div>
+                    + {price.extraUsers} supplémentaire{price.extraUsers > 1 ? "s" : ""} :{" "}
+                    {price.extraCostText}
+                  </div>
+                  <div className="mt-[3px] font-extrabold text-primary">
+                    Total : {price.totalText}
+                  </div>
+                </div>
               )}
 
               <p className="mt-[18px] mb-2 text-[10.5px] font-extrabold tracking-[0.04em] text-muted uppercase">

@@ -259,6 +259,10 @@ Carte "à la une" reconstruite en vrai layout 2 colonnes (médias 46 % + corps),
 
 **Vérifié** : test réel navigateur avec la vraie session cliente ALPHA — palier actuel "LBP Métier" affiché, 4 offres réelles avec leurs vrais droits, demande de changement de palier réellement créée en base (`offer_change_requests`, `status: pending`), garde-fou vérifié réel : après création, le bouton "Demander cette offre" disparaît et la page affiche "en attente de traitement" après un rechargement complet (pas juste un état local React). Nettoyage après test : la ligne créée par le test supprimée, la demande de démonstration d'origine (ALPHA, palier 2→3, seedée pour STU-OFFER-02) restaurée à `pending` telle quelle.
 
+**Correctif (03/10/2026)**, suite à un retour de l'utilisateur ("+30€ HT/an par utilisateur supplémentaire... Total: 411€ HT/an... ça ne colle pas") : le calcul lui-même était déjà correct (`computeOfferPrice()`, vérifié : 201 + 7×30 = 411) -- ce qui manquait, c'est le détail intermédiaire. Le vrai `renderOffres()`/`offPrice()` (`LBP_V9.9_Studio.html` ~L11397-11402, CSS `.off-sim`/`.off-sim-t` ~L1238-1239) affiche un encart entre le taux et le total, uniquement quand il y a des utilisateurs en plus des inclus : "{N} utilisateurs · {M} inclus" / "+ {X} supplémentaire(s) : {coût} € HT" / "Total : ...". Notre version sautait directement du taux ("+30 € HT/an par utilisateur supplémentaire") au total, sans montrer d'où il sortait -- d'où l'impression que "ça ne colle pas", alors que le calcul était juste mais invisible. `computeOfferPrice()` complété avec `extraCostText` (même pattern que `extraText`/`totalText`, déjà formaté), `OffersClient.tsx` affiche désormais l'encart réel.
+
+**Vérifié** : capture réelle navigateur (session cliente ALPHA, 10 utilisateurs) -- "10 utilisateurs · 3 inclus" / "+ 7 supplémentaires : 210 € HT" / "Total : 411 € HT / an" sur LBP Essentiel, cohérent avec les 2 autres paliers affichés simultanément (549 €, 600 €).
+
 ---
 
 ## LBP-CLIENT-08 — Veille réglementaire (mode G2S) — hors périmètre LBP Client
