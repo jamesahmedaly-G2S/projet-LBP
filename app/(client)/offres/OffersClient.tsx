@@ -9,13 +9,20 @@ import {
   tierLevels,
   type StudioOfferTier,
 } from "@/lib/studio/offer-tiers";
-import { Card } from "@/ui-kit/Card";
 import { Badge } from "@/ui-kit/Badge";
 import { Button } from "@/ui-kit/Button";
 import RequestOfferButton from "./RequestOfferButton";
 
 // Port 1:1 du tableau comparatif et de l'aide au choix réels
-// (LBP_V6_Studio.html, renderOffres(), lignes 5192-5207).
+// (LBP_V9.9_Studio.html, renderOffres(), ~L11415-11430).
+//
+// Correctif fidélité (03/10/2026) : cartes et titres recalés sur le vrai
+// CSS (.off-card/.off-name/.off-sub/.off-price/.off-h2, ~L1217-1261) --
+// tailles exactes en valeurs arbitraires, pas les classes Tailwind
+// devinées précédentes. Libellés de section "Tout ce qui est inclus" /
+// "Votre niveau de personnalisation" (.off-sec) ajoutés : absents de
+// cette version, alors que renderOffres() les affiche explicitement
+// au-dessus de chaque liste.
 const COMPARISON_ROWS: [string, [number, number, number, number]][] = [
   ["Réglementation", [1, 1, 1, 1]],
   ["Fiches pratiques", [1, 1, 1, 1]],
@@ -118,16 +125,16 @@ export default function OffersClient({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 min-[640px]:grid-cols-2 min-[1150px]:grid-cols-4">
         {tiers.map((tier) => {
           const isCurrent = tier.tierLevel === currentTier;
           const price = computeOfferPrice(tier, billing, userCount);
           const levels = tierLevels(tier.tierLevel);
 
           return (
-            <Card
+            <div
               key={tier.tierLevel}
-              className={isCurrent ? "border-primary" : tier.reco ? "border-primary/50" : ""}
+              className={`flex flex-col rounded-[18px] border bg-white px-[22px] py-6 ${isCurrent ? "border-danger" : tier.reco ? "border-ink shadow-[0_0_0_2px_rgba(103,6,38,0.16)]" : "border-border"}`}
             >
               {isCurrent ? (
                 <Badge tone="blue">Votre offre actuelle</Badge>
@@ -135,37 +142,43 @@ export default function OffersClient({
                 <Badge tone={tier.reco ? "blue" : "amber"}>{tier.badge}</Badge>
               ) : null}
 
-              <h2 className="mt-2 text-lg font-semibold text-ink">{tier.name}</h2>
-              <p className="mt-1 text-xs text-muted">{tier.sub}</p>
+              <h2 className="mt-2 text-[19px] font-extrabold text-ink">{tier.name}</h2>
+              <p className="mt-[5px] mb-4 min-h-[38px] text-[12.5px] text-muted">{tier.sub}</p>
 
-              <div className="mt-3">
+              <div className="flex flex-wrap items-baseline gap-[5px]">
                 {tier.isCustomQuote && <span className="text-xs text-muted">à partir de </span>}
-                <span className="text-2xl font-semibold text-ink">{price.main}</span>
-                <span className="ml-1 text-sm text-muted">{price.unit}</span>
+                <span className="text-[22px] font-extrabold text-ink">{price.main}</span>
+                <span className="text-sm text-muted">{price.unit}</span>
               </div>
-              <p className="text-xs text-muted">{price.sub}</p>
-              <p className="mt-1 text-xs text-ink">
+              <p className="mt-1 text-[11.5px] text-muted">{price.sub}</p>
+              <p className="mt-[10px] text-[13px] text-ink">
                 Jusqu&apos;à <b>{tier.users}</b> utilisateurs inclus
               </p>
-              <p className="text-xs text-muted">{price.extraText}</p>
+              <p className="mt-[3px] text-[11.5px] text-muted">{price.extraText}</p>
               {price.extraUsers > 0 && (
                 <p className="mt-1 text-xs font-medium text-primary">Total : {price.totalText}</p>
               )}
 
-              <ul className="mt-3 flex flex-col gap-1 text-xs text-ink">
+              <p className="mt-[18px] mb-2 text-[10.5px] font-extrabold tracking-[0.04em] text-muted uppercase">
+                Tout ce qui est inclus
+              </p>
+              <ul className="flex flex-col gap-1.5 text-[12.5px] text-ink">
                 {tier.inc.slice(0, 6).map((item) => (
-                  <li key={item} className="flex items-start gap-1.5">
+                  <li key={item} className="flex items-start gap-2">
                     <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
                     {item}
                   </li>
                 ))}
               </ul>
 
-              <ul className="mt-3 flex flex-col gap-1 text-xs">
+              <p className="mt-[18px] mb-2 text-[10.5px] font-extrabold tracking-[0.04em] text-muted uppercase">
+                Votre niveau de personnalisation
+              </p>
+              <ul className="flex flex-col gap-1.5 text-[12.5px]">
                 {LVLABEL.map((label, i) => (
                   <li
                     key={label}
-                    className={`flex items-center gap-1.5 ${levels[i] ? "text-ink" : "text-muted"}`}
+                    className={`flex items-center gap-2 ${levels[i] ? "text-ink" : "text-muted"}`}
                   >
                     {levels[i] ? (
                       <Check className="h-3.5 w-3.5 text-success" />
@@ -177,7 +190,7 @@ export default function OffersClient({
                 ))}
               </ul>
 
-              <div className="mt-4 flex flex-col gap-2">
+              <div className="mt-auto flex flex-col gap-[7px] pt-[18px]">
                 {isCurrent ? (
                   <Link href={`${linkPrefix}/offres/${tier.tierLevel}`}>
                     <Button type="button" variant="secondary" className="w-full">
@@ -200,12 +213,14 @@ export default function OffersClient({
                   Voir tout le détail
                 </Link>
               </div>
-            </Card>
+            </div>
           );
         })}
       </div>
 
-      <h3 className="mt-10 text-lg font-semibold text-ink">Comparez les offres LBP</h3>
+      <h3 className="mt-11 mb-4 text-center text-[22px] font-extrabold text-ink">
+        Comparez les offres LBP
+      </h3>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[560px] text-sm">
           <thead>
@@ -240,7 +255,7 @@ export default function OffersClient({
         </table>
       </div>
 
-      <h3 className="mt-10 text-lg font-semibold text-ink">
+      <h3 className="mt-11 mb-4 text-center text-[22px] font-extrabold text-ink">
         Quelle offre LBP est faite pour vous ?
       </h3>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">

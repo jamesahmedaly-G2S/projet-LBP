@@ -33,8 +33,10 @@ export default async function OffresContent({
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Nos offres</Eyebrow>
       <SectionTitle>Les offres LBP</SectionTitle>
-      <p className="-mt-3 text-sm text-muted">
-        Choisissez le niveau de LBP adapté à votre entreprise.
+      <p className="-mt-3 max-w-[670px] text-sm text-muted">
+        Le LBP fonctionne comme un <strong>entonnoir</strong> : on part du droit général, puis on
+        ajoute vos conventions collectives, puis vos accords et usages d&apos;entreprise.{" "}
+        <strong>Cliquez sur une offre</strong> pour voir le détail.
       </p>
       {pendingRequest && (
         <p className="mt-2 text-sm text-primary">
@@ -52,6 +54,11 @@ export default async function OffresContent({
           readOnly={readOnly}
         />
       </div>
+
+      <p className="mx-auto mt-6 max-w-[780px] text-center text-[13.5px] leading-[1.6] text-muted">
+        Toutes nos offres sont rédigées à partir des textes en vigueur et mises à jour en fonction
+        des évolutions législatives, réglementaires et conventionnelles.
+      </p>
     </main>
   );
 }

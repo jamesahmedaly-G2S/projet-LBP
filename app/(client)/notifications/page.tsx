@@ -9,6 +9,15 @@ import NotificationsList, { type NotificationRow } from "./NotificationsList";
 // être visibles quelque part côté client, sinon la fonctionnalité est
 // invérifiable. `notifications` (table réelle de James, RLS déjà réelle)
 // jamais consommée par aucun écran avant ce ticket.
+//
+// Écart assumé (vérifié 03/10/2026) : le prototype n'a pas de page dédiée
+// pour les notifications côté client -- seulement un panneau déroulant
+// (`#notifPanel`/`updateBell()`, LBP_V9.9_Studio.html) ouvert depuis la
+// cloche de l'en-tête. Une vraie page (`/notifications`) est délibérément
+// préférée ici : plus robuste (lien direct, pas de contenu perdu à la
+// fermeture du panneau), cohérent avec "Mon compte" qui est aussi une
+// vraie page dans le prototype -- pas une tentative manquée de porter le
+// panneau.
 export default async function NotificationsPage() {
   await requireClient();
   const supabase = await createClient();
