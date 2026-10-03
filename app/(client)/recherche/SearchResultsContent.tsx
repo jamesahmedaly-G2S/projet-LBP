@@ -2,8 +2,6 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getCompanyAffectations } from "@/lib/studio/affectations";
-import { Card } from "@/ui-kit/Card";
-import { Badge } from "@/ui-kit/Badge";
 import { Eyebrow } from "../_components/Eyebrow";
 import { SectionTitle } from "../_components/SectionTitle";
 import { smartMatch, flattenJsonText } from "@/lib/client/smart-search";
@@ -16,6 +14,15 @@ import { EXTERNAL_SOURCES } from "@/lib/client/external-sources";
 // Actualités/Quizz) + un bloc de liens de recherche externe avec un
 // avertissement explicite ("recherche externe... pas une interrogation
 // directe des API officielles") -- porté ici tel quel, jamais atténué.
+//
+// Correctif fidélité (03/10/2026), suite à un retour de l'utilisateur
+// ("compare bien mot pour mot et taille pour taille") : structure/texte
+// déjà corrects (vérifié ci-dessus), seule la taille avait été devinée --
+// `.ov-panel` (18px padding/radius, shadow-sm, pas le Card générique),
+// `.ov-panel h3` (13px/800/uppercase/.03em, pas font-semibold nu),
+// `.sr-count` (pill 11px/800 sur fond panel, pas un Badge générique),
+// `.sr-item`/`.sr-t`/`.sr-m` (14px/700 et 12px, tailles exactes),
+// `.src-link`/`.src-grid` (fond cream, padding 12px 15px, radius 11px).
 //
 // Simplification assumée sur les fiches : recherche sur le titre, les tags
 // et le contenu de la couche "rg" (réglementation générale) uniquement --
@@ -129,14 +136,14 @@ export default async function SearchResultsContent({
       <SectionTitle>{q.trim() ? `« ${q} »` : "Recherche globale"}</SectionTitle>
 
       {!q.trim() ? (
-        <Card className="mt-6">
+        <div className="mt-6 rounded-[18px] border border-border bg-surface p-[18px] shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)]">
           <p className="text-sm text-muted">
             Saisissez un mot-clé dans la barre de recherche en haut.
           </p>
-        </Card>
+        </div>
       ) : (
         <div className="mt-6 flex flex-col gap-4">
-          <ResultBlock title="Fiches de votre bibliothèque" count={sheetResults.length}>
+          <ResultBlock icon="📚" title="Fiches de votre bibliothèque" count={sheetResults.length}>
             {sheetResults.map((s) => (
               <ResultRow
                 key={s.id}
@@ -148,7 +155,7 @@ export default async function SearchResultsContent({
             ))}
           </ResultBlock>
 
-          <ResultBlock title="Actualités" count={articleResults.length}>
+          <ResultBlock icon="📰" title="Actualités" count={articleResults.length}>
             {articleResults.map((a) => (
               <ResultRow
                 key={a.id}
@@ -160,7 +167,7 @@ export default async function SearchResultsContent({
             ))}
           </ResultBlock>
 
-          <ResultBlock title="Quizz" count={quizResults.length}>
+          <ResultBlock icon="🏆" title="Quizz" count={quizResults.length}>
             {quizResults.map((qz) => (
               <ResultRow
                 key={qz.id}
@@ -172,28 +179,30 @@ export default async function SearchResultsContent({
             ))}
           </ResultBlock>
 
-          <Card>
-            <h3 className="font-semibold text-ink">Sur les sources officielles</h3>
-            <p className="mt-1 text-xs text-muted">
+          <div className="rounded-[18px] border border-border bg-surface p-[18px] shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)]">
+            <h3 className="mb-[13px] flex items-center gap-2 text-[13px] font-extrabold tracking-[0.03em] text-ink uppercase">
+              🔎 Sur les sources officielles
+            </h3>
+            <p className="mb-3 text-[12.5px] text-muted">
               Ces liens ouvrent une recherche externe sur chaque site, dans un nouvel onglet. Il ne
               s&apos;agit pas d&apos;une interrogation directe des API officielles : cette connexion
               reste une évolution technique à étudier.
             </p>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-[9px] min-[640px]:grid-cols-2">
               {EXTERNAL_SOURCES.map((src) => (
                 <a
                   key={src.name}
                   href={src.url(enc)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm text-ink hover:border-primary"
+                  className="flex items-center justify-between gap-2.5 rounded-[11px] bg-[#F5F0EC] px-[15px] py-3 text-ink no-underline transition-colors hover:bg-[#EFE7E1]"
                 >
                   <span>{src.name}</span>
                   <span className="text-primary">Rechercher ↗</span>
                 </a>
               ))}
             </div>
-          </Card>
+          </div>
         </div>
       )}
     </main>
@@ -201,26 +210,30 @@ export default async function SearchResultsContent({
 }
 
 function ResultBlock({
+  icon,
   title,
   count,
   children,
 }: {
+  icon: string;
   title: string;
   count: number;
   children: ReactNode;
 }) {
   return (
-    <Card>
-      <div className="flex items-center gap-2">
-        <h3 className="font-semibold text-ink">{title}</h3>
-        <Badge tone="neutral">{count}</Badge>
-      </div>
+    <div className="rounded-[18px] border border-border bg-surface p-[18px] shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)]">
+      <h3 className="mb-[13px] flex items-center gap-2 text-[13px] font-extrabold tracking-[0.03em] text-ink uppercase">
+        {icon} {title}
+        <span className="rounded-full bg-[#F5F0EC] px-[9px] py-0.5 text-[11px] font-extrabold text-muted normal-case">
+          {count}
+        </span>
+      </h3>
       {count === 0 ? (
-        <p className="mt-2 text-sm text-muted">Aucun résultat.</p>
+        <p className="text-sm text-muted">Aucun résultat.</p>
       ) : (
-        <ul className="mt-3 flex flex-col gap-1">{children}</ul>
+        <ul className="flex flex-col gap-2">{children}</ul>
       )}
-    </Card>
+    </div>
   );
 }
 
@@ -239,11 +252,11 @@ function ResultRow({
     <li>
       <Link
         href={href}
-        className="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-2 hover:border-primary"
+        className="flex items-center justify-between gap-3 rounded-[10px] border border-border bg-white px-3.5 py-[11px] transition-colors hover:border-primary"
       >
         <div>
-          <p className="text-sm font-medium text-ink">{title}</p>
-          {meta && <p className="text-xs text-muted">{meta}</p>}
+          <p className="text-[14px] font-bold text-ink">{title}</p>
+          {meta && <p className="mt-0.5 text-xs text-muted">{meta}</p>}
         </div>
         <span className="shrink-0 text-sm text-primary">{cta}</span>
       </Link>

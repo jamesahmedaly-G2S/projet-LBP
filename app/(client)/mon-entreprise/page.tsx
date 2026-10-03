@@ -23,6 +23,21 @@ import ToolsForm from "./ToolsForm";
 // large pour ce seul ticket (voir tickets/LBP-CLIENT.md).
 // Renommé "Mon entreprise" (cahier des charges technique V9.4, §3.3, MAJ
 // 29/09/2026) — route et libellé alignés, contenu/schéma inchangés.
+//
+// Correctif fidélité (03/10/2026), suite à un retour de l'utilisateur
+// ("compare bien mot pour mot et taille pour taille") : les 4 en-têtes de
+// bloc étaient des `<h2>` nus (text-lg font-semibold) -- revérifié contre
+// `.sec-title.big` (LBP_V9.9_Studio.html, surcharge la plus tardive
+// ~L2474 : font-size 23px!letter-spacing -.015em, couleur var(--titre)
+// =#33405A ~L2473, le même bloc "TITRES — renforcement demandé" qui
+// s'applique à SectionTitle/Eyebrow) et les icônes réelles de
+// `renderDocs()` (`ico('file')`/`ico('users')`/`ico('settings')` x2) --
+// jamais remarqué jusqu'ici, approximées en emoji comme pour
+// AccueilContent.tsx (même convention : pas de jeu d'icônes SVG du
+// prototype à notre disposition).
+const sectionHeadingClass =
+  "mt-[6px] mb-3 flex items-baseline gap-[10px] text-[23px] font-extrabold tracking-[-0.015em] text-[#33405A]";
+
 export default async function MonEntreprisePage() {
   const session = await requireClient();
   const companyId = session.profile.company_id;
@@ -48,7 +63,7 @@ export default async function MonEntreprisePage() {
   ] = await Promise.all([
     supabase
       .from("companies")
-      .select("company_name, legal_form, headcount")
+      .select("company_name, legal_form, headcount, cba")
       .eq("id", companyId)
       .single(),
     supabase
@@ -84,11 +99,12 @@ export default async function MonEntreprisePage() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Card>
-          <h2 className="text-lg font-semibold text-ink">Identité</h2>
+          <h2 className={sectionHeadingClass}>📄 Identité</h2>
           <dl className="mt-3 flex flex-col gap-1.5 text-sm">
             <div>
               <dt className="text-muted">Raison sociale</dt>
               <dd className="text-ink">{company?.company_name ?? "—"}</dd>
+              {company?.cba && <dd className="text-muted">{company.cba}</dd>}
             </div>
             <div>
               <dt className="text-muted">Forme</dt>
@@ -110,7 +126,7 @@ export default async function MonEntreprisePage() {
         </Card>
 
         <Card>
-          <h2 className="text-lg font-semibold text-ink">Organisation</h2>
+          <h2 className={sectionHeadingClass}>👥 Organisation</h2>
           <p className="mt-1 text-xs text-muted">Votre organigramme.</p>
           <div className="mt-3">
             <TeamSection members={members ?? []} />
@@ -118,7 +134,7 @@ export default async function MonEntreprisePage() {
         </Card>
 
         <Card>
-          <h2 className="text-lg font-semibold text-ink">Organisation de la paie</h2>
+          <h2 className={sectionHeadingClass}>⚙️ Organisation de la paie</h2>
           <div className="mt-3">
             <PayrollForm
               operatingMode={payrollOrg?.operating_mode ?? null}
@@ -128,7 +144,7 @@ export default async function MonEntreprisePage() {
         </Card>
 
         <Card>
-          <h2 className="text-lg font-semibold text-ink">Outils</h2>
+          <h2 className={sectionHeadingClass}>⚙️ Outils</h2>
           <div className="mt-3">
             <ToolsForm
               payrollSoftware={softwareStack?.payroll_software ?? null}

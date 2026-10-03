@@ -6,14 +6,14 @@ import { Eyebrow } from "../_components/Eyebrow";
 import { SectionTitle } from "../_components/SectionTitle";
 import AddEventForm from "./AddEventForm";
 import DeleteEventButton from "./DeleteEventButton";
-import { pad2, monthWeeks } from "@/lib/client/month-grid";
+import CalendarFiltersRh from "./CalendarFiltersRh";
+import { pad2 } from "@/lib/client/month-grid";
 import {
-  CALENDAR_THEMES,
   EVENT_TYPE_LABEL,
   EVENT_SCOPE_LABEL,
+  EVENT_TYPE_COLOR,
   PRIORITY_LABEL,
   TYPE_BADGE_TONE,
-  TYPE_DOT_CLASS,
   type CalendarEventType,
   type CalendarEventScope,
 } from "@/lib/client/calendar-taxonomy";
@@ -26,25 +26,60 @@ import {
 // Pâques par l'algorithme de Meeus) est explicitement hors phase 1
 // (docs/ARCHITECTURE.md §7.1), laissé intact et non consommé ici.
 //
-// Couleurs par type, taxonomie, pad2/monthWeeks : voir
-// lib/client/calendar-taxonomy.ts et lib/client/month-grid.ts, partagés
-// avec CompactCalendar.tsx (widget compact de l'Accueil, LBP-CLIENT-01).
+// Correctif fidélité (03/10/2026), suite à un retour de l'utilisateur
+// ("compare bien mot pour mot et taille pour taille") : revérifié contre
+// le vrai `renderCalFull()` (LBP_V9.9_Studio.html ~L3315-3359, PAS
+// `renderCalendar()`, le widget compact de l'Accueil -- deux fonctions,
+// deux designs différents) et son CSS (`.calf-*`, ~L930-950). Écarts
+// trouvés et corrigés :
+// - Grille réelle : 42 cellules englobant les jours des mois voisins
+//   (grisés, `.calf-cell.out`), pas seulement les jours du mois courant
+//   avec des cases vides -- `monthWeeks()` (partagé avec CompactCalendar,
+//   qui lui N'A PAS ce débordement dans le vrai `renderCalendar()`) ne
+//   convient pas ici, grille reconstruite localement.
+// - Cellule réelle : chaque événement s'affiche en PUCE DE TEXTE lisible
+//   directement dans la grille (`.calf-ev`, titre complet tronqué à 3
+//   lignes), pas un simple point de couleur -- l'info est visible sans
+//   cliquer.
+// - Navigation : boutons année (« »), pas seulement mois (‹ ›) ; compteur
+//   "X échéance(s) ce mois" ; légende + indice "Cliquez sur une journée
+//   pour le détail ou pour ajouter votre échéance." sous la grille --
+//   rien de tout ça n'existait.
+// - Filtres : extraits dans CalendarFiltersRh.tsx, appliqués au
+//   changement (aucun bouton "Filtrer" dans le vrai marquage, même
+//   principe que CompactCalendar/CalendarFilters de l'Accueil) --
+//   "portée" retiré du filtre (n'existe pas dans le vrai `CAL_TAX`,
+//   c'était une invention), toujours affiché en revanche dans le détail
+//   du jour (le vrai `renderDayModal()` montre bien la portée par
+//   événement, juste pas comme filtre global).
+// - En-têtes de colonnes : vrais noms de jours en toutes lettres
+//   ("lundi".."dimanche"), pas des abréviations à 3 lettres.
+//
+// Couleurs par type, taxonomie : voir lib/client/calendar-taxonomy.ts,
+// partagé avec CompactCalendar.tsx (widget compact de l'Accueil,
+// LBP-CLIENT-01). EVENT_TYPE_COLOR (teintes propres EVCOL du prototype)
+// utilisé ici pour les puces d'événement (`--c` dans le vrai CSS, une
+// couleur par événement, pas une classe Tailwind sémantique) -- la
+// légende, elle, garde les tons sémantiques déjà choisis (TYPE_DOT_CLASS)
+// pour rester cohérente avec le widget compact et /calendrier-rh lui-même
+// ailleurs sur la page (badges de la liste du jour).
 
+const WEEKDAY_NAMES = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+const WEEKDAY_SHORT = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"];
 const MONTH_NAMES = [
-  "Janvier",
-  "Février",
-  "Mars",
-  "Avril",
-  "Mai",
-  "Juin",
-  "Juillet",
-  "Août",
-  "Septembre",
-  "Octobre",
-  "Novembre",
-  "Décembre",
+  "janvier",
+  "février",
+  "mars",
+  "avril",
+  "mai",
+  "juin",
+  "juillet",
+  "août",
+  "septembre",
+  "octobre",
+  "novembre",
+  "décembre",
 ];
-const WEEKDAY_LABELS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
 interface CalendarEventRow {
   id: string;
@@ -59,13 +94,31 @@ interface CalendarEventRow {
   profile_id: string | null;
 }
 
+function dateKey(d: Date): string {
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+// Grille réelle : 6 semaines (42 jours), lundi en première colonne,
+// débordant sur les mois voisins -- distincte de monthWeeks() (utilisée
+// par le widget compact, qui n'a pas ce débordement dans le vrai
+// renderCalendar()).
+function buildFullGrid(year: number, month: number): { date: Date; inMonth: boolean }[] {
+  const first = new Date(year, month - 1, 1);
+  const dow = first.getDay() || 7;
+  const gridStart = new Date(year, month - 1, 1 - (dow - 1));
+  return Array.from({ length: 42 }, (_, i) => {
+    const d = new Date(gridStart);
+    d.setDate(gridStart.getDate() + i);
+    return { date: d, inMonth: d.getMonth() === month - 1 };
+  });
+}
+
 export default async function CalendarContent({
   year,
   month,
   day,
   theme,
   typeEv,
-  scope,
   companyId,
   userId,
   linkPrefix = "",
@@ -75,28 +128,27 @@ export default async function CalendarContent({
   day: string | null;
   theme: string | null;
   typeEv: CalendarEventType | null;
-  scope: CalendarEventScope | null;
   companyId: string | null;
   userId: string;
   linkPrefix?: string;
 }) {
   const supabase = await createClient();
 
-  const monthStart = `${year}-${pad2(month)}-01`;
-  const monthEndExclusive = month === 12 ? `${year + 1}-01-01` : `${year}-${pad2(month + 1)}-01`;
+  const grid = buildFullGrid(year, month);
+  const gridStartKey = dateKey(grid[0].date);
+  const gridEndKey = dateKey(grid[grid.length - 1].date);
 
   let query = supabase
     .from("calendar_events")
     .select(
       "id, scope, event_date, title, category, event_type, priority, note, company_id, profile_id",
     )
-    .gte("event_date", monthStart)
-    .lt("event_date", monthEndExclusive)
+    .gte("event_date", gridStartKey)
+    .lte("event_date", gridEndKey)
     .order("event_date");
 
   if (theme) query = query.eq("category", theme);
   if (typeEv) query = query.eq("event_type", typeEv);
-  if (scope) query = query.eq("scope", scope);
 
   const { data: events } = await query.returns<CalendarEventRow[]>();
   const all = events ?? [];
@@ -106,8 +158,11 @@ export default async function CalendarContent({
     if (!byDate.has(e.event_date)) byDate.set(e.event_date, []);
     byDate.get(e.event_date)!.push(e);
   }
-
-  const weeks = monthWeeks(year, month);
+  const monthStart = `${year}-${pad2(month)}-01`;
+  const monthEndExclusive = month === 12 ? `${year + 1}-01-01` : `${year}-${pad2(month + 1)}-01`;
+  const monthCount = all.filter(
+    (e) => e.event_date >= monthStart && e.event_date < monthEndExclusive,
+  ).length;
 
   const buildHref = (params: {
     year?: number;
@@ -115,7 +170,6 @@ export default async function CalendarContent({
     day?: string | null;
     theme?: string | null;
     typeEv?: string | null;
-    scope?: string | null;
   }) => {
     const sp = new URLSearchParams();
     const finalYear = params.year ?? year;
@@ -123,13 +177,11 @@ export default async function CalendarContent({
     const finalDay = params.day !== undefined ? params.day : day;
     const finalTheme = params.theme !== undefined ? params.theme : theme;
     const finalType = params.typeEv !== undefined ? params.typeEv : typeEv;
-    const finalScope = params.scope !== undefined ? params.scope : scope;
     sp.set("annee", String(finalYear));
     sp.set("mois", String(finalMonth));
     if (finalDay) sp.set("jour", finalDay);
     if (finalTheme) sp.set("theme", finalTheme);
     if (finalType) sp.set("type", finalType);
-    if (finalScope) sp.set("portee", finalScope);
     return `${linkPrefix}/calendrier-rh?${sp.toString()}`;
   };
 
@@ -137,7 +189,7 @@ export default async function CalendarContent({
   const nextMonth = month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 };
 
   const today = new Date();
-  const todayStr = `${today.getFullYear()}-${pad2(today.getMonth() + 1)}-${pad2(today.getDate())}`;
+  const todayStr = dateKey(today);
 
   const dayEvents = day ? (byDate.get(day) ?? []) : [];
   const dayLabel = day
@@ -158,118 +210,122 @@ export default async function CalendarContent({
         le détail ou pour ajouter votre propre échéance.
       </p>
 
-      <form className="mt-4 flex flex-wrap gap-2" action={`${linkPrefix}/calendrier-rh`}>
-        <input type="hidden" name="annee" value={year} />
-        <input type="hidden" name="mois" value={month} />
-        <select
-          name="theme"
-          defaultValue={theme ?? ""}
-          className="rounded-md border border-border px-3 py-2 text-sm text-ink"
-        >
-          <option value="">Toutes les thématiques</option>
-          {CALENDAR_THEMES.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-        <select
-          name="type"
-          defaultValue={typeEv ?? ""}
-          className="rounded-md border border-border px-3 py-2 text-sm text-ink"
-        >
-          <option value="">Tous les types</option>
-          {(Object.keys(EVENT_TYPE_LABEL) as CalendarEventType[]).map((t) => (
-            <option key={t} value={t}>
-              {EVENT_TYPE_LABEL[t]}
-            </option>
-          ))}
-        </select>
-        <select
-          name="portee"
-          defaultValue={scope ?? ""}
-          className="rounded-md border border-border px-3 py-2 text-sm text-ink"
-        >
-          <option value="">Toutes les portées</option>
-          {(Object.keys(EVENT_SCOPE_LABEL) as CalendarEventScope[]).map((s) => (
-            <option key={s} value={s}>
-              {EVENT_SCOPE_LABEL[s]}
-            </option>
-          ))}
-        </select>
-        <button
-          type="submit"
-          className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
-        >
-          Filtrer
-        </button>
-      </form>
+      <div className="mt-4">
+        <CalendarFiltersRh
+          action={`${linkPrefix}/calendrier-rh`}
+          year={year}
+          month={month}
+          theme={theme}
+          typeEv={typeEv}
+        />
+      </div>
 
-      <div className="mt-6 flex items-center justify-between">
+      <div className="mb-3 flex items-center gap-2.5">
+        <Link
+          href={buildHref({ year: year - 1, day: null })}
+          title="Année précédente"
+          className="grid h-[26px] w-[26px] place-items-center rounded-lg bg-[#F5F0EC] text-[15px] text-ink hover:bg-[#EFE7E1]"
+        >
+          «
+        </Link>
         <Link
           href={buildHref({ year: prevMonth.year, month: prevMonth.month, day: null })}
-          className="text-sm text-primary hover:underline"
+          className="grid h-[26px] w-[26px] place-items-center rounded-lg bg-[#F5F0EC] text-[15px] text-ink hover:bg-[#EFE7E1]"
         >
-          ← Mois précédent
+          ‹
         </Link>
-        <p className="text-lg font-semibold text-ink">
+        <p className="min-w-[190px] font-extrabold text-ink capitalize">
           {MONTH_NAMES[month - 1]} {year}
         </p>
         <Link
           href={buildHref({ year: nextMonth.year, month: nextMonth.month, day: null })}
-          className="text-sm text-primary hover:underline"
+          className="grid h-[26px] w-[26px] place-items-center rounded-lg bg-[#F5F0EC] text-[15px] text-ink hover:bg-[#EFE7E1]"
         >
-          Mois suivant →
+          ›
         </Link>
+        <Link
+          href={buildHref({ year: year + 1, day: null })}
+          title="Année suivante"
+          className="grid h-[26px] w-[26px] place-items-center rounded-lg bg-[#F5F0EC] text-[15px] text-ink hover:bg-[#EFE7E1]"
+        >
+          »
+        </Link>
+        <span className="ml-auto text-[12.5px] text-muted">
+          {monthCount} échéance{monthCount > 1 ? "s" : ""} ce mois
+        </span>
       </div>
 
-      <Card className="mt-3">
-        <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-muted">
-          {WEEKDAY_LABELS.map((w) => (
-            <div key={w}>{w}</div>
-          ))}
-        </div>
-        <div className="mt-1 grid grid-cols-7 gap-1">
-          {weeks.flatMap((week, wi) =>
-            week.map((d, di) => {
-              if (d === null) return <div key={`${wi}-${di}`} />;
-              const ds = `${year}-${pad2(month)}-${pad2(d)}`;
-              const dEvents = byDate.get(ds) ?? [];
-              const isSelected = ds === day;
-              const isToday = ds === todayStr;
-              return (
-                <Link
-                  key={ds}
-                  href={buildHref({ day: ds })}
-                  className={`flex min-h-16 flex-col items-center gap-1 rounded-md border p-1 text-xs hover:border-primary ${
-                    isSelected ? "border-primary bg-primary-soft" : "border-border"
-                  }`}
-                >
-                  <span className={`font-medium ${isToday ? "text-primary" : "text-ink"}`}>
-                    {d}
+      <div className="grid grid-cols-7 gap-px overflow-hidden rounded-[14px] border border-border bg-border">
+        {WEEKDAY_NAMES.map((w, i) => (
+          <div
+            key={w}
+            className="bg-[#F5F0EC] py-[9px] text-center text-[11px] font-extrabold tracking-[0.03em] text-muted uppercase"
+          >
+            <span className="hidden sm:inline">{w}</span>
+            <span className="sm:hidden">{WEEKDAY_SHORT[i]}</span>
+          </div>
+        ))}
+        {grid.map(({ date, inMonth }) => {
+          const ds = dateKey(date);
+          const dEvents = byDate.get(ds) ?? [];
+          const isToday = ds === todayStr;
+          const isSelected = ds === day;
+          return (
+            <Link
+              key={ds}
+              href={buildHref({ day: ds })}
+              className={`flex min-h-[112px] flex-col gap-[5px] bg-white p-[7px_7px_9px] ${
+                inMonth ? "" : "bg-[#FAF9F7]"
+              } ${isSelected ? "ring-2 ring-primary ring-inset" : ""} hover:bg-[#FAF9F7]`}
+            >
+              <span
+                className={`flex items-baseline gap-[5px] font-extrabold ${
+                  !inMonth ? "text-[#C6BFC3]" : isToday ? "text-primary" : "text-ink"
+                }`}
+              >
+                <span className="text-[15px]">{date.getDate()}</span>
+                <span className="text-[10px] font-semibold text-muted lowercase">
+                  {WEEKDAY_SHORT[(date.getDay() || 7) - 1]}
+                </span>
+              </span>
+              <div className="flex flex-col gap-1">
+                {dEvents.slice(0, 3).map((e) => (
+                  <span
+                    key={e.id}
+                    className={`line-clamp-3 rounded-[5px] bg-[#F5F0EC] py-1 pr-1.5 pl-1.5 text-[10.5px] leading-[1.3] text-ink ${
+                      e.scope === "personal" ? "bg-[#F5F0EC] font-semibold" : ""
+                    }`}
+                    style={{
+                      borderLeft: `3px solid ${e.event_type ? EVENT_TYPE_COLOR[e.event_type] : "#ccc"}`,
+                    }}
+                  >
+                    {e.title}
                   </span>
-                  {dEvents.length > 0 && (
-                    <div className="flex flex-wrap justify-center gap-0.5">
-                      {dEvents.slice(0, 4).map((e) => (
-                        <span
-                          key={e.id}
-                          className={`h-1.5 w-1.5 rounded-full ${
-                            e.event_type ? TYPE_DOT_CLASS[e.event_type] : "bg-muted"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </Link>
-              );
-            }),
-          )}
-        </div>
-      </Card>
+                ))}
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[11px] text-muted">
+        {(Object.keys(EVENT_TYPE_LABEL) as CalendarEventType[]).map((t) => (
+          <span key={t} className="flex items-center gap-1">
+            <span
+              className="h-[9px] w-[9px] rounded-full"
+              style={{ background: EVENT_TYPE_COLOR[t] }}
+            />
+            {EVENT_TYPE_LABEL[t]}
+          </span>
+        ))}
+        <span className="ml-auto italic">
+          Cliquez sur une journée pour le détail ou pour ajouter votre échéance.
+        </span>
+      </div>
 
       {day && (
         <Card className="mt-4">
-          <p className="text-sm font-semibold capitalize text-ink">{dayLabel}</p>
+          <p className="text-sm font-semibold text-ink capitalize">{dayLabel}</p>
           {dayEvents.length === 0 ? (
             <p className="mt-2 text-sm text-muted">Aucune échéance ce jour.</p>
           ) : (

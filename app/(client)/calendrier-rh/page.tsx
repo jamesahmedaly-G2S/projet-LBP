@@ -1,6 +1,6 @@
 import { requireClient } from "@/lib/auth/session";
 import CalendarContent from "./CalendarContent";
-import type { CalendarEventScope, CalendarEventType } from "@/lib/client/calendar-taxonomy";
+import type { CalendarEventType } from "@/lib/client/calendar-taxonomy";
 
 export default async function CalendrierRhPage({
   searchParams,
@@ -11,7 +11,6 @@ export default async function CalendrierRhPage({
     jour?: string;
     theme?: string;
     type?: string;
-    portee?: string;
   }>;
 }) {
   const session = await requireClient();
@@ -28,7 +27,6 @@ export default async function CalendrierRhPage({
       day={sp.jour ?? null}
       theme={sp.theme ?? null}
       typeEv={(sp.type as CalendarEventType) ?? null}
-      scope={(sp.portee as CalendarEventScope) ?? null}
       companyId={session.profile.company_id}
       userId={session.userId}
     />
