@@ -57,6 +57,10 @@ Suite à deux retours successifs de l'utilisateur : d'abord sur Prise en main ("
 
 **Reste à faire** : découpé module par module ci-dessous (§1.2-§1.14 du cahier des charges, table exacte de `docs/G2S-LBP-01.md` lignes 180-194).
 
+**Correctif (03/10/2026)**, suite à un retour direct de l'utilisateur ("le vrai titre ne dis pas ça") : le nom de marque dans l'en-tête ("LE LIVRE BLANC DE LA PAIE"/"PAR G2S") avait été délibérément gardé différent du vrai texte du prototype ("LBP — Référentiel Paie"), justifié à l'époque par "déjà établi dans tout ce projet" -- mauvaise priorité, jamais revérifié depuis, et l'utilisateur tranche maintenant explicitement pour la fidélité au prototype. Vrai marquage (`.brand`, `LBP_V9.9_Studio.html` ~L2515-2517) : `<strong>LBP</strong><small>Référentiel Paie · by G2S</small>`, avec un liseré framboise (`border-left:3px solid var(--coral)`) jamais remarqué avant. Corrigé dans `app/(client)/layout.tsx` (en-tête desktop) et `app/(client)/_components/MobileNav.tsx` (en-tête du menu mobile plein écran).
+
+**Vérifié** : capture réelle desktop et mobile (session cliente ALPHA) -- "LBP" / "RÉFÉRENTIEL PAIE · BY G2S" avec liseré framboise sur les deux affichages.
+
 ---
 
 ## LBP-CLIENT-01 — Accueil 🟡 Partiellement fait

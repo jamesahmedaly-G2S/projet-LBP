@@ -32,11 +32,18 @@ import PageBackdrop from "./_components/PageBackdrop";
 // feuille) avant de construire, plutôt que devinés depuis le code source
 // seul. "Mode client / LBP Studio" (toggle du prototype) délibérément
 // omis : notre appli a un vrai système de rôles (admin/client, ADR-0004),
-// un client n'a jamais accès au Studio -- pas de mode à basculer. Nom de
-// marque gardé tel quel ("LE LIVRE BLANC DE LA PAIE", déjà établi dans
-// tout ce projet) plutôt que "LBP — Référentiel Paie" vu dans cette
-// version précise du prototype -- seul le style du bandeau est porté ici,
-// pas un renommage produit non demandé.
+// un client n'a jamais accès au Studio -- pas de mode à basculer.
+//
+// Correctif fidélité (03/10/2026), suite à un retour direct de
+// l'utilisateur ("le vrai titre ne dis pas ça") : un choix précédent
+// gardait "LE LIVRE BLANC DE LA PAIE"/"PAR G2S" plutôt que le vrai texte
+// du prototype, en le justifiant comme "déjà établi dans tout ce
+// projet" -- mauvaise priorité, jamais revérifié depuis. Le vrai
+// marquage (`.brand`, `LBP_V9.9_Studio.html` ~L2515-2517) est
+// `<strong>LBP</strong><small>Référentiel Paie · by G2S</small>`, porté
+// ici tel quel. `.brand-text{border-left:3px solid var(--coral)}`
+// (liseré framboise) également ajouté, jamais remarqué avant ce
+// correctif.
 //
 // Responsive (finitions, 30/09/2026) : le vrai prototype n'a pas de menu
 // mobile fonctionnel pour ces 9 onglets (pas de media query ni de JS
@@ -52,7 +59,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
       <PageBackdrop />
       <header className="sticky top-0 z-50 bg-primary px-6 py-2.5 text-white">
         <div className="flex flex-wrap items-center gap-3">
-          <Link href="/accueil" className="flex shrink-0 items-center gap-2.5">
+          <Link href="/accueil" className="flex shrink-0 items-center gap-[13px]">
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-white p-1">
               <Image
                 src="/g2s-logo.png"
@@ -62,11 +69,13 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
                 className="h-full w-full object-contain"
               />
             </span>
-            <span className="hidden leading-tight sm:block">
-              <span className="block text-sm font-extrabold tracking-wide">
-                LE LIVRE BLANC DE LA PAIE
+            <span className="hidden border-l-[3px] border-white/55 pl-[13px] leading-[1.1] sm:block">
+              <span className="block text-[20px] font-extrabold tracking-[0.14em] text-white">
+                LBP
               </span>
-              <span className="block text-[10px] tracking-wide text-white/75">PAR G2S</span>
+              <span className="block text-[9.5px] font-medium tracking-[0.14em] text-white/85 uppercase">
+                Référentiel Paie · by G2S
+              </span>
             </span>
           </Link>
 

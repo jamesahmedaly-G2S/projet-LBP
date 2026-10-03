@@ -51,7 +51,7 @@ export default function MobileNav() {
   const panel = open && (
     <div className="theme-client fixed inset-0 z-[100] bg-primary text-white md:hidden">
       <div className="flex items-center justify-between px-6 py-2.5">
-        <span className="text-sm font-extrabold tracking-wide">LE LIVRE BLANC DE LA PAIE</span>
+        <span className="text-[20px] font-extrabold tracking-[0.14em]">LBP</span>
         <button
           type="button"
           onClick={() => setOpen(false)}
