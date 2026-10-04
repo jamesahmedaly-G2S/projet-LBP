@@ -75,6 +75,13 @@ import PageBackdrop from "./_components/PageBackdrop";
 //    place, elle doit être décalée de l'autre côté" -- toujours sur sa
 //    propre ligne sous les onglets, mais alignée à droite plutôt qu'à
 //    gauche (`md:justify-end` sur le conteneur de la ligne).
+// 4) Correction (04/10/2026) : "ça peut remonter un peu aligner avec
+//    prise en main" -- la recherche vivait sur une ligne à part sous
+//    ClientNav tout entier (donc sous "Prise en main" aussi), un cran
+//    trop bas. Remontée d'une ligne : `ClientNav` accepte désormais un
+//    slot `trailing`, rendu sur la même ligne que "Prise en main"
+//    (rangée secondaire), poussé à droite via `justify-between` -- plus
+//    de ligne dédiée à la recherche.
 export default function ClientLayout({ children }: { children: ReactNode }) {
   return (
     <div className="theme-client min-h-screen">
@@ -128,26 +135,26 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
         </div>
 
         <div className="hidden md:mt-2 md:block">
-          <ClientNav />
-        </div>
-
-        <div className="hidden md:mt-2 md:flex md:justify-end">
-          <form
-            action="/recherche"
-            className="flex w-full max-w-[240px] items-center gap-1.5 rounded-full border border-border bg-white px-3.5 py-1.5"
-          >
-            <Search className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden="true" />
-            <label className="sr-only" htmlFor="gq">
-              Recherche globale dans le LBP
-            </label>
-            <input
-              type="search"
-              id="gq"
-              name="q"
-              placeholder="Rechercher…"
-              className="w-full min-w-0 bg-transparent text-sm text-ink outline-none placeholder:text-muted"
-            />
-          </form>
+          <ClientNav
+            trailing={
+              <form
+                action="/recherche"
+                className="flex w-full max-w-[240px] shrink-0 items-center gap-1.5 rounded-full border border-border bg-white px-3.5 py-1.5"
+              >
+                <Search className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden="true" />
+                <label className="sr-only" htmlFor="gq">
+                  Recherche globale dans le LBP
+                </label>
+                <input
+                  type="search"
+                  id="gq"
+                  name="q"
+                  placeholder="Rechercher…"
+                  className="w-full min-w-0 bg-transparent text-sm text-ink outline-none placeholder:text-muted"
+                />
+              </form>
+            }
+          />
         </div>
       </header>
 

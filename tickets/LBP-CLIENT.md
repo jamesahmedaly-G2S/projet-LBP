@@ -73,6 +73,10 @@ Suite à deux retours successifs de l'utilisateur : d'abord sur Prise en main ("
 
 **Vérifié** : capture réelle desktop (session cliente ALPHA, viewport 1440×260) -- recherche sur sa propre ligne sous les onglets, alignée à droite, toujours plafonnée à 240px.
 
+**Correction (04/10/2026)** : retour de l'utilisateur ("ça peut remonter un peu aligner avec prise en main") -- la recherche vivait sur une ligne à part sous `ClientNav` tout entier (donc sous "Prise en main" aussi), un cran trop bas. Remontée d'une ligne : `ClientNav.tsx` accepte désormais un slot `trailing`, rendu sur la même ligne que la rangée secondaire ("Prise en main"), poussé à droite via `justify-between` -- plus de ligne dédiée à la recherche, `layout.tsx` simplifié d'autant.
+
+**Vérifié** : capture réelle desktop (session cliente ALPHA, viewport 1440×220) -- recherche alignée verticalement avec "Prise en main", sur la même ligne, à droite.
+
 ---
 
 ## LBP-CLIENT-01 — Accueil 🟡 Partiellement fait

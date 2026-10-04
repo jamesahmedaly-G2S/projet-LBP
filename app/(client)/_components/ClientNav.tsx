@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 import { MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS, type NavItem } from "./nav-items";
 
 // LBP Client (finitions design) : pendant de StudioNav.tsx -- même besoin
@@ -27,7 +28,13 @@ function NavPill({ href, label, Icon, active }: NavItem & { active: boolean }) {
   );
 }
 
-export default function ClientNav() {
+// Correctif fidélité (04/10/2026), suite au retour de l'utilisateur ("ça
+// peut remonter un peu aligner avec prise en main") : la recherche vivait
+// dans sa propre ligne sous ClientNav tout entier -- trop bas d'une ligne.
+// `trailing` permet de la rendre sur la même ligne que la rangée
+// secondaire (qui ne contient que "Prise en main"), alignée à droite via
+// `justify-between`, sans dupliquer la logique de pilules.
+export default function ClientNav({ trailing }: { trailing?: ReactNode }) {
   const pathname = usePathname();
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
@@ -38,10 +45,13 @@ export default function ClientNav() {
           <NavPill key={item.href} {...item} active={isActive(item.href)} />
         ))}
       </div>
-      <div className="flex flex-wrap items-center gap-1.5">
-        {SECONDARY_NAV_ITEMS.map((item) => (
-          <NavPill key={item.href} {...item} active={isActive(item.href)} />
-        ))}
+      <div className="flex flex-wrap items-center justify-between gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {SECONDARY_NAV_ITEMS.map((item) => (
+            <NavPill key={item.href} {...item} active={isActive(item.href)} />
+          ))}
+        </div>
+        {trailing}
       </div>
     </nav>
   );
