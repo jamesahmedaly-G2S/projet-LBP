@@ -3,11 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/ui-kit/Card";
 import { Eyebrow } from "../_components/Eyebrow";
 import { SectionTitle } from "../_components/SectionTitle";
-import EstablishmentsSection from "./EstablishmentsSection";
 import TeamSection, { type TeamMember } from "./TeamSection";
-import IdentityForm from "./IdentityForm";
-import PayrollForm from "./PayrollForm";
-import ToolsForm from "./ToolsForm";
+import IdentityCard from "./IdentityCard";
+import PayrollCard from "./PayrollCard";
+import ToolsCard from "./ToolsCard";
 import DocumentsSection from "./DocumentsSection";
 import type { CompanyDocument } from "@/lib/client/company-documents";
 
@@ -46,7 +45,7 @@ const sectionHeadingClass =
 //
 // Correctif (04/10/2026 bis), suite au retour de l'utilisateur ("on
 // corrige de notre côté") : la carte Identité devient éditable par le
-// client (`IdentityForm.tsx`), alignée sur le vrai `#identEditor`
+// client, alignée sur le vrai `#identEditor`
 // (logo/SIRET/CCN/raison sociale/forme/effectif) -- `siret` ajouté au
 // schéma réel (migration 20261004140000), `url_pictures` (déjà présente
 // depuis la baseline, jamais consommée) réutilisée pour le logo.
@@ -55,6 +54,21 @@ const sectionHeadingClass =
 // dernier écart structurel, ajouté (`DocumentsSection.tsx` + table
 // `company_documents`, migration 20261004150000) -- lecture seule côté
 // client, écriture réservée à l'admin (`app/(studio)/clients/[id]/documents/`).
+//
+// Correctif (04/10/2026 quinquies), suite à un nouveau retour de
+// l'utilisateur ("le contenu et la longueur à l'intérieur ça ne match
+// pas avec la v9") : `IdentityForm.tsx`/`PayrollForm.tsx`/`ToolsForm.tsx`
+// affichaient un formulaire en permanence déployé dans chaque carte --
+// le vrai `identCard`/`paieCard`/`outilsCard` (`renderDocs()`) sont des
+// cartes d'affichage **compactes** en lecture seule, l'édition se
+// faisant via un bouton crayon qui ouvre un modal
+// (`#identEditor`/`#paieEditor`/`#outilsEditor`). Renommés en
+// `IdentityCard`/`PayrollCard`/`ToolsCard`, formulaires déplacés dans
+// `ui-kit/Modal.tsx` (nouveau). `TeamSection.tsx` pareil (le vrai
+// `openPersonEditor()` ouvre aussi un modal, jamais un formulaire
+// inline). Icône de l'onglet "Mon entreprise" corrigée au passage
+// (`Building2` -> `Users`, vrai `data-ico="users"` ~L2539) -- signalée
+// par l'utilisateur dans le même retour ("l'emodjie ne correspond pas").
 
 export default async function MonEntreprisePage() {
   const session = await requireClient();
@@ -125,20 +139,17 @@ export default async function MonEntreprisePage() {
         <Card>
           <h2 className={sectionHeadingClass}>📄 Identité</h2>
           <div className="mt-3">
-            <IdentityForm
-              companyName={company?.company_name ?? ""}
-              legalForm={company?.legal_form ?? null}
-              headcount={company?.headcount ?? null}
-              siret={company?.siret ?? null}
-              cba={company?.cba ?? null}
-              logoUrl={company?.url_pictures ?? null}
+            <IdentityCard
+              identity={{
+                companyName: company?.company_name ?? "",
+                legalForm: company?.legal_form ?? null,
+                headcount: company?.headcount ?? null,
+                siret: company?.siret ?? null,
+                cba: company?.cba ?? null,
+                logoUrl: company?.url_pictures ?? null,
+              }}
+              establishments={establishments ?? []}
             />
-          </div>
-          <h3 className="mt-4 text-sm font-semibold text-ink">
-            Établissements ({establishments?.length ?? 0})
-          </h3>
-          <div className="mt-2">
-            <EstablishmentsSection establishments={establishments ?? []} />
           </div>
         </Card>
 
@@ -153,7 +164,7 @@ export default async function MonEntreprisePage() {
         <Card>
           <h2 className={sectionHeadingClass}>⚙️ Organisation de la paie</h2>
           <div className="mt-3">
-            <PayrollForm
+            <PayrollCard
               operatingMode={payrollOrg?.operating_mode ?? null}
               providerName={payrollOrg?.provider_name ?? null}
             />
@@ -163,7 +174,7 @@ export default async function MonEntreprisePage() {
         <Card>
           <h2 className={sectionHeadingClass}>⚙️ Outils</h2>
           <div className="mt-3">
-            <ToolsForm
+            <ToolsCard
               payrollSoftware={softwareStack?.payroll_software ?? null}
               hris={softwareStack?.hris ?? null}
               timeManagement={softwareStack?.time_management ?? null}

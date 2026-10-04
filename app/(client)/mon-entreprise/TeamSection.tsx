@@ -4,6 +4,7 @@ import { useActionState, useState, useTransition, type ReactNode } from "react";
 import { saveTeamMember, deleteTeamMember } from "./actions";
 import { TextField, SelectField } from "@/ui-kit/Field";
 import { Button } from "@/ui-kit/Button";
+import { Modal } from "@/ui-kit/Modal";
 
 export interface TeamMember {
   id: string;
@@ -27,6 +28,13 @@ export interface TeamMember {
 // placeholders d'exemple ("Ex. Camille Moreau", etc.), jamais portés.
 // État vide complété avec sa deuxième phrase ("Cliquez sur « + Ajouter
 // une personne ».") -- tronquée avant ce correctif.
+//
+// Correctif (04/10/2026 bis), suite à un retour de l'utilisateur ("le
+// contenu et la longueur à l'intérieur ça ne match pas avec la v9") :
+// le vrai `openPersonEditor()` (~L10195-10208) ouvre le modal
+// `#personEditor`, jamais un formulaire déployé en permanence dans la
+// carte -- `MemberForm` déplacé dans un `Modal` (`ui-kit/Modal.tsx`), la
+// carte "Organisation" reste donc de hauteur constante, éditée ou non.
 export default function TeamSection({ members }: { members: TeamMember[] }) {
   const [editing, setEditing] = useState<TeamMember | "new" | null>(null);
   const [, startTransition] = useTransition();
@@ -82,22 +90,23 @@ export default function TeamSection({ members }: { members: TeamMember[] }) {
         <ul>{roots.map(renderNode)}</ul>
       )}
 
-      {editing ? (
-        <MemberForm
-          member={editing === "new" ? null : editing}
-          members={members}
-          onDone={() => setEditing(null)}
-        />
-      ) : (
-        <Button
-          type="button"
-          variant="secondary"
-          className="mt-3"
-          onClick={() => setEditing("new")}
-        >
-          + Ajouter une personne
-        </Button>
-      )}
+      <Button type="button" variant="secondary" className="mt-3" onClick={() => setEditing("new")}>
+        + Ajouter une personne
+      </Button>
+
+      <Modal
+        open={editing !== null}
+        onClose={() => setEditing(null)}
+        title={editing === "new" ? "Ajouter une personne" : "Modifier la personne"}
+      >
+        {editing && (
+          <MemberForm
+            member={editing === "new" ? null : editing}
+            members={members}
+            onDone={() => setEditing(null)}
+          />
+        )}
+      </Modal>
     </div>
   );
 }
@@ -118,20 +127,16 @@ function MemberForm({
   }, null);
 
   return (
-    <form
-      action={formAction}
-      className="mt-3 flex flex-col gap-2 rounded-md border border-border p-3"
-    >
+    <form action={formAction} className="flex flex-col gap-2">
       {member && <input type="hidden" name="id" value={member.id} />}
+      <TextField
+        label="Nom & prénom"
+        name="name"
+        defaultValue={member?.name}
+        placeholder="Ex. Camille Moreau"
+        required
+      />
       <div className="flex flex-wrap gap-2">
-        <TextField
-          label="Nom & prénom"
-          name="name"
-          defaultValue={member?.name}
-          placeholder="Ex. Camille Moreau"
-          required
-          className="w-40"
-        />
         <TextField
           label="Poste"
           name="job_title"
@@ -144,7 +149,7 @@ function MemberForm({
           name="department"
           defaultValue={member?.department ?? ""}
           placeholder="Ex. Direction"
-          className="w-32"
+          className="w-40"
         />
       </div>
       <div className="flex flex-wrap gap-2">
@@ -163,22 +168,21 @@ function MemberForm({
           placeholder="01 …"
           className="w-32"
         />
-        <SelectField
-          label="Rattaché(e) à (responsable)"
-          name="manager_id"
-          defaultValue={member?.manager_id ?? ""}
-          className="w-40"
-        >
-          <option value="">— Aucun (haut de l&apos;organigramme)</option>
-          {members
-            .filter((m) => m.id !== member?.id)
-            .map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-        </SelectField>
       </div>
+      <SelectField
+        label="Rattaché(e) à (responsable)"
+        name="manager_id"
+        defaultValue={member?.manager_id ?? ""}
+      >
+        <option value="">— Aucun (haut de l&apos;organigramme)</option>
+        {members
+          .filter((m) => m.id !== member?.id)
+          .map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
+          ))}
+      </SelectField>
       <div className="flex items-center gap-2">
         <Button type="submit" variant="primary" disabled={pending}>
           {pending ? "..." : "Enregistrer"}
