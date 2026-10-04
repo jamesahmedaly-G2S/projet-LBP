@@ -255,6 +255,12 @@ Les 4 blocs de `page.tsx` restructurés en conséquence : chaque `<h2>` devient 
 
 **Vérifié** : capture réelle navigateur (session cliente ALPHA, avec une hiérarchie manager/subordonné de test "Camille Moreau" → "Julien Petit") — les 4 titres confirmés au-dessus de leur carte bordée respective, plus de titre "dans" le bandeau ; carte enfant de l'organigramme héritant correctement le même traitement bandeau+avatar que son parent. Données de test supprimées après coup. `npx tsc --noEmit` et `npx eslint` propres.
 
+**Correctif (04/10/2026 nonies)**, suite à un nouveau retour de l'utilisateur ("ajouté une personne qui doit être dans un bandeau comme celui de l'accueil") : capture réelle de l'état avant correctif confirmant le problème précis -- le bouton "+ Ajouter une personne" flottait seul sous la liste, sans carte autour (contrairement aux cartes pastel des personnes juste au-dessus). Le point "avatar de Camille Moreau dans le bandeau" avait en revanche déjà été vérifié correct via un test bout en bout par le vrai formulaire (pas une insertion directe en base) -- aucune régression trouvée là-dessus.
+
+Transformé le bouton en tuile à bordure pointillée, même gabarit que les cartes personne (150-200px, rounded-14px), insérée dans la **même rangée** `flex-wrap` que les cartes -- une tuile "+ Ajouter" visible au même niveau que les personnes existantes, plus un bouton isolé en dessous.
+
+**Vérifié** : capture réelle navigateur (session cliente ALPHA) -- état vide (tuile pointillée seule, message au-dessus) et état avec une personne réelle ajoutée via le vrai formulaire ("Camille Moreau, Directrice RH, Direction", avatar "C" dans le bandeau pastel, tuile "+ Ajouter" juste à côté). Donnée de test supprimée après coup. `npx tsc --noEmit` et `npx eslint` propres.
+
 ---
 
 ## LBP-CLIENT-03 — La bibliothèque ✅ Fait

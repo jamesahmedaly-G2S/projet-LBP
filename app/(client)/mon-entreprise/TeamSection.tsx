@@ -50,6 +50,16 @@ export interface TeamMember {
 // hiérarchie rendue par imbrication/indentation verticale, jamais
 // tentée en CSS pur, cohérent avec la décision déjà prise de ne pas
 // reproduire le sélecteur à 124 avatars.
+//
+// Correctif (04/10/2026 quater), suite à un nouveau retour de
+// l'utilisateur ("ajouter une personne... doit être dans un bandeau
+// comme celui de l'accueil") : le bouton "+ Ajouter une personne"
+// flottait seul, sans carte autour (vérifié en capture réelle : aucun
+// bandeau visible, contrairement aux cartes pastel des personnes juste
+// au-dessus). Transformé en tuile à bordure pointillée, même gabarit que
+// `.org-card` (150-200px), dans la même rangée `flex-wrap` que les
+// personnes -- une tuile "ajouter" visible au même niveau que les
+// cartes existantes, pas un bouton isolé en dessous.
 const ORG_TINTS = [
   "#EDF2E6",
   "#E7EEF4",
@@ -118,17 +128,25 @@ export default function TeamSection({ members }: { members: TeamMember[] }) {
 
   return (
     <div>
-      {roots.length === 0 ? (
-        <p className="text-sm text-muted">
+      {roots.length === 0 && (
+        <p className="mb-3 text-sm text-muted">
           Aucune personne pour le moment. Cliquez sur « + Ajouter une personne ».
         </p>
-      ) : (
-        <ul className="flex flex-wrap gap-3">{roots.map(renderNode)}</ul>
       )}
 
-      <Button type="button" variant="secondary" className="mt-3" onClick={() => setEditing("new")}>
-        + Ajouter une personne
-      </Button>
+      <ul className="flex flex-wrap gap-3">
+        {roots.map(renderNode)}
+        <li>
+          <button
+            type="button"
+            onClick={() => setEditing("new")}
+            className="flex min-w-[150px] max-w-[200px] flex-col items-center justify-center gap-1 rounded-[14px] border-2 border-dashed border-border px-4 py-6 text-center text-sm font-semibold text-muted hover:border-primary hover:text-primary"
+          >
+            <span className="text-xl leading-none">+</span>
+            Ajouter une personne
+          </button>
+        </li>
+      </ul>
 
       <Modal
         open={editing !== null}
