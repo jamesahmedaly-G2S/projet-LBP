@@ -171,7 +171,7 @@ Aucun changement de code au-delà de la table `PAGE_BACKGROUNDS` : `PageBackdrop
 
 ---
 
-## LBP-CLIENT-02 — Mon équipe (renommé "Mon entreprise") 🟡 Partiellement fait
+## LBP-CLIENT-02 — Mon équipe (renommé "Mon entreprise") ✅ Fait
 
 **Correctif (29/09/2026)** : renommé "Mon entreprise" — cahier des charges technique V9.4 (MAJ 29/09/2026) §3.3 remplace explicitement "Mon équipe" par "Mon entreprise" comme nom du module. Route déplacée `app/(client)/mon-equipe/` → `app/(client)/mon-entreprise/`, nav et titre de page mis à jour. Contenu/schéma inchangés — voir ce qui suit pour le détail d'origine, resté vrai.
 
@@ -181,7 +181,7 @@ Aucun changement de code au-delà de la table `PAGE_BACKGROUNDS` : `PageBackdrop
 
 **Réalisé** : `app/(client)/mon-equipe/` — Identité (1.3.1) en lecture seule (`companies.company_name`/`legal_form`/`headcount` ; `companies_update_admin` est admin-only par RLS réelle, cohérent avec le principe déjà établi pour l'offre : le client demande, G2S contrôle) + établissements pleinement gérables (ajout/suppression, `establishments_write_own`/`delete_own` déjà réelles). Organisation (1.3.2, `TeamSection.tsx`) : organigramme réel avec ajout/modification/suppression et rattachement hiérarchique (`manager_id`) — sélecteur à 124 avatars du prototype délibérément non reproduit (aucune source réelle de 124 images), remplacé par un cercle avec l'initiale du nom. Organisation de la paie (1.3.3, `PayrollForm.tsx`) et Outils (1.3.4, `ToolsForm.tsx`) : formulaires simples sur `payroll_org`/`software_stack`.
 
-**Non fait — périmètre trop large pour ce ticket seul** : "Vos documents" (1.3.5, CC/accords/grille de salaire) demande un vrai stockage de fichiers (bucket Supabase Storage, upload, catégorisation) — aucune capacité d'upload n'existe nulle part ailleurs dans l'application, Studio compris. Documenté plutôt que construit avec des documents inventés.
+**Non fait à l'origine, construit depuis (voir correctif 04/10/2026 quater plus bas)** : "Vos documents" (1.3.5, CC/accords/grille de salaire) avait été estimé comme demandant un vrai stockage de fichiers — finalement construit avec un simple champ URL (lien externe), même convention que `articles.pdf_url`, sans upload.
 
 **Vérifié** : test réel navigateur avec la session cliente ALPHA — raison sociale et établissement réels affichés ; ajout réel d'un établissement, persistant après rechargement complet ; ajout réel de deux personnes avec rattachement hiérarchique (l'une sous l'autre), les deux persistantes après rechargement complet ; enregistrement réel du mode d'organisation de la paie, confirmé à la fois en base (requête directe) et par la valeur du champ après rechargement. Toutes les données de test supprimées après coup.
 
@@ -219,9 +219,16 @@ _Écarts structurels réels, non corrigés — nécessitent une décision produi
 - **`siret`** ajouté à `companies` (migration `20261004140000_identite_entreprise_editable_client.sql`). **`url_pictures`** (présente depuis la baseline de James, jamais consommée par aucun écran) réutilisée telle quelle pour le logo — même pattern que team_members/payroll_org/software_stack avant eux.
 - **Identité éditable par le client** (`IdentityForm.tsx`, nouveau) : logo (upload + "Retirer le logo actuel"), SIRET, convention collective, raison sociale, forme, effectif global — porté sur le vrai modal `#identEditor`. **Pas de nouvelle policy RLS `UPDATE` brute sur `companies`** : ouvrir `id = current_company_id()` exposerait toutes les colonnes à l'écriture client, y compris `offer_tier` (le palier tarifaire/les fonctionnalités débloquées) — une vraie faille d'escalade de privilèges, pas un détail théorique. À la place, une fonction dédiée `update_company_identity` (`SECURITY DEFINER`, même pattern que `seed_weekly_tasks`/`check_and_increment_chat_quota`) qui ne touche que les 6 colonnes d'identité, jamais `offer_tier` ni aucune autre colonne sensible. Logo stocké en data URL base64 (comme le fait le prototype lui-même via `FileReader`, aucune vraie infrastructure de stockage ailleurs dans l'appli) — plafonné à 2 Mo côté serveur (le prototype n'a aucune limite, mais une vraie base ne doit pas absorber des images arbitrairement grandes dans une colonne texte).
 
-**Non fait — reste ouvert** : le module "Vos documents" (1.3.5, 4 catégories de documents classés par année) reste le seul écart encore non traité.
-
 **Vérifié** : test réel bout en bout (session cliente ALPHA, après `npm run db:reset` appliquant la migration) — SIRET et convention collective saisis, logo uploadé (fichier réel), tous les trois confirmés persistants après rechargement complet (requête directe + relecture de la page) ; logo ensuite retiré via la case "Retirer le logo actuel", confirmé absent après rechargement. `npx tsc --noEmit` et `npx eslint "app/(client)/mon-entreprise"` propres.
+
+**Correctif (04/10/2026 quater)**, même retour ("on corrige de notre côté") : le dernier écart structurel, "Vos documents" (1.3.5), est construit — les 3 écarts identifiés le 04/10 sont maintenant tous traités.
+
+- **`company_documents`** (migration `20261004150000_documents_entreprise.sql`) : table scopée par société (même partition que team_members/payroll_org/software_stack), 4 catégories réelles (`cc`/`acc`/`grille`/`charte`, enum). RLS : lecture admin ou société propre, écriture **admin uniquement** (`company_documents_admin_write/update/delete`) — "le client consulte, sans pouvoir modifier" (`renderDocDetail()`, ~L10309) est une vraie barrière RLS, pas juste l'absence d'un bouton côté client. Pas d'upload de fichier (base64 ou autre) : un champ `url` (lien externe) seulement, même convention que `articles.pdf_url` (aucune infrastructure de stockage ailleurs dans l'appli, Studio compris).
+- **`lib/client/company-documents.ts`** (nouveau) : métadonnées des 4 catégories (icône/libellé/intro) portées 1:1 de `renderDocs()`/`renderDocDetail()`, source unique partagée admin + client.
+- **Côté client** : `DocumentsSection.tsx` (4 cartes de catégorie avec compte, sur `/mon-entreprise`) + `/mon-entreprise/documents/[category]` (détail en lecture seule, classé par année décroissante, "Consulter en ligne ↗" si une URL est renseignée, "Aucun fichier joint" sinon).
+- **Côté admin** : `/clients/[id]/documents` (nouvel écran, lien "Vos documents" depuis la fiche client) — CRUD complet par catégorie (`DocumentsManager.tsx`, même pattern liste+formulaire inline que `CcnManager.tsx`). Aperçu admin "Accéder au LBP du client" (`vue-client/mon-entreprise/page.tsx`) complété d'un simple compte par catégorie, pour ne pas le laisser à nouveau périmé.
+
+**Vérifié** : test réel bout en bout (admin Pauline + cliente ALPHA, après `npm run db:reset`) — document ajouté via le vrai formulaire admin, confirmé visible côté client (lien "Consulter en ligne ↗" fonctionnel) immédiatement après ; tentative directe d'écriture cliente sur `company_documents` via l'API REST (contournant l'UI) confirmée **rejetée par PostgREST** (`42501`, "new row violates row-level security policy") — la restriction tient au niveau base de données, pas seulement dans l'interface. Données de test supprimées après coup. `npx tsc --noEmit` et `npx eslint` propres sur l'ensemble des fichiers touchés.
 
 ---
 

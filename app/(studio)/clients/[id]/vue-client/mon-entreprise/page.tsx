@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/ui-kit/Card";
 import { Eyebrow } from "@/app/(client)/_components/Eyebrow";
 import { SectionTitle } from "@/app/(client)/_components/SectionTitle";
+import { DOCUMENT_CATEGORIES, type CompanyDocument } from "@/lib/client/company-documents";
 
 interface TeamMemberRow {
   id: string;
@@ -16,6 +17,11 @@ interface TeamMemberRow {
 // EstablishmentsSection/TeamSection/PayrollForm/ToolsForm réels, qui
 // exposent des actions d'écriture (ajout/suppression) : "aucun droit
 // d'écriture supplémentaire" (STU-CLIENT-04, critère d'acceptation).
+//
+// Correctif (04/10/2026), suite au retour de l'utilisateur ("on corrige
+// de notre côté") : "Vos documents" (LBP-CLIENT-02) ajouté ici en simple
+// compte par catégorie -- l'édition complète reste sur
+// `/clients/[id]/documents` (écran admin dédié), pas dupliquée ici.
 export default async function VueClientMonEntreprisePage({
   params,
 }: {
@@ -31,6 +37,7 @@ export default async function VueClientMonEntreprisePage({
     { data: members },
     { data: payrollOrg },
     { data: softwareStack },
+    { data: documents },
   ] = await Promise.all([
     supabase
       .from("companies")
@@ -58,6 +65,11 @@ export default async function VueClientMonEntreprisePage({
       .select("payroll_software, hris, time_management, other_tools")
       .eq("company_id", companyId)
       .maybeSingle(),
+    supabase
+      .from("company_documents")
+      .select("id, category, name, meta, doc_date, url")
+      .eq("company_id", companyId)
+      .returns<CompanyDocument[]>(),
   ]);
 
   return (
@@ -147,6 +159,25 @@ export default async function VueClientMonEntreprisePage({
               <dd className="text-ink">{softwareStack?.other_tools ?? "—"}</dd>
             </div>
           </dl>
+        </Card>
+
+        <Card>
+          <h2 className="text-lg font-semibold text-ink">Vos documents</h2>
+          <ul className="mt-3 flex flex-col gap-1.5 text-sm">
+            {DOCUMENT_CATEGORIES.map((cat) => {
+              const count = (documents ?? []).filter((d) => d.category === cat.key).length;
+              return (
+                <li key={cat.key} className="flex items-center justify-between text-ink">
+                  <span>
+                    {cat.icon} {cat.label}
+                  </span>
+                  <span className="text-muted">
+                    {count} document{count > 1 ? "s" : ""}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
         </Card>
       </div>
     </main>

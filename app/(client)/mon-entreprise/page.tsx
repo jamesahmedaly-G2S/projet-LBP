@@ -8,20 +8,18 @@ import TeamSection, { type TeamMember } from "./TeamSection";
 import IdentityForm from "./IdentityForm";
 import PayrollForm from "./PayrollForm";
 import ToolsForm from "./ToolsForm";
+import DocumentsSection from "./DocumentsSection";
+import type { CompanyDocument } from "@/lib/client/company-documents";
 
 // LBP-CLIENT-02 : "Mon équipe" [§1.3, p.9 du cahier des charges réel —
-// vérifié verbatim "1.3 Mon équipe" dans le PDF]. Identité (1.3.1) reste
-// en lecture seule : companies_update_admin (RLS réelle de James) ne
-// permet pas au client d'écrire directement sur `companies` — cohérent
-// avec le principe déjà établi pour l'offre (le client demande, G2S
-// contrôle). Établissements (1.3.1), Organisation (1.3.2, team_members),
-// Organisation de la paie (1.3.3, payroll_org) et Outils (1.3.4,
-// software_stack) sont pleinement gérables par le client — ces trois
-// tables existent déjà dans le schéma réel (baseline_schema_reel.sql
-// §9.1/9.2) avec une RLS `company_id = current_company_id()`, jamais
-// consommées par aucun écran avant ce ticket. "Vos documents" (1.3.5)
-// demande un vrai stockage de fichiers — non tenté ici, périmètre trop
-// large pour ce seul ticket (voir tickets/LBP-CLIENT.md).
+// vérifié verbatim "1.3 Mon équipe" dans le PDF]. Identité (1.3.1),
+// établissements, Organisation (1.3.2, team_members), Organisation de la
+// paie (1.3.3, payroll_org), Outils (1.3.4, software_stack) et Vos
+// documents (1.3.5, company_documents, lecture seule) sont tous
+// pleinement gérables par le client — ces tables existent déjà dans le
+// schéma réel (baseline_schema_reel.sql §9.1/9.2) avec une RLS
+// `company_id = current_company_id()`, jamais consommées par aucun écran
+// avant ce ticket.
 // Renommé "Mon entreprise" (cahier des charges technique V9.4, §3.3, MAJ
 // 29/09/2026) — route et libellé alignés, contenu/schéma inchangés.
 //
@@ -52,6 +50,11 @@ const sectionHeadingClass =
 // (logo/SIRET/CCN/raison sociale/forme/effectif) -- `siret` ajouté au
 // schéma réel (migration 20261004140000), `url_pictures` (déjà présente
 // depuis la baseline, jamais consommée) réutilisée pour le logo.
+//
+// Correctif (04/10/2026 quater), même retour : "Vos documents" (1.3.5),
+// dernier écart structurel, ajouté (`DocumentsSection.tsx` + table
+// `company_documents`, migration 20261004150000) -- lecture seule côté
+// client, écriture réservée à l'admin (`app/(studio)/clients/[id]/documents/`).
 
 export default async function MonEntreprisePage() {
   const session = await requireClient();
@@ -75,6 +78,7 @@ export default async function MonEntreprisePage() {
     { data: members },
     { data: payrollOrg },
     { data: softwareStack },
+    { data: documents },
   ] = await Promise.all([
     supabase
       .from("companies")
@@ -102,6 +106,11 @@ export default async function MonEntreprisePage() {
       .select("payroll_software, hris, time_management, other_tools, has_specifications")
       .eq("company_id", companyId)
       .maybeSingle(),
+    supabase
+      .from("company_documents")
+      .select("id, category, name, meta, doc_date, url")
+      .eq("company_id", companyId)
+      .returns<CompanyDocument[]>(),
   ]);
 
   return (
@@ -164,6 +173,9 @@ export default async function MonEntreprisePage() {
           </div>
         </Card>
       </div>
+
+      <h2 className={sectionHeadingClass + " mt-[22px]"}>📁 Vos documents</h2>
+      <DocumentsSection documents={documents ?? []} />
     </main>
   );
 }

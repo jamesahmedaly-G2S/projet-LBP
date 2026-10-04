@@ -19,6 +19,11 @@ import StartInterviewButton from "./entretien/StartInterviewButton";
 // (STU-AFFECT-02/03), contenus spécifiques, mises à jour en attente,
 // historique (page séparée, comme `stOpenHisto()`) et "Suivi annuel"
 // (seuils centralisés dans lib/studio/settings.ts, jamais recopiés ici).
+//
+// Correctif (04/10/2026), suite au retour de l'utilisateur ("on corrige
+// de notre côté") : lien "Vos documents" (LBP-CLIENT-02, §1.3.5) vers
+// `/clients/[id]/documents` (page séparée, CRUD complet) -- même pattern
+// que "Ouvrir le questionnaire"/"Consulter l'historique".
 export default async function ClientPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
@@ -107,6 +112,9 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
           </LinkButton>
           <LinkButton href={`/clients/${id}/questionnaire`} variant="secondary" className="text-xs">
             Ouvrir le questionnaire
+          </LinkButton>
+          <LinkButton href={`/clients/${id}/documents`} variant="secondary" className="text-xs">
+            Vos documents
           </LinkButton>
           <LinkButton href={`/clients/${id}/vue-client`} variant="secondary" className="text-xs">
             Accéder au LBP du client
