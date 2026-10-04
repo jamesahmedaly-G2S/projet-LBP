@@ -77,6 +77,10 @@ Suite à deux retours successifs de l'utilisateur : d'abord sur Prise en main ("
 
 **Vérifié** : capture réelle desktop (session cliente ALPHA, viewport 1440×220) -- recherche alignée verticalement avec "Prise en main", sur la même ligne, à droite.
 
+**Correctif (04/10/2026)**, suite au retour de l'utilisateur ("vérifie en mobile aussi") : la recherche n'existait que côté desktop (rendue dans `ClientNav`, `hidden md:flex`) -- entièrement absente du panneau mobile (`MobileNav.tsx`), aucun moyen de chercher sur téléphone. Même champ fonctionnel ajouté en haut du panneau, adapté au fond framboise.
+
+**Vérifié** : capture réelle mobile (session cliente ALPHA, viewport 390×844, `isMobile`/`hasTouch`) -- ligne principale (cloche + burger) sans débordement, panneau ouvert affichant la recherche tout en haut puis les 9 liens + Mon compte/Notifications/Déconnexion, aucune régression.
+
 ---
 
 ## LBP-CLIENT-01 — Accueil 🟡 Partiellement fait

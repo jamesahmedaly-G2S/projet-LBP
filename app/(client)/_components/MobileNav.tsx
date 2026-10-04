@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { logout } from "@/app/login/actions";
 import { MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS } from "./nav-items";
 
@@ -27,6 +27,14 @@ import { MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS } from "./nav-items";
 // marchait), signe qu'un élément du header en dessous interceptait le
 // clic malgré un z-index supérieur en apparence. Un portail sort le
 // panneau de toute hiérarchie de contexte d'empilement ambiguë.
+//
+// Correctif (04/10/2026), suite au retour de l'utilisateur ("vérifie en
+// mobile aussi") : la recherche globale (`layout.tsx`, desktop
+// uniquement via `ClientNav`'s `trailing`) était totalement absente du
+// panneau mobile -- aucun moyen de chercher sur téléphone. Même champ
+// fonctionnel (`/recherche?q=`), ajouté en haut du panneau, adapté au
+// fond framboise (`border-white/25 bg-white/10`, même traitement que
+// les boutons cloche/burger de la ligne principale).
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -61,6 +69,23 @@ export default function MobileNav() {
           <X className="h-5 w-5" />
         </button>
       </div>
+
+      <form
+        action="/recherche"
+        className="mx-4 mt-1 flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5"
+      >
+        <Search className="h-3.5 w-3.5 shrink-0 text-white/70" aria-hidden="true" />
+        <label className="sr-only" htmlFor="gq-mobile">
+          Recherche globale dans le LBP
+        </label>
+        <input
+          type="search"
+          id="gq-mobile"
+          name="q"
+          placeholder="Rechercher…"
+          className="w-full min-w-0 bg-transparent text-sm text-white outline-none placeholder:text-white/70"
+        />
+      </form>
 
       <nav className="flex flex-col gap-1 overflow-y-auto px-4 py-3">
         {[...MAIN_NAV_ITEMS, ...SECONDARY_NAV_ITEMS].map(({ href, label, Icon }) => {
