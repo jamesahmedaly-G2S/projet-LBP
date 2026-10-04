@@ -5,6 +5,7 @@ import { saveTeamMember, deleteTeamMember } from "./actions";
 import { TextField, SelectField } from "@/ui-kit/Field";
 import { Button } from "@/ui-kit/Button";
 import { Modal } from "@/ui-kit/Modal";
+import { fnv1aIndex } from "@/lib/hash";
 
 export interface TeamMember {
   id: string;
@@ -35,6 +36,37 @@ export interface TeamMember {
 // `#personEditor`, jamais un formulaire déployé en permanence dans la
 // carte -- `MemberForm` déplacé dans un `Modal` (`ui-kit/Modal.tsx`), la
 // carte "Organisation" reste donc de hauteur constante, éditée ou non.
+//
+// Correctif (04/10/2026 ter), suite à un nouveau retour de l'utilisateur
+// ("ajouter une personne est bien entourée par un bandeau aussi, et il y
+// a Camille Moreau avec un avatar") : les personnes étaient rendues en
+// ligne plate (`flex` nu), jamais le vrai `.org-card` (~L690,
+// `renderEquipe()` ~L10188) -- une carte avec un fond pastel
+// (`orgTint(id)`, hash déterministe par personne, ~L10180-10181, palette
+// `ORG_TINTS` portée 1:1) et un avatar rond 58px (`avatarHTML(p.avatar,
+// 58)`). Reconstruit en carte centrée avec teinte + avatar ; les lignes
+// de connexion du vrai arbre horizontal (`.org-tree`, pseudo-éléments
+// CSS ~L679-689) restent en revanche une simplification assumée --
+// hiérarchie rendue par imbrication/indentation verticale, jamais
+// tentée en CSS pur, cohérent avec la décision déjà prise de ne pas
+// reproduire le sélecteur à 124 avatars.
+const ORG_TINTS = [
+  "#EDF2E6",
+  "#E7EEF4",
+  "#EFEAF3",
+  "#FBEFE4",
+  "#FBF3D9",
+  "#E9F1F0",
+  "#F3ECE6",
+  "#E8EFEA",
+  "#F1ECF5",
+  "#EAF0F5",
+];
+
+function orgTint(id: string): string {
+  return ORG_TINTS[fnv1aIndex(id, ORG_TINTS.length)];
+}
+
 export default function TeamSection({ members }: { members: TeamMember[] }) {
   const [editing, setEditing] = useState<TeamMember | "new" | null>(null);
   const [, startTransition] = useTransition();
@@ -43,38 +75,42 @@ export default function TeamSection({ members }: { members: TeamMember[] }) {
 
   function renderNode(member: TeamMember): ReactNode {
     const children = members.filter((m) => m.manager_id === member.id);
+    const info = [member.department, member.email, member.phone].filter(Boolean).join(" · ");
     return (
-      <li key={member.id} className="mt-2">
-        <div className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-soft text-xs font-semibold text-primary">
+      <li key={member.id}>
+        <div
+          className="inline-block min-w-[150px] max-w-[200px] rounded-[14px] border border-border px-4 pt-3 pb-2.5 text-center shadow-[0_1px_3px_rgba(20,48,79,0.05)]"
+          style={{ background: orgTint(member.id) }}
+        >
+          <span className="mx-auto flex h-[58px] w-[58px] items-center justify-center rounded-full bg-white text-lg font-semibold text-primary">
             {member.name.charAt(0).toUpperCase()}
           </span>
-          <span className="flex-1 text-sm">
-            <span className="font-medium text-ink">{member.name}</span>
-            {member.job_title && <span className="ml-2 text-muted">{member.job_title}</span>}
-            {(member.department || member.email || member.phone) && (
-              <span className="block text-xs text-muted">
-                {[member.department, member.email, member.phone].filter(Boolean).join(" · ")}
-              </span>
-            )}
-          </span>
-          <button
-            type="button"
-            className="text-xs text-primary hover:underline"
-            onClick={() => setEditing(member)}
-          >
-            Modifier
-          </button>
-          <button
-            type="button"
-            className="text-xs text-danger hover:underline"
-            onClick={() => startTransition(() => deleteTeamMember(member.id))}
-          >
-            Supprimer
-          </button>
+          <div className="mt-1.5 text-[13.5px] font-extrabold text-ink">{member.name}</div>
+          {member.job_title && (
+            <div className="mt-0.5 text-xs font-extrabold text-primary">{member.job_title}</div>
+          )}
+          {info && <div className="mt-1 text-[10.5px] break-words text-muted">{info}</div>}
+          <div className="mt-2 flex justify-center gap-3">
+            <button
+              type="button"
+              className="text-xs text-primary hover:underline"
+              onClick={() => setEditing(member)}
+            >
+              Modifier
+            </button>
+            <button
+              type="button"
+              className="text-xs text-danger hover:underline"
+              onClick={() => startTransition(() => deleteTeamMember(member.id))}
+            >
+              Supprimer
+            </button>
+          </div>
         </div>
         {children.length > 0 && (
-          <ul className="ml-6 border-l-2 border-border pl-3">{children.map(renderNode)}</ul>
+          <ul className="mt-2 ml-6 flex flex-col items-start gap-2 border-l-2 border-border pl-3">
+            {children.map(renderNode)}
+          </ul>
         )}
       </li>
     );
@@ -87,7 +123,7 @@ export default function TeamSection({ members }: { members: TeamMember[] }) {
           Aucune personne pour le moment. Cliquez sur « + Ajouter une personne ».
         </p>
       ) : (
-        <ul>{roots.map(renderNode)}</ul>
+        <ul className="flex flex-wrap gap-3">{roots.map(renderNode)}</ul>
       )}
 
       <Button type="button" variant="secondary" className="mt-3" onClick={() => setEditing("new")}>

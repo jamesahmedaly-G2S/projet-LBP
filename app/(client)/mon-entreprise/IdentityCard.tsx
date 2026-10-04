@@ -33,6 +33,15 @@ interface IdentityProps {
 // en permanence sur le tableau de bord. Rebâti pour matcher ce format :
 // carte compacte ici, formulaire déplacé dans un `Modal` (nouveau
 // `ui-kit/Modal.tsx`).
+//
+// Correctif (04/10/2026 bis), suite à un nouveau retour de l'utilisateur
+// ("Agence Lyon et Siège Paris sont normalement entourés par une
+// banderole") : les lignes d'établissement utilisaient `bg-surface`, qui
+// vaut `#ffffff` dans `.theme-client` -- strictement la même couleur que
+// le fond de la carte (`Card`), donc invisible. Le vrai `.id-etab`
+// (~L731) utilise `background:var(--panel)` = `#F5F0EC` (couleur de
+// bandeau déjà utilisée ailleurs, ex. la sim box d'Offres) -- jamais
+// `--card`/blanc. Corrigé.
 export default function IdentityCard({
   identity,
   establishments,
@@ -101,7 +110,7 @@ export default function IdentityCard({
           establishments.map((e) => (
             <div
               key={e.id}
-              className="flex items-start gap-2.5 rounded-[10px] bg-surface px-3 py-2.5 text-[13px]"
+              className="flex items-start gap-2.5 rounded-[10px] bg-[#F5F0EC] px-3 py-2.5 text-[13px]"
             >
               <span aria-hidden="true">🏢</span>
               <div>

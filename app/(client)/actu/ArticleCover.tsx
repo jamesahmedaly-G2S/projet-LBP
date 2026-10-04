@@ -1,3 +1,5 @@
+import { fnv1aIndex } from "@/lib/hash";
+
 // LBP-CLIENT-04 (finitions design, 01/10/2026) : couverture générée quand
 // l'article n'a pas d'image, portée depuis le vrai prototype
 // (LBP_V9.9_Studio.html, avMedia()/AV_COVER/AV_MOTIF, lignes ~3656-3706) --
@@ -10,25 +12,17 @@
 // veut, ArticlesManager.tsx) -- pas de liste fermée à mapper 1:1. Adapté
 // en hash déterministe de la catégorie vers l'une des 3 teintes : la même
 // catégorie a toujours la même couleur, sans dépendre d'une liste figée.
+// Hash (`fnv1aIndex`, `lib/hash.ts`, extrait d'ici le 04/10/2026 pour être
+// réutilisé par TeamSection.tsx) plutôt qu'un hash "h*31+c" classique :
+// avec un petit modulo (3 ici), 31 ≡ 1 (mod 3) le fait dégénérer en une
+// simple somme de codes de caractères -- vérifié en testant avec les
+// vraies catégories du prototype (toutes retombaient sur la même
+// variante).
 const COVER_VARIANTS = [
   { bg: "bg-primary", text: "text-white" },
   { bg: "bg-ink", text: "text-white" },
   { bg: "bg-[#f1ecee]", text: "text-ink" },
 ] as const;
-
-// FNV-1a plutôt qu'un hash "h*31+c" classique : avec un modulo aussi petit
-// que 3, 31 ≡ 1 (mod 3) fait dégénérer ce dernier en une simple somme de
-// codes de caractères -- vérifié en testant avec les vraies catégories du
-// prototype (toutes retombaient sur la même variante). FNV-1a distribue
-// correctement même sur un petit modulo.
-function hashVariant(s: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return Math.abs(h) % COVER_VARIANTS.length;
-}
 
 export default function ArticleCover({
   category,
@@ -39,7 +33,7 @@ export default function ArticleCover({
   type: "article" | "pdf";
   featured?: boolean;
 }) {
-  const variant = COVER_VARIANTS[hashVariant(category ?? "Analyse")];
+  const variant = COVER_VARIANTS[fnv1aIndex(category ?? "Analyse", COVER_VARIANTS.length)];
   const label = type === "pdf" ? "Dossier" : (category ?? "Analyse");
 
   return (
