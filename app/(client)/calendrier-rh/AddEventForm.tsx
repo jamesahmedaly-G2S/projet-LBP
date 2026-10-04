@@ -29,12 +29,7 @@ export default function AddEventForm({ defaultDate }: { defaultDate: string }) {
       className="mt-4 flex flex-col gap-2 rounded-md border border-border p-3"
     >
       <p className="text-sm font-semibold text-ink">Ajouter un événement</p>
-      <TextField
-        label="Intitulé"
-        name="title"
-        required
-        placeholder="Ex. Entretien annuel — équipe RH"
-      />
+      <TextField label="Intitulé" name="title" required placeholder="Intitulé de l'événement" />
       <div className="flex flex-wrap gap-2">
         <TextField label="Date" name="event_date" type="date" defaultValue={defaultDate} required />
         <SelectField label="Portée" name="scope" defaultValue="personal" className="w-40">

@@ -19,9 +19,15 @@ export const EVENT_TYPE_COLOR: Record<CalendarEventType, string> = {
   news: "#A98BD6",
 };
 
+// Correctif (04/10/2026), suite au retour de l'utilisateur ("regarde
+// aussi la page calendrier RH mot pour mot") : libellés approximés,
+// jamais vérifiés contre le vrai `scopeLbl` de `renderDayModal()`
+// (~L3406) -- "National" devait être "National / général", "Mon
+// entreprise" devait être "Entreprise" (le vrai code n'ajoute jamais
+// "Mon" devant).
 export const EVENT_SCOPE_LABEL: Record<CalendarEventScope, string> = {
-  national: "National",
-  company: "Mon entreprise",
+  national: "National / général",
+  company: "Entreprise",
   personal: "Personnel",
 };
 

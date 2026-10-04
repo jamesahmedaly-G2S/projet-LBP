@@ -63,6 +63,34 @@ import {
 // légende, elle, garde les tons sémantiques déjà choisis (TYPE_DOT_CLASS)
 // pour rester cohérente avec le widget compact et /calendrier-rh lui-même
 // ailleurs sur la page (badges de la liste du jour).
+//
+// Correctif fidélité (04/10/2026), suite au retour de l'utilisateur
+// ("regarde aussi la page calendrier RH mot pour mot") : re-audit contre
+// `.calf-title`/`.cal-legend`/`.dm-sec` (~L934, ~L948, ~L634) et
+// `renderDayModal()` (~L3403-3432). Écarts trouvés et corrigés :
+// - Titre mois/année sans taille explicite (texte par défaut du
+//   navigateur) -- le vrai `.calf-title` fait 20px (`text-xl`).
+// - Légende : `gap-x-3.5 gap-y-1`/`text-[11px]` approximés -- le vrai
+//   `.cal-legend` (dernière couche, qui l'emporte) fait `gap:16px`
+//   uniforme/`font-size:12px`, pastille à `margin-right:6px` (pas 4px).
+// - Section "Échéances & événements" (`.dm-sec`, sur le vrai modal jour)
+//   manquait entièrement au-dessus de la liste d'événements du jour --
+//   ajoutée, port 1:1 du style (`11.5px/800/uppercase/.04em`).
+// - `EVENT_SCOPE_LABEL` (`lib/client/calendar-taxonomy.ts`) : "National"
+//   devait être "National / général", "Mon entreprise" devait être
+//   "Entreprise" -- jamais vérifiés contre le vrai `scopeLbl`
+//   (`renderDayModal()` ~L3406) jusqu'ici.
+// - `AddEventForm.tsx` : placeholder "Ex. Entretien annuel — équipe RH"
+//   inventé -- le vrai `#dm-t` a pour placeholder "Intitulé de
+//   l'événement" (générique, pas un exemple concret), corrigé.
+//
+// Écart assumé, non corrigé : pas de capacité de modification d'un
+// événement personnel déjà créé (le vrai `editDayEvent()`/✎) -- seuls
+// l'ajout (`AddEventForm`) et la suppression (`DeleteEventButton`)
+// existent. Un utilisateur qui se trompe supprime et recrée l'événement
+// plutôt que de l'éditer en place -- fonctionnellement suffisant, mais
+// un vrai écart avec le prototype, à construire si Pauline le juge
+// prioritaire (formulaire déjà prêt à être réutilisé en mode édition).
 
 const WEEKDAY_NAMES = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 const WEEKDAY_SHORT = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"];
@@ -234,7 +262,7 @@ export default async function CalendarContent({
         >
           ‹
         </Link>
-        <p className="min-w-[190px] font-extrabold text-ink capitalize">
+        <p className="min-w-[190px] text-xl font-extrabold text-ink capitalize">
           {MONTH_NAMES[month - 1]} {year}
         </p>
         <Link
@@ -308,9 +336,9 @@ export default async function CalendarContent({
         })}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[11px] text-muted">
+      <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted">
         {(Object.keys(EVENT_TYPE_LABEL) as CalendarEventType[]).map((t) => (
-          <span key={t} className="flex items-center gap-1">
+          <span key={t} className="flex items-center gap-1.5">
             <span
               className="h-[9px] w-[9px] rounded-full"
               style={{ background: EVENT_TYPE_COLOR[t] }}
@@ -326,6 +354,9 @@ export default async function CalendarContent({
       {day && (
         <Card className="mt-4">
           <p className="text-sm font-semibold text-ink capitalize">{dayLabel}</p>
+          <p className="mt-4 mb-2 text-[11.5px] font-extrabold tracking-[0.04em] text-muted uppercase">
+            Échéances &amp; événements
+          </p>
           {dayEvents.length === 0 ? (
             <p className="mt-2 text-sm text-muted">Aucune échéance ce jour.</p>
           ) : (

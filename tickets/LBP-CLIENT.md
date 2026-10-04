@@ -495,6 +495,18 @@ Côté admin (`app/(studio)/administration/calendrier-rh/`) : liste + formulaire
 
 **Non fait — hors périmètre confirmé** : le vrai moteur de récurrence (`calendar_rules`), périmètre "hors phase 1" par décision d'architecture antérieure à ce ticket. Filtre "format" du prototype (`CAL_TAX.format`) abandonné : `calendar_events` n'a pas de colonne dédiée (seule `calendar_rules.format_label` existe côté schéma réel, table non utilisée ici). Ciblage par taille d'entreprise (`CAL_BASE.en`) abandonné pour la même raison.
 
+**Correctif fidélité (04/10/2026)**, suite au retour de l'utilisateur ("regarde aussi la page calendrier RH mot pour mot") : re-audit mot pour mot contre `renderCalFull()`/`renderDayModal()` et leur CSS (`.calf-title`/`.cal-legend`/`.dm-sec`, ~L634, ~L934, ~L948), au-delà de la structure déjà construite le 01/10. Écarts trouvés et corrigés :
+
+- **Titre mois/année** sans taille explicite (texte par défaut du navigateur) — le vrai `.calf-title` fait 20px (`text-xl`).
+- **Légende** : `gap-x-3.5 gap-y-1`/`text-[11px]` approximés — le vrai `.cal-legend` (dernière couche, qui l'emporte en cascade) fait `gap:16px` uniforme/`font-size:12px`, pastille à `margin-right:6px` (pas 4px).
+- **Section "Échéances & événements"** (`.dm-sec`, sur le vrai modal jour) manquait entièrement au-dessus de la liste d'événements du jour — ajoutée, port 1:1 du style (11.5px/800/uppercase/.04em).
+- **`EVENT_SCOPE_LABEL`** (`lib/client/calendar-taxonomy.ts`, partagé avec `CompactCalendar.tsx`/`CalendarFilters.tsx` de l'Accueil — corrigé aux deux endroits d'un coup) : "National" devait être "National / général", "Mon entreprise" devait être "Entreprise" — jamais vérifiés contre le vrai `scopeLbl` (`renderDayModal()` ~L3406) jusqu'ici.
+- **`AddEventForm.tsx`** : placeholder "Ex. Entretien annuel — équipe RH" inventé — le vrai `#dm-t` a pour placeholder "Intitulé de l'événement" (générique, pas un exemple concret), corrigé.
+
+**Écart assumé, non corrigé** : pas de capacité de modification d'un événement personnel déjà créé (le vrai `editDayEvent()`/✎) — seuls l'ajout et la suppression existent côté client. Un utilisateur qui se trompe supprime et recrée l'événement plutôt que de l'éditer en place — fonctionnellement suffisant, mais un vrai écart avec le prototype, à construire si Pauline le juge prioritaire.
+
+**Vérifié** : capture réelle navigateur (session cliente ALPHA, événements nationaux réels d'octobre 2026) — titre "Octobre 2026" visiblement plus grand, légende bien espacée, détail du 5 octobre ("DSN et paiement des cotisations…") affichant "ÉCHÉANCES & ÉVÉNEMENTS" et le badge "National / général", formulaire d'ajout avec le placeholder réel. `npx tsc --noEmit` et `npx eslint` propres.
+
 ---
 
 ## LBP-CLIENT-16 — Re-thème visuel (charte V37 — Archivo / framboise / carbone) ✅ Fait
