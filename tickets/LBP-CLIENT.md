@@ -249,6 +249,12 @@ _Écarts structurels réels, non corrigés — nécessitent une décision produi
 
 **Vérifié** : capture réelle navigateur (session cliente ALPHA, établissements réels + une personne de test "Camille Moreau, Directrice RH, Direction") — établissements visiblement entourés d'un bandeau crème, carte personne avec fond pastel + avatar rond blanc avec l'initiale "C". Donnée de test supprimée après coup. `npx tsc --noEmit` et `npx eslint` propres.
 
+**Correctif (04/10/2026 octies)**, suite à un nouveau retour de l'utilisateur ("identité et organisation ne doivent pas être dans le bandeau mais un peu au-dessus (...) t'as pas appliqué les correctifs du bandeau en dessous de organisation") : un vrai bug structurel trouvé, distinct des couleurs du correctif précédent -- les 4 titres (`<h2>📄 Identité</h2>` etc.) étaient rendus **à l'intérieur** du `<Card>` (la bordure/ombre blanche), avec le contenu juste en dessous. Le vrai marquage a une structure différente (`renderDocs()` ~L10254-10260) : `<div class='col-block'><div class='sec-title big'>…titre…</div>` puis `identCard`/`orgCard`/`paieCard`/`outilsCard` **en frère, jamais en enfant** -- le titre vit au-dessus de la carte bordée, jamais dedans. D'où la confusion de l'utilisateur en voyant le titre comme "dans le bandeau" (la carte blanche bordée) : exactement ce que montrait notre rendu avant ce correctif.
+
+Les 4 blocs de `page.tsx` restructurés en conséquence : chaque `<h2>` devient un frère du `<Card>` (plus un enfant), dans un `<div>` englobant commun -- appliqué identiquement aux 4 blocs (Identité, Organisation, **et** Organisation de la paie/Outils "en dessous", le deuxième point du retour de l'utilisateur, qui pointait sur un oubli du même correctif structurel pour ces deux blocs-là). Paragraphe "Votre organigramme." retiré au passage : absent du vrai marquage (`orgCard` ne contient que `#equipeHost` + le bouton d'ajout), c'était une invention jamais remarquée jusqu'ici.
+
+**Vérifié** : capture réelle navigateur (session cliente ALPHA, avec une hiérarchie manager/subordonné de test "Camille Moreau" → "Julien Petit") — les 4 titres confirmés au-dessus de leur carte bordée respective, plus de titre "dans" le bandeau ; carte enfant de l'organigramme héritant correctement le même traitement bandeau+avatar que son parent. Données de test supprimées après coup. `npx tsc --noEmit` et `npx eslint` propres.
+
 ---
 
 ## LBP-CLIENT-03 — La bibliothèque ✅ Fait

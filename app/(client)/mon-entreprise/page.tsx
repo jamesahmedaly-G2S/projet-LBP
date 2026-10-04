@@ -69,6 +69,19 @@ const sectionHeadingClass =
 // inline). Icône de l'onglet "Mon entreprise" corrigée au passage
 // (`Building2` -> `Users`, vrai `data-ico="users"` ~L2539) -- signalée
 // par l'utilisateur dans le même retour ("l'emodjie ne correspond pas").
+//
+// Correctif (04/10/2026 octies), suite à un nouveau retour de
+// l'utilisateur ("identité et organisation ne doivent pas être dans le
+// bandeau mais un peu au-dessus") : les 4 titres (`<h2>`) étaient rendus
+// **à l'intérieur** du `<Card>` (bordure/ombre), avec le contenu juste en
+// dessous -- le vrai marquage a une structure différente,
+// `<div class='col-block'><div class='sec-title big'>…titre…</div>` +
+// `identCard`/`orgCard`/`paieCard`/`outilsCard` **en frère, pas en
+// enfant** (~L10254-10260) : le titre vit au-dessus de la carte bordée,
+// jamais dedans. Les 4 blocs restructurés en conséquence (titre hors du
+// `<Card>`). Paragraphe "Votre organigramme." retiré au passage : absent
+// du vrai marquage (`orgCard` ne contient que `#equipeHost` + le bouton
+// d'ajout, aucun texte d'intro), c'était une invention.
 
 export default async function MonEntreprisePage() {
   const session = await requireClient();
@@ -136,9 +149,9 @@ export default async function MonEntreprisePage() {
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <Card>
+        <div>
           <h2 className={sectionHeadingClass}>📄 Identité</h2>
-          <div className="mt-3">
+          <Card>
             <IdentityCard
               identity={{
                 companyName: company?.company_name ?? "",
@@ -150,30 +163,29 @@ export default async function MonEntreprisePage() {
               }}
               establishments={establishments ?? []}
             />
-          </div>
-        </Card>
+          </Card>
+        </div>
 
-        <Card>
+        <div>
           <h2 className={sectionHeadingClass}>👥 Organisation</h2>
-          <p className="mt-1 text-xs text-muted">Votre organigramme.</p>
-          <div className="mt-3">
+          <Card>
             <TeamSection members={members ?? []} />
-          </div>
-        </Card>
+          </Card>
+        </div>
 
-        <Card>
+        <div>
           <h2 className={sectionHeadingClass}>⚙️ Organisation de la paie</h2>
-          <div className="mt-3">
+          <Card>
             <PayrollCard
               operatingMode={payrollOrg?.operating_mode ?? null}
               providerName={payrollOrg?.provider_name ?? null}
             />
-          </div>
-        </Card>
+          </Card>
+        </div>
 
-        <Card>
+        <div>
           <h2 className={sectionHeadingClass}>⚙️ Outils</h2>
-          <div className="mt-3">
+          <Card>
             <ToolsCard
               payrollSoftware={softwareStack?.payroll_software ?? null}
               hris={softwareStack?.hris ?? null}
@@ -181,8 +193,8 @@ export default async function MonEntreprisePage() {
               otherTools={softwareStack?.other_tools ?? null}
               hasSpecifications={softwareStack?.has_specifications ?? false}
             />
-          </div>
-        </Card>
+          </Card>
+        </div>
       </div>
 
       <h2 className={sectionHeadingClass + " mt-[22px]"}>📁 Vos documents</h2>
