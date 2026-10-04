@@ -197,6 +197,23 @@ Aucun changement de code au-delà de la table `PAGE_BACKGROUNDS` : `PageBackdrop
 
 **Vérifié** : capture réelle navigateur (session cliente ALPHA, `c.moreau@alpha.fr`) — "Effectif global", "Établissements (2)", état vide complet de l'organigramme, sélecteur "— À renseigner" sur la paie, et "GTA" tous confirmés à l'écran. `npx tsc --noEmit` et `npx eslint "app/(client)/mon-entreprise"` propres.
 
+**Correctif (04/10/2026 bis)**, suite à un retour plus sévère de l'utilisateur ("pas vraiment aligné avec les attentes de la v9 de pauline") : re-audit structurel plus poussé (pas juste du texte), qui a trouvé deux catégories de problèmes.
+
+_Vrais bugs de libellé, corrigés_ — le 1er correctif du jour avait pris les libellés de `PayrollForm.tsx`/`ToolsForm.tsx` sur la mauvaise source : la **carte d'affichage en lecture seule** (`paieCard`/`outilsCard`, ~L10238-10249), alors que ces deux formulaires sont fonctionnellement l'équivalent des **modals d'édition réels** (`#paieEditor`/`#outilsEditor`, ~L12275-12289) :
+
+- "Mode d'organisation de la paie" → "Mode d'organisation" (le modal ne répète pas "paie", déjà dans le titre du bloc parent)
+- "Prestataire de paie" → "Prestataire de paie (le cas échéant)", placeholder "Le cas échéant" → "Nom du prestataire"
+- "GTA" → "GTA (gestion des temps)" (le libellé court n'existe que sur la carte d'affichage, pas dans le modal d'édition)
+- case à cocher "Cahier des charges du logiciel de paie disponible" (inventée) → vrai `<select>` Oui/Non à la question exacte "Un cahier des charges du logiciel de paie existe-t-il ?" (`actions.ts` adapté : `"oui"`/`"non"` au lieu de `"on"`/absent)
+
+_Écarts structurels réels, non corrigés — nécessitent une décision produit avant de coder_ :
+
+- **Logo + SIRET** : absents de la carte Identité (`ent-logo`, `IDENT.siret`). Confirmé bloqué par le schéma réel (`companies` n'a ni colonne `siret` ni `logo`, vérifié dans `baseline_schema_reel.sql`) — pas un oubli de portage, une vraie limite de schéma déjà documentée au ticket d'origine.
+- **Identité éditable par le client** : le vrai modal (`#identEditor`) laisse le client modifier lui-même raison sociale/forme/effectif/SIRET/CCN/logo. Notre choix (lecture seule côté client, `companies_update_admin` = admin uniquement) est une vraie restriction RLS (`baseline_schema_reel.sql` ligne 569), pas un oubli — mais c'est un choix produit qui s'écarte de ce que fait le vrai prototype, fait au nom du principe "le client demande, G2S contrôle" déjà appliqué à l'offre. À trancher avec l'utilisateur : soit on assume cet écart (déjà le cas pour Offres), soit on ouvre l'édition client sur ces champs (changement de RLS réel, pas cosmétique).
+- **"Vos documents" (1.3.5)** : section entière absente (4 catégories — conventions collectives/accords d'entreprise/grille de salaire/autres documents —, classement par année, lien Légifrance ou fichier). Le vrai code (`renderDocDetail()`, ~L10309) précise que **le client consulte sans pouvoir modifier** ("Le client consulte, sans pouvoir modifier") — donc pas besoin d'un vrai upload côté client, seulement un CRUD admin (Studio) + une vue lecture seule côté client, scope plus restreint qu'estimé lors du ticket d'origine ("demande un vrai stockage de fichiers"). Reste un module entier à construire (nouvelle table, écran admin, écran client) — pas tenté dans cette passe, nécessite un nouveau ticket dédié.
+
+**Vérifié** : capture réelle navigateur (session cliente ALPHA) — "Mode d'organisation", "Prestataire de paie (le cas échéant)" + placeholder "Nom du prestataire", "GTA (gestion des temps)", et le select "Un cahier des charges du logiciel de paie existe-t-il ?" tous confirmés à l'écran. `npx tsc --noEmit` et `npx eslint "app/(client)/mon-entreprise"` propres.
+
 ---
 
 ## LBP-CLIENT-03 — La bibliothèque ✅ Fait

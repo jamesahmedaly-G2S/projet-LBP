@@ -112,7 +112,7 @@ export async function saveSoftwareStack(
     hris: str(formData.get("hris")),
     time_management: str(formData.get("time_management")),
     other_tools: str(formData.get("other_tools")),
-    has_specifications: formData.get("has_specifications") === "on",
+    has_specifications: formData.get("has_specifications") === "oui",
   });
   if (error) return `Erreur : ${error.message}`;
   revalidatePath("/mon-entreprise");

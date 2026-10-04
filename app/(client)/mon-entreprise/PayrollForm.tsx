@@ -12,6 +12,19 @@ import { Button } from "@/ui-kit/Button";
 // "Prestataire de paie"), pas un champ texte libre avec un indice en
 // placeholder -- `PAIE={mode:"Paie semi-internalisée",...}` confirme que
 // c'est bien une de ces 4 valeurs exactes, jamais une saisie arbitraire.
+//
+// Correctif (04/10/2026 bis), suite à un nouveau retour de l'utilisateur
+// ("pas vraiment aligné avec les attentes de la v9 de pauline") : un
+// re-audit plus poussé a trouvé que les libellés ci-dessus avaient été
+// portés depuis la mauvaise source -- la carte d'affichage en lecture
+// seule (`paieCard`, ~L10238-10241), pas le vrai modal d'édition
+// (`#paieEditor`, ~L12275-12281), alors que PayrollForm EST
+// fonctionnellement ce modal (un formulaire éditable), pas la carte.
+// Vrais libellés du modal : "Mode d'organisation" (pas "Mode
+// d'organisation de la paie" -- le bloc parent est déjà titré
+// "Organisation de la paie", le modal ne répète pas le mot "paie") et
+// "Prestataire de paie (le cas échéant)" avec le placeholder "Nom du
+// prestataire" (pas "Le cas échéant" en placeholder).
 const PAYROLL_MODES = [
   "Paie internalisée",
   "Paie semi-internalisée",
@@ -31,7 +44,7 @@ export default function PayrollForm({
   return (
     <form action={formAction} className="flex flex-col gap-2">
       <SelectField
-        label="Mode d'organisation de la paie"
+        label="Mode d'organisation"
         name="operating_mode"
         defaultValue={operatingMode ?? ""}
       >
@@ -43,10 +56,10 @@ export default function PayrollForm({
         ))}
       </SelectField>
       <TextField
-        label="Prestataire de paie"
+        label="Prestataire de paie (le cas échéant)"
         name="provider_name"
         defaultValue={providerName ?? ""}
-        placeholder="Le cas échéant"
+        placeholder="Nom du prestataire"
       />
       <div className="flex items-center gap-2">
         <Button type="submit" variant="secondary" disabled={pending}>
