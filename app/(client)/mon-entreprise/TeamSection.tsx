@@ -6,6 +6,7 @@ import { TextField, SelectField } from "@/ui-kit/Field";
 import { Button } from "@/ui-kit/Button";
 import { Modal } from "@/ui-kit/Modal";
 import { fnv1aIndex } from "@/lib/hash";
+import { AVATAR_COUNT, avatarSrc } from "@/lib/client/avatars";
 
 export interface TeamMember {
   id: string;
@@ -15,11 +16,10 @@ export interface TeamMember {
   email: string | null;
   phone: string | null;
   manager_id: string | null;
+  avatar_index: number;
 }
 
-// LBP-CLIENT-02 : organigramme réel, sans le sélecteur à 124 avatars
-// décoratifs du prototype (aucune source réelle de 124 images) — un
-// simple cercle avec l'initiale du nom à la place.
+// LBP-CLIENT-02 : organigramme réel.
 //
 // Correctif fidélité (04/10/2026), suite à un retour de l'utilisateur
 // ("compare mot pour mot") : libellés et placeholders réels du modal
@@ -48,18 +48,31 @@ export interface TeamMember {
 // de connexion du vrai arbre horizontal (`.org-tree`, pseudo-éléments
 // CSS ~L679-689) restent en revanche une simplification assumée --
 // hiérarchie rendue par imbrication/indentation verticale, jamais
-// tentée en CSS pur, cohérent avec la décision déjà prise de ne pas
-// reproduire le sélecteur à 124 avatars.
+// tentée en CSS pur.
 //
-// Correctif (04/10/2026 quater), suite à un nouveau retour de
-// l'utilisateur ("ajouter une personne... doit être dans un bandeau
-// comme celui de l'accueil") : le bouton "+ Ajouter une personne"
-// flottait seul, sans carte autour (vérifié en capture réelle : aucun
-// bandeau visible, contrairement aux cartes pastel des personnes juste
-// au-dessus). Transformé en tuile à bordure pointillée, même gabarit que
-// `.org-card` (150-200px), dans la même rangée `flex-wrap` que les
-// personnes -- une tuile "ajouter" visible au même niveau que les
-// cartes existantes, pas un bouton isolé en dessous.
+// Correctif (04/10/2026 quinquies), suite au retour de l'utilisateur
+// ("vraiment je suis dessus (...) regarde bien sur la v9 et sois fidèle
+// à ce qui y figure") : rendu le prototype réel directement dans un
+// navigateur (`file://`, le fichier est autonome) pour comparer
+// pixel-perfect plutôt que de recomposer depuis le seul code source --
+// deux erreurs trouvées :
+// 1) "+ Ajouter une personne" avait été transformé en tuile pointillée
+//    dans la même rangée que les personnes lors du correctif précédent
+//    -- une mauvaise lecture. `getBoundingClientRect()` sur le vrai
+//    prototype confirme que ce bouton est bien un enfant du même
+//    `.dash-card` que la liste (`margin-top:16px`, EN DESSOUS, pas à
+//    côté), en `.btn-primary` (fond framboise plein), jamais une tuile
+//    pointillée à côté des cartes. Remis à sa place réelle.
+// 2) "Aucune source réelle de 124 images" (décision d'origine de ce
+//    fichier) était une erreur : les 124 avatars (`var AVATARS`,
+//    ~L10175) sont des images réelles, encodées en base64 inline dans
+//    le même fichier HTML -- jamais remarqué jusqu'ici. Extraits en
+//    fichiers statiques (`public/avatars/0.jpg`..`123.jpg`,
+//    `lib/client/avatars.ts`), `avatar_index` ajouté à `team_members`
+//    (migration 20261004160000). Sélecteur d'avatar ajouté au modal
+//    (`.av-grid`/`.av-pick`, ~L697-706, grille scrollable 52px/cercle),
+//    le cercle à l'initiale du nom est retiré -- il n'était qu'un pis-
+//    aller pour une "absence de source" qui n'en était pas une.
 const ORG_TINTS = [
   "#EDF2E6",
   "#E7EEF4",
@@ -92,9 +105,12 @@ export default function TeamSection({ members }: { members: TeamMember[] }) {
           className="inline-block min-w-[150px] max-w-[200px] rounded-[14px] border border-border px-4 pt-3 pb-2.5 text-center shadow-[0_1px_3px_rgba(20,48,79,0.05)]"
           style={{ background: orgTint(member.id) }}
         >
-          <span className="mx-auto flex h-[58px] w-[58px] items-center justify-center rounded-full bg-white text-lg font-semibold text-primary">
-            {member.name.charAt(0).toUpperCase()}
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element -- asset statique hors /public/next, taille fixe connue */}
+          <img
+            src={avatarSrc(member.avatar_index)}
+            alt=""
+            className="mx-auto h-[58px] w-[58px] rounded-full object-cover"
+          />
           <div className="mt-1.5 text-[13.5px] font-extrabold text-ink">{member.name}</div>
           {member.job_title && (
             <div className="mt-0.5 text-xs font-extrabold text-primary">{member.job_title}</div>
@@ -128,25 +144,17 @@ export default function TeamSection({ members }: { members: TeamMember[] }) {
 
   return (
     <div>
-      {roots.length === 0 && (
-        <p className="mb-3 text-sm text-muted">
+      {roots.length === 0 ? (
+        <p className="text-sm text-muted">
           Aucune personne pour le moment. Cliquez sur « + Ajouter une personne ».
         </p>
+      ) : (
+        <ul className="flex flex-wrap gap-3">{roots.map(renderNode)}</ul>
       )}
 
-      <ul className="flex flex-wrap gap-3">
-        {roots.map(renderNode)}
-        <li>
-          <button
-            type="button"
-            onClick={() => setEditing("new")}
-            className="flex min-w-[150px] max-w-[200px] flex-col items-center justify-center gap-1 rounded-[14px] border-2 border-dashed border-border px-4 py-6 text-center text-sm font-semibold text-muted hover:border-primary hover:text-primary"
-          >
-            <span className="text-xl leading-none">+</span>
-            Ajouter une personne
-          </button>
-        </li>
-      </ul>
+      <Button type="button" variant="primary" className="mt-4" onClick={() => setEditing("new")}>
+        + Ajouter une personne
+      </Button>
 
       <Modal
         open={editing !== null}
@@ -174,6 +182,7 @@ function MemberForm({
   members: TeamMember[];
   onDone: () => void;
 }) {
+  const [avatarIndex, setAvatarIndex] = useState(member?.avatar_index ?? 0);
   const [error, formAction, pending] = useActionState(async (prev: string | null, fd: FormData) => {
     const result = await saveTeamMember(prev, fd);
     if (!result) onDone();
@@ -183,6 +192,26 @@ function MemberForm({
   return (
     <form action={formAction} className="flex flex-col gap-2">
       {member && <input type="hidden" name="id" value={member.id} />}
+      <input type="hidden" name="avatar_index" value={avatarIndex} />
+
+      <label className="text-sm font-medium text-muted">Choisir un avatar</label>
+      <div className="mb-1 grid max-h-[180px] grid-cols-8 gap-2 overflow-y-auto p-0.5">
+        {Array.from({ length: AVATAR_COUNT }, (_, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setAvatarIndex(i)}
+            aria-label={`Avatar ${i + 1}`}
+            className={`h-[46px] w-[46px] overflow-hidden rounded-full border-2 transition-transform hover:-translate-y-0.5 ${
+              avatarIndex === i ? "border-primary ring-2 ring-primary-soft" : "border-transparent"
+            }`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- grille de 124 miniatures, un <Image> par vignette serait disproportionné */}
+            <img src={avatarSrc(i)} alt="" className="h-full w-full object-cover" />
+          </button>
+        ))}
+      </div>
+
       <TextField
         label="Nom & prénom"
         name="name"

@@ -91,6 +91,26 @@ import {
 // plutôt que de l'éditer en place -- fonctionnellement suffisant, mais
 // un vrai écart avec le prototype, à construire si Pauline le juge
 // prioritaire (formulaire déjà prêt à être réutilisé en mode édition).
+//
+// Correctif fidélité (04/10/2026 bis), suite à un nouveau retour de
+// l'utilisateur citant le vrai texte mot pour mot : le paragraphe
+// d'intro était reformulé ("Obligations de paie, temps forts
+// nationaux..."), pas porté 1:1 depuis le vrai `<p>` statique
+// (`<div class="view" id="v-calendrier">`, ~L2571, PAS généré par
+// `renderCalFull()` -- jamais vérifié à cet endroit jusqu'ici) : "Toutes
+// les dates clés de l'année : obligations de paie et déclaratives, temps
+// forts nationaux, actions RH à anticiper. Cliquez sur une journée pour
+// consulter le détail ou ajouter votre propre échéance.", `max-width:
+// 720px`. Corrigé mot pour mot.
+//
+// "← Retour" (`#backBar`/`.subbar`, ~L2563) volontairement absent :
+// c'est un bouton générique d'historique de vues internes au prototype
+// (`goBack()`/`viewHistory`, affiché dès qu'on arrive sur N'IMPORTE
+// QUELLE vue via un clic depuis une autre, pas un texte propre à
+// Calendrier RH) -- notre routage utilise de vraies URL/le bouton retour
+// natif du navigateur, qui couvre déjà ce besoin ; ajouter un second
+// bouton "retour" ferait doublon avec une fonctionnalité native, pas un
+// manque de contenu.
 
 const WEEKDAY_NAMES = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 const WEEKDAY_SHORT = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"];
@@ -233,9 +253,10 @@ export default async function CalendarContent({
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Votre année RH</Eyebrow>
       <SectionTitle>Calendrier RH</SectionTitle>
-      <p className="-mt-3 text-sm text-muted">
-        Obligations de paie, temps forts nationaux et actions RH à anticiper — cliquez un jour pour
-        le détail ou pour ajouter votre propre échéance.
+      <p className="-mt-3 max-w-[720px] text-sm text-muted">
+        Toutes les dates clés de l&apos;année : obligations de paie et déclaratives, temps forts
+        nationaux, actions RH à anticiper. Cliquez sur une journée pour consulter le détail ou
+        ajouter votre propre échéance.
       </p>
 
       <div className="mt-4">

@@ -55,6 +55,7 @@ export async function saveTeamMember(
   if (typeof name !== "string" || !name.trim()) return "Le nom est obligatoire.";
 
   const managerId = formData.get("manager_id");
+  const avatarIndex = Number(formData.get("avatar_index"));
   const data = {
     company_id: id,
     name: name.trim(),
@@ -63,6 +64,7 @@ export async function saveTeamMember(
     email: str(formData.get("email")),
     phone: str(formData.get("phone")),
     manager_id: typeof managerId === "string" && managerId ? managerId : null,
+    avatar_index: Number.isInteger(avatarIndex) && avatarIndex >= 0 ? avatarIndex : 0,
   };
 
   const supabase = await createClient();

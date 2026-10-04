@@ -119,7 +119,7 @@ export default async function MonEntreprisePage() {
       .order("name"),
     supabase
       .from("team_members")
-      .select("id, name, job_title, department, email, phone, manager_id")
+      .select("id, name, job_title, department, email, phone, manager_id, avatar_index")
       .eq("company_id", companyId)
       .order("name")
       .returns<TeamMember[]>(),

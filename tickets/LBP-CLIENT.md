@@ -261,6 +261,13 @@ Transformé le bouton en tuile à bordure pointillée, même gabarit que les car
 
 **Vérifié** : capture réelle navigateur (session cliente ALPHA) -- état vide (tuile pointillée seule, message au-dessus) et état avec une personne réelle ajoutée via le vrai formulaire ("Camille Moreau, Directrice RH, Direction", avatar "C" dans le bandeau pastel, tuile "+ Ajouter" juste à côté). Donnée de test supprimée après coup. `npx tsc --noEmit` et `npx eslint` propres.
 
+**Correctif (04/10/2026 decies)**, suite à un retour plus insistant de l'utilisateur ("vraiment je suis dessus (...) regarde bien sur la v9 et sois fidèle à ce qui y figure") : le vrai `LBP_V9.9_Studio.html` est un fichier HTML autonome -- rendu directement dans un navigateur réel (`file://`) plutôt que recomposé depuis la seule lecture du code source, pour comparer pixel-perfect. Deux erreurs trouvées, l'une annulant un correctif précédent :
+
+1. **"+ Ajouter une personne" mal replacé** : le correctif du 04/10 (nonies) l'avait transformé en tuile pointillée dans la même rangée que les cartes personne -- une mauvaise lecture de "doit être dans un bandeau". `getBoundingClientRect()` sur le vrai prototype confirme sans ambiguïté que ce bouton est un enfant du **même** `.dash-card` que la liste des personnes, **en dessous** (`margin-top:16px`), en **`.btn-primary` plein framboise** -- jamais une tuile pointillée à côté des cartes. "Un bandeau" désignait donc un bouton plein (couleur pleine, comme une bannière), pas un encart séparé. Remis à sa place et son style réels.
+2. **"Aucune source réelle de 124 images" était faux** : les 124 avatars du prototype (`var AVATARS`, ~L10175) sont des images réelles, simplement encodées en base64 inline dans le même fichier HTML -- jamais remarqué lors de la construction initiale du module, répété sans le revérifier à chaque correctif suivant. Extraits (script ponctuel) en fichiers statiques `public/avatars/0.jpg`..`123.jpg` (124 fichiers, ~516 Ko). `avatar_index` ajouté à `team_members` (migration `20261004160000_team_members_avatar.sql`, défaut `0`). Sélecteur d'avatar ajouté au modal (grille scrollable 52px/cercle, port du vrai `.av-grid`/`.av-pick`), le cercle à l'initiale du nom est retiré de l'organigramme -- il n'était qu'un pis-aller pour une absence de source qui n'en était pas une.
+
+**Vérifié** : prototype réel rendu dans un navigateur (`file://`, fichier autonome) pour extraire les positions/styles exacts avant de coder, puis la même vérification côté notre appli (session cliente ALPHA) -- ajout réel d'une personne via le vrai formulaire avec sélection d'avatar, carte résultante comparée côte à côte avec le rendu réel du prototype : avatar identique, bouton "+ Ajouter une personne" à la même position/du même style. Donnée de test supprimée après coup. `npx tsc --noEmit` et `npx eslint` propres.
+
 ---
 
 ## LBP-CLIENT-03 — La bibliothèque ✅ Fait
@@ -506,6 +513,12 @@ Côté admin (`app/(studio)/administration/calendrier-rh/`) : liste + formulaire
 **Écart assumé, non corrigé** : pas de capacité de modification d'un événement personnel déjà créé (le vrai `editDayEvent()`/✎) — seuls l'ajout et la suppression existent côté client. Un utilisateur qui se trompe supprime et recrée l'événement plutôt que de l'éditer en place — fonctionnellement suffisant, mais un vrai écart avec le prototype, à construire si Pauline le juge prioritaire.
 
 **Vérifié** : capture réelle navigateur (session cliente ALPHA, événements nationaux réels d'octobre 2026) — titre "Octobre 2026" visiblement plus grand, légende bien espacée, détail du 5 octobre ("DSN et paiement des cotisations…") affichant "ÉCHÉANCES & ÉVÉNEMENTS" et le badge "National / général", formulaire d'ajout avec le placeholder réel. `npx tsc --noEmit` et `npx eslint` propres.
+
+**Correctif (04/10/2026 ter)**, suite à un retour de l'utilisateur citant le vrai texte mot pour mot : le paragraphe d'intro était reformulé ("Obligations de paie, temps forts nationaux..."), jamais porté 1:1 depuis le vrai `<p>` statique (`<div class="view" id="v-calendrier">` ~L2571 -- un bloc HTML statique, PAS généré par `renderCalFull()`, jamais vérifié à cet endroit précis jusqu'ici). Vrai texte : "Toutes les dates clés de l'année : obligations de paie et déclaratives, temps forts nationaux, actions RH à anticiper. Cliquez sur une journée pour consulter le détail ou ajouter votre propre échéance." (`max-width:720px`). Corrigé mot pour mot.
+
+"← Retour" (`#backBar`/`.subbar`, ~L2563), également cité par l'utilisateur, volontairement **non ajouté** : c'est un bouton générique d'historique de vues interne au prototype (`goBack()`/`viewHistory`, affiché sur n'importe quelle vue atteinte par un clic depuis une autre, pas un texte propre à Calendrier RH) -- notre routage utilise de vraies URL avec le bouton retour natif du navigateur, qui couvre déjà ce besoin.
+
+**Vérifié** : capture réelle navigateur (session cliente ALPHA) -- texte d'intro confirmé identique mot pour mot au vrai `<p>` du prototype. `npx tsc --noEmit` et `npx eslint` propres.
 
 ---
 
