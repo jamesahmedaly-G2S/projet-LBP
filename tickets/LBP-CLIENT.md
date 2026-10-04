@@ -173,6 +173,18 @@ Aucun changement de code au-delà de la table `PAGE_BACKGROUNDS` : `PageBackdrop
 
 **Vérifié** : test réel navigateur avec la session cliente ALPHA — raison sociale et établissement réels affichés ; ajout réel d'un établissement, persistant après rechargement complet ; ajout réel de deux personnes avec rattachement hiérarchique (l'une sous l'autre), les deux persistantes après rechargement complet ; enregistrement réel du mode d'organisation de la paie, confirmé à la fois en base (requête directe) et par la valeur du champ après rechargement. Toutes les données de test supprimées après coup.
 
+**Correctif (04/10/2026)**, suite à un nouveau retour de l'utilisateur ("regarde la page Mon entreprise, compare mot pour mot") : nouvelle relecture exhaustive mot-pour-mot contre `renderDocs()`/`renderEquipe()`/`openPersonEditor()` et le marquage statique du modal `personEditor` (`LBP_V9.9_Studio.html` ~L10220-10263, ~L12245-12258, ~L12278), au-delà des tailles/icônes déjà corrigées le 03/10. Cinq écarts de texte/structure trouvés et corrigés :
+
+- **Mode d'organisation de la paie** (`PayrollForm.tsx`) : vrai champ (`#pe2-mode` ~L12278) est un `<select>` à 4 valeurs fixes ("Paie internalisée"/"Paie semi-internalisée"/"Paie externalisée"/"Prestataire de paie", confirmées par `PAIE={mode:"Paie semi-internalisée",...}` ~L10221) — nous avions un champ texte libre avec un indice en placeholder. Remplacé par un vrai `<select>` à ces 4 options + "— À renseigner".
+- **Outils** (`ToolsForm.tsx`) : libellé réel `<span class='k'>GTA</span>` (~L10246) — nous avions "Gestion des temps (GTA)", une expansion inventée. Corrigé en "GTA" seul.
+- **Organisation** (`TeamSection.tsx`) : état vide tronqué ("Aucune personne pour le moment.") — complété avec sa deuxième phrase réelle ("Cliquez sur « + Ajouter une personne »."). Labels/placeholders du formulaire corrigés sur le vrai modal `personEditor` : "Nom & prénom" (pas "Nom", + placeholder "Ex. Camille Moreau"), "Poste" (+ placeholder "Ex. Directrice RH"), "Service / équipe" (pas "Service", + placeholder "Ex. Direction"), "E-mail" (pas "Email", + placeholder "prenom.nom@…"), "Téléphone" (+ placeholder "01 …"), "Rattaché(e) à (responsable)" (pas "Rattaché à").
+- **Identité** (`page.tsx`) : "Effectif" → "Effectif global" (libellé réel `id-lbl` ~L10235).
+- **Établissements** (`page.tsx`) : "Établissements" → "Établissements ({N})" — le compte entre parenthèses fait partie du vrai libellé, absent jusqu'ici.
+
+`EstablishmentsSection.tsx` relu en entier et confirmé déjà fidèle ("Nom / ville"/"Adresse"/"Aucun établissement renseigné."/"+ Ajouter") — aucun changement.
+
+**Vérifié** : capture réelle navigateur (session cliente ALPHA, `c.moreau@alpha.fr`) — "Effectif global", "Établissements (2)", état vide complet de l'organigramme, sélecteur "— À renseigner" sur la paie, et "GTA" tous confirmés à l'écran. `npx tsc --noEmit` et `npx eslint "app/(client)/mon-entreprise"` propres.
+
 ---
 
 ## LBP-CLIENT-03 — La bibliothèque ✅ Fait

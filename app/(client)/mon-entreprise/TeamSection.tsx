@@ -18,6 +18,15 @@ export interface TeamMember {
 // LBP-CLIENT-02 : organigramme réel, sans le sélecteur à 124 avatars
 // décoratifs du prototype (aucune source réelle de 124 images) — un
 // simple cercle avec l'initiale du nom à la place.
+//
+// Correctif fidélité (04/10/2026), suite à un retour de l'utilisateur
+// ("compare mot pour mot") : libellés et placeholders réels du modal
+// `personEditor` (`LBP_V9.9_Studio.html` ~L12249-12258) -- "Nom &
+// prénom" (pas "Nom"), "Service / équipe" (pas "Service"), "E-mail" (pas
+// "Email"), "Rattaché(e) à (responsable)" (pas "Rattaché à"), plus les
+// placeholders d'exemple ("Ex. Camille Moreau", etc.), jamais portés.
+// État vide complété avec sa deuxième phrase ("Cliquez sur « + Ajouter
+// une personne ».") -- tronquée avant ce correctif.
 export default function TeamSection({ members }: { members: TeamMember[] }) {
   const [editing, setEditing] = useState<TeamMember | "new" | null>(null);
   const [, startTransition] = useTransition();
@@ -66,7 +75,9 @@ export default function TeamSection({ members }: { members: TeamMember[] }) {
   return (
     <div>
       {roots.length === 0 ? (
-        <p className="text-sm text-muted">Aucune personne pour le moment.</p>
+        <p className="text-sm text-muted">
+          Aucune personne pour le moment. Cliquez sur « + Ajouter une personne ».
+        </p>
       ) : (
         <ul>{roots.map(renderNode)}</ul>
       )}
@@ -113,36 +124,47 @@ function MemberForm({
     >
       {member && <input type="hidden" name="id" value={member.id} />}
       <div className="flex flex-wrap gap-2">
-        <TextField label="Nom" name="name" defaultValue={member?.name} required className="w-40" />
+        <TextField
+          label="Nom & prénom"
+          name="name"
+          defaultValue={member?.name}
+          placeholder="Ex. Camille Moreau"
+          required
+          className="w-40"
+        />
         <TextField
           label="Poste"
           name="job_title"
           defaultValue={member?.job_title ?? ""}
+          placeholder="Ex. Directrice RH"
           className="w-40"
         />
         <TextField
-          label="Service"
+          label="Service / équipe"
           name="department"
           defaultValue={member?.department ?? ""}
+          placeholder="Ex. Direction"
           className="w-32"
         />
       </div>
       <div className="flex flex-wrap gap-2">
         <TextField
-          label="Email"
+          label="E-mail"
           name="email"
           type="email"
           defaultValue={member?.email ?? ""}
+          placeholder="prenom.nom@…"
           className="w-48"
         />
         <TextField
           label="Téléphone"
           name="phone"
           defaultValue={member?.phone ?? ""}
+          placeholder="01 …"
           className="w-32"
         />
         <SelectField
-          label="Rattaché à"
+          label="Rattaché(e) à (responsable)"
           name="manager_id"
           defaultValue={member?.manager_id ?? ""}
           className="w-40"

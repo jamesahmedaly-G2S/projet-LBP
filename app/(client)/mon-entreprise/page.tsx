@@ -38,6 +38,13 @@ import ToolsForm from "./ToolsForm";
 const sectionHeadingClass =
   "mt-[6px] mb-3 flex items-baseline gap-[10px] text-[23px] font-extrabold tracking-[-0.015em] text-[#33405A]";
 
+// Correctif fidélité (04/10/2026), suite à un nouveau retour de
+// l'utilisateur ("compare mot pour mot") : "Effectif" -> "Effectif
+// global" et "Établissements" -> "Établissements ({N})" (le compte entre
+// parenthèses fait partie du libellé réel, `id-lbl`, ~L10235) --
+// manquaient tous les deux. Voir aussi PayrollForm.tsx/ToolsForm.tsx/
+// TeamSection.tsx, corrigés dans la même passe.
+
 export default async function MonEntreprisePage() {
   const session = await requireClient();
   const companyId = session.profile.company_id;
@@ -111,7 +118,7 @@ export default async function MonEntreprisePage() {
               <dd className="text-ink">{company?.legal_form ?? "—"}</dd>
             </div>
             <div>
-              <dt className="text-muted">Effectif</dt>
+              <dt className="text-muted">Effectif global</dt>
               <dd className="text-ink">{company?.headcount ?? "—"}</dd>
             </div>
           </dl>
@@ -119,7 +126,9 @@ export default async function MonEntreprisePage() {
             Ces informations sont gérées par votre référent G2S. Les établissements ci-dessous
             restent modifiables directement.
           </p>
-          <h3 className="mt-4 text-sm font-semibold text-ink">Établissements</h3>
+          <h3 className="mt-4 text-sm font-semibold text-ink">
+            Établissements ({establishments?.length ?? 0})
+          </h3>
           <div className="mt-2">
             <EstablishmentsSection establishments={establishments ?? []} />
           </div>
