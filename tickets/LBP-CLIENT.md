@@ -69,6 +69,10 @@ Suite à deux retours successifs de l'utilisateur : d'abord sur Prise en main ("
 
 **Vérifié** : capture réelle desktop -- recherche sur sa propre ligne sous les onglets, alignée à gauche.
 
+**Correction (04/10/2026)** : retour de l'utilisateur ("la recherche n'est pas encore à la bonne place, elle doit être décalée de l'autre côté") -- toujours sur sa propre ligne sous les onglets (ça, c'est acquis), mais alignée à gauche n'était pas non plus la bonne position : décalée à droite (`md:justify-end` sur le conteneur de cette ligne, au lieu de l'alignement par défaut à gauche).
+
+**Vérifié** : capture réelle desktop (session cliente ALPHA, viewport 1440×260) -- recherche sur sa propre ligne sous les onglets, alignée à droite, toujours plafonnée à 240px.
+
 ---
 
 ## LBP-CLIENT-01 — Accueil 🟡 Partiellement fait

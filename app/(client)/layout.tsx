@@ -71,6 +71,10 @@ import PageBackdrop from "./_components/PageBackdrop";
 //    la largeur, plutôt qu'une seule ligne flex partagée -- la largeur
 //    plafonnée (240px) et un seul vrai champ fonctionnel restent comme au
 //    point 1.
+// 3) Correction (04/10/2026) : "la recherche n'est pas encore à la bonne
+//    place, elle doit être décalée de l'autre côté" -- toujours sur sa
+//    propre ligne sous les onglets, mais alignée à droite plutôt qu'à
+//    gauche (`md:justify-end` sur le conteneur de la ligne).
 export default function ClientLayout({ children }: { children: ReactNode }) {
   return (
     <div className="theme-client min-h-screen">
@@ -127,7 +131,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           <ClientNav />
         </div>
 
-        <div className="hidden md:mt-2 md:block">
+        <div className="hidden md:mt-2 md:flex md:justify-end">
           <form
             action="/recherche"
             className="flex w-full max-w-[240px] items-center gap-1.5 rounded-full border border-border bg-white px-3.5 py-1.5"
