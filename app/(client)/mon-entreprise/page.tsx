@@ -5,6 +5,7 @@ import { Eyebrow } from "../_components/Eyebrow";
 import { SectionTitle } from "../_components/SectionTitle";
 import EstablishmentsSection from "./EstablishmentsSection";
 import TeamSection, { type TeamMember } from "./TeamSection";
+import IdentityForm from "./IdentityForm";
 import PayrollForm from "./PayrollForm";
 import ToolsForm from "./ToolsForm";
 
@@ -44,6 +45,13 @@ const sectionHeadingClass =
 // parenthèses fait partie du libellé réel, `id-lbl`, ~L10235) --
 // manquaient tous les deux. Voir aussi PayrollForm.tsx/ToolsForm.tsx/
 // TeamSection.tsx, corrigés dans la même passe.
+//
+// Correctif (04/10/2026 bis), suite au retour de l'utilisateur ("on
+// corrige de notre côté") : la carte Identité devient éditable par le
+// client (`IdentityForm.tsx`), alignée sur le vrai `#identEditor`
+// (logo/SIRET/CCN/raison sociale/forme/effectif) -- `siret` ajouté au
+// schéma réel (migration 20261004140000), `url_pictures` (déjà présente
+// depuis la baseline, jamais consommée) réutilisée pour le logo.
 
 export default async function MonEntreprisePage() {
   const session = await requireClient();
@@ -70,7 +78,7 @@ export default async function MonEntreprisePage() {
   ] = await Promise.all([
     supabase
       .from("companies")
-      .select("company_name, legal_form, headcount, cba")
+      .select("company_name, legal_form, headcount, cba, siret, url_pictures")
       .eq("id", companyId)
       .single(),
     supabase
@@ -107,25 +115,16 @@ export default async function MonEntreprisePage() {
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Card>
           <h2 className={sectionHeadingClass}>📄 Identité</h2>
-          <dl className="mt-3 flex flex-col gap-1.5 text-sm">
-            <div>
-              <dt className="text-muted">Raison sociale</dt>
-              <dd className="text-ink">{company?.company_name ?? "—"}</dd>
-              {company?.cba && <dd className="text-muted">{company.cba}</dd>}
-            </div>
-            <div>
-              <dt className="text-muted">Forme</dt>
-              <dd className="text-ink">{company?.legal_form ?? "—"}</dd>
-            </div>
-            <div>
-              <dt className="text-muted">Effectif global</dt>
-              <dd className="text-ink">{company?.headcount ?? "—"}</dd>
-            </div>
-          </dl>
-          <p className="mt-2 text-xs text-muted">
-            Ces informations sont gérées par votre référent G2S. Les établissements ci-dessous
-            restent modifiables directement.
-          </p>
+          <div className="mt-3">
+            <IdentityForm
+              companyName={company?.company_name ?? ""}
+              legalForm={company?.legal_form ?? null}
+              headcount={company?.headcount ?? null}
+              siret={company?.siret ?? null}
+              cba={company?.cba ?? null}
+              logoUrl={company?.url_pictures ?? null}
+            />
+          </div>
           <h3 className="mt-4 text-sm font-semibold text-ink">
             Établissements ({establishments?.length ?? 0})
           </h3>

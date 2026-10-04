@@ -214,6 +214,15 @@ _Écarts structurels réels, non corrigés — nécessitent une décision produi
 
 **Vérifié** : capture réelle navigateur (session cliente ALPHA) — "Mode d'organisation", "Prestataire de paie (le cas échéant)" + placeholder "Nom du prestataire", "GTA (gestion des temps)", et le select "Un cahier des charges du logiciel de paie existe-t-il ?" tous confirmés à l'écran. `npx tsc --noEmit` et `npx eslint "app/(client)/mon-entreprise"` propres.
 
+**Correctif (04/10/2026 ter)**, suite au retour de l'utilisateur ("on corrige de notre côté") : le premier des deux écarts structurels identifiés ci-dessus (logo + SIRET absents, identité en lecture seule) est maintenant corrigé.
+
+- **`siret`** ajouté à `companies` (migration `20261004140000_identite_entreprise_editable_client.sql`). **`url_pictures`** (présente depuis la baseline de James, jamais consommée par aucun écran) réutilisée telle quelle pour le logo — même pattern que team_members/payroll_org/software_stack avant eux.
+- **Identité éditable par le client** (`IdentityForm.tsx`, nouveau) : logo (upload + "Retirer le logo actuel"), SIRET, convention collective, raison sociale, forme, effectif global — porté sur le vrai modal `#identEditor`. **Pas de nouvelle policy RLS `UPDATE` brute sur `companies`** : ouvrir `id = current_company_id()` exposerait toutes les colonnes à l'écriture client, y compris `offer_tier` (le palier tarifaire/les fonctionnalités débloquées) — une vraie faille d'escalade de privilèges, pas un détail théorique. À la place, une fonction dédiée `update_company_identity` (`SECURITY DEFINER`, même pattern que `seed_weekly_tasks`/`check_and_increment_chat_quota`) qui ne touche que les 6 colonnes d'identité, jamais `offer_tier` ni aucune autre colonne sensible. Logo stocké en data URL base64 (comme le fait le prototype lui-même via `FileReader`, aucune vraie infrastructure de stockage ailleurs dans l'appli) — plafonné à 2 Mo côté serveur (le prototype n'a aucune limite, mais une vraie base ne doit pas absorber des images arbitrairement grandes dans une colonne texte).
+
+**Non fait — reste ouvert** : le module "Vos documents" (1.3.5, 4 catégories de documents classés par année) reste le seul écart encore non traité.
+
+**Vérifié** : test réel bout en bout (session cliente ALPHA, après `npm run db:reset` appliquant la migration) — SIRET et convention collective saisis, logo uploadé (fichier réel), tous les trois confirmés persistants après rechargement complet (requête directe + relecture de la page) ; logo ensuite retiré via la case "Retirer le logo actuel", confirmé absent après rechargement. `npx tsc --noEmit` et `npx eslint "app/(client)/mon-entreprise"` propres.
+
 ---
 
 ## LBP-CLIENT-03 — La bibliothèque ✅ Fait
