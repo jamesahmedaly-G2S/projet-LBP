@@ -35,12 +35,25 @@ export interface CompanyDocument {
   meta: string | null;
   doc_date: string | null;
   url: string | null;
+  file_path: string | null;
 }
 
+// Correctif (05/10/2026), suite à la réponse de Pauline ("pour les
+// accords et autres il nous faut la possibilité pour l'utilisateur
+// d'importer des docs PDF donc oui un vrai stockage") : premier vrai
+// stockage de fichiers de l'appli (migration 20261005090000). Bucket
+// privé -- jamais de lecture par chemin public deviné, seulement via
+// URL signée à la demande (`createSignedUrl`), générée côté serveur
+// avant d'atteindre le navigateur.
+export const COMPANY_DOCUMENTS_BUCKET = "company-documents";
+export const SIGNED_URL_TTL_SECONDS = 60 * 10; // 10 minutes -- assez pour ouvrir/télécharger, jamais un lien permanent
+
 // Classement par année décroissante, port 1:1 de la logique de
-// `renderDocDetail()` (~L10290-10293).
-export function groupDocumentsByYear(docs: CompanyDocument[]): [string, CompanyDocument[]][] {
-  const byYear = new Map<string, CompanyDocument[]>();
+// `renderDocDetail()` (~L10290-10293). Générique pour accepter aussi bien
+// `CompanyDocument` que des variantes enrichies (ex. `previewUrl` résolu
+// côté serveur pour les fichiers stockés).
+export function groupDocumentsByYear<T extends CompanyDocument>(docs: T[]): [string, T[]][] {
+  const byYear = new Map<string, T[]>();
   for (const doc of docs) {
     const year = doc.doc_date?.slice(0, 4) || "Sans date";
     byYear.set(year, [...(byYear.get(year) ?? []), doc]);

@@ -16,12 +16,24 @@ import { Button } from "@/ui-kit/Button";
 // mon-entreprise/documents/[category]/page.tsx) n'a aucun accès en
 // écriture -- RLS côté serveur, pas seulement l'absence de ce composant
 // là-bas.
+//
+// Correctif (05/10/2026), suite à la réponse de Pauline ("pour les
+// conventions collective un simple lien URL suffit... mais pour les
+// accords et autres il nous faut [du vrai stockage]") : upload PDF ajouté
+// pour les catégories autres que "cc", qui reste lien uniquement (le
+// bucket privé `company-documents` ne distribue jamais d'URL publique
+// permanente -- `previewUrl`, résolu côté serveur en URL signée à durée
+// limitée par `page.tsx`, jamais stocké tel quel).
+export interface DocumentWithPreview extends CompanyDocument {
+  previewUrl: string | null;
+}
+
 export default function DocumentsManager({
   companyId,
   documents,
 }: {
   companyId: string;
-  documents: CompanyDocument[];
+  documents: DocumentWithPreview[];
 }) {
   return (
     <div className="flex flex-col gap-6">
@@ -47,9 +59,9 @@ function CategorySection({
   companyId: string;
   category: DocumentCategory;
   label: string;
-  documents: CompanyDocument[];
+  documents: DocumentWithPreview[];
 }) {
-  const [editing, setEditing] = useState<CompanyDocument | "new" | null>(null);
+  const [editing, setEditing] = useState<DocumentWithPreview | "new" | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
@@ -78,14 +90,14 @@ function CategorySection({
                   {d.doc_date ? new Date(d.doc_date).toLocaleDateString("fr-FR") : "—"}
                 </td>
                 <td className="px-2 py-1.5 text-studio-muted">
-                  {d.url ? (
+                  {(d.url ?? d.previewUrl) ? (
                     <a
-                      href={d.url}
+                      href={d.url ?? d.previewUrl ?? undefined}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-studio-blue hover:underline"
                     >
-                      Ouvrir ↗
+                      {d.url ? "Ouvrir ↗" : "Ouvrir le PDF ↗"}
                     </a>
                   ) : (
                     "—"
@@ -150,7 +162,7 @@ function DocumentForm({
 }: {
   companyId: string;
   category: DocumentCategory;
-  item: CompanyDocument | null;
+  item: DocumentWithPreview | null;
   onDone: () => void;
 }) {
   const [error, formAction, pending] = useActionState(async (prev: string | null, fd: FormData) => {
@@ -158,6 +170,11 @@ function DocumentForm({
     if (!result) onDone();
     return result;
   }, null);
+
+  // "cc" (conventions collectives) reste lien uniquement -- Pauline :
+  // "pour les conventions collective un simple lien URL suffit" ; les 3
+  // autres catégories acceptent un vrai PDF importé.
+  const allowsUpload = category !== "cc";
 
   return (
     <form
@@ -183,12 +200,23 @@ function DocumentForm({
         className="w-36"
       />
       <TextField
-        label="Lien (Légifrance, PDF hébergé…)"
+        label={allowsUpload ? "Lien (Légifrance…)" : "Lien (Légifrance)"}
         name="url"
         defaultValue={item?.url ?? ""}
         placeholder="https://…"
         className="w-64"
       />
+      {allowsUpload && (
+        <label className="flex flex-col gap-1 text-sm font-medium text-studio-muted">
+          Fichier PDF {item?.file_path ? "(remplace le fichier actuel)" : ""}
+          <input
+            type="file"
+            name="file"
+            accept="application/pdf"
+            className="text-sm text-studio-navy"
+          />
+        </label>
+      )}
       <Button type="submit" variant="primary" disabled={pending}>
         {pending ? "..." : "Enregistrer"}
       </Button>

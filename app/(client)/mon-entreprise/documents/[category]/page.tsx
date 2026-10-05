@@ -9,17 +9,25 @@ import {
   documentCategoryLabel,
   groupDocumentsByYear,
   isDocumentCategory,
+  COMPANY_DOCUMENTS_BUCKET,
+  SIGNED_URL_TTL_SECONDS,
   type CompanyDocument,
 } from "@/lib/client/company-documents";
 
 // LBP-CLIENT-02 : détail d'une catégorie de "Vos documents", port de
 // `renderDocDetail()` (`LBP_V9.9_Studio.html` ~L10280-10313) -- classé
 // par année décroissante, lien "Consulter en ligne ↗" quand une URL est
-// renseignée, "Aucun fichier joint" sinon (pas de vraie infrastructure
-// d'upload, même convention que `articles.pdf_url`). Lecture seule :
-// aucun bouton d'ajout/modification/suppression ici, contrairement au
-// mode admin du prototype (`g` truthy) -- "le client consulte, sans
-// pouvoir modifier" (~L10309).
+// renseignée, "Aucun fichier joint" sinon. Lecture seule : aucun bouton
+// d'ajout/modification/suppression ici, contrairement au mode admin du
+// prototype (`g` truthy) -- "le client consulte, sans pouvoir modifier"
+// (~L10309).
+//
+// Correctif (05/10/2026), suite à la réponse de Pauline ("pour les
+// accords et autres il nous faut [du vrai stockage]") : un document peut
+// maintenant pointer vers un vrai PDF dans le bucket privé
+// `company-documents` (`file_path`) plutôt qu'un simple lien externe --
+// une URL signée à durée limitée est générée ici pour chacun, jamais un
+// chemin de stockage exposé tel quel au navigateur.
 export default async function DocumentCategoryPage({
   params,
 }: {
@@ -43,12 +51,22 @@ export default async function DocumentCategoryPage({
   const supabase = await createClient();
   const { data: documents } = await supabase
     .from("company_documents")
-    .select("id, category, name, meta, doc_date, url")
+    .select("id, category, name, meta, doc_date, url, file_path")
     .eq("company_id", companyId)
     .eq("category", category)
     .returns<CompanyDocument[]>();
 
-  const years = groupDocumentsByYear(documents ?? []);
+  const docsWithPreview = await Promise.all(
+    (documents ?? []).map(async (doc) => {
+      if (!doc.file_path) return { ...doc, previewUrl: null as string | null };
+      const { data: signed } = await supabase.storage
+        .from(COMPANY_DOCUMENTS_BUCKET)
+        .createSignedUrl(doc.file_path, SIGNED_URL_TTL_SECONDS);
+      return { ...doc, previewUrl: signed?.signedUrl ?? null };
+    }),
+  );
+
+  const years = groupDocumentsByYear(docsWithPreview);
 
   return (
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
@@ -86,14 +104,14 @@ export default async function DocumentCategoryPage({
                           .join(" · ")}
                       </div>
                     </div>
-                    {doc.url ? (
+                    {(doc.url ?? doc.previewUrl) ? (
                       <a
-                        href={doc.url}
+                        href={doc.url ?? doc.previewUrl ?? undefined}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="shrink-0 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary-soft"
                       >
-                        Consulter en ligne ↗
+                        {doc.url ? "Consulter en ligne ↗" : "Ouvrir le document ↗"}
                       </a>
                     ) : (
                       <span className="shrink-0 text-xs text-muted">Aucun fichier joint</span>
