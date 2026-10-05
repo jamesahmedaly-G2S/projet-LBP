@@ -1,0 +1,130 @@
+import Link from "next/link";
+import { requireAdmin } from "@/lib/auth/session";
+import { createClient } from "@/lib/supabase/server";
+import { getMonitoringStatusLabel, getMonitoringStatusTone } from "@/lib/studio/monitoring-status";
+import { VEILLE_SOURCES } from "@/lib/studio/veille-sources";
+import { Card } from "@/ui-kit/Card";
+import { Badge } from "@/ui-kit/Badge";
+import { LinkButton } from "@/ui-kit/LinkButton";
+import RunConnectorsButton from "./RunConnectorsButton";
+
+interface MonitoringRow {
+  id: string;
+  source: string;
+  text_type: string | null;
+  title: string;
+  text_date: string | null;
+  effective_date: string | null;
+  summary: string | null;
+  impact: string | null;
+  link: string | null;
+  status: string;
+  created_at: string;
+}
+
+// STU-VEILLE-01 : liste des entrées de veille — étape 1 "Détection" (§10).
+export default async function VeillePage() {
+  await requireAdmin();
+  const supabase = await createClient();
+
+  const { data: entries } = await supabase
+    .from("legal_monitoring")
+    .select(
+      "id, source, text_type, title, text_date, effective_date, summary, impact, link, status, created_at",
+    )
+    .order("created_at", { ascending: false })
+    .returns<MonitoringRow[]>();
+
+  const rows = entries ?? [];
+
+  return (
+    <main className="mx-auto max-w-3xl px-6 py-10">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-studio-navy">Veille réglementaire</h1>
+        <LinkButton href="/veille/nouvelle" variant="primary">
+          + Nouvelle entrée
+        </LinkButton>
+      </div>
+
+      {/* STU-VEILLE-01 (correctif 27/09/2026) : panneau des 7 sources
+          officielles ("Sources officielles — votre veille du jour" dans
+          LBP_V6_Studio.html) — déjà attendu au moment où STU-VEILLE-01 a été
+          construit, jamais affiché jusqu'ici. */}
+      <Card className="mt-6">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-studio-muted">
+          Sources officielles — votre veille du jour
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {VEILLE_SOURCES.map((source) => (
+            <a
+              key={source.url}
+              href={source.url}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-full border border-studio-line bg-white px-3 py-1.5 text-xs font-medium text-studio-blue hover:border-studio-blue"
+            >
+              {source.name} ↗
+            </a>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="mt-6">
+        <h2 className="mb-2 text-sm font-medium text-studio-muted">
+          Connecteurs automatiques (7 sources officielles)
+        </h2>
+        <RunConnectorsButton />
+      </Card>
+
+      {rows.length === 0 ? (
+        <Card className="mt-6">
+          <p className="text-sm text-studio-muted">Aucune entrée de veille pour l&apos;instant.</p>
+        </Card>
+      ) : (
+        <div className="mt-6 flex flex-col gap-4">
+          {rows.map((entry) => (
+            <Card key={entry.id}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <Link
+                    href={`/veille/${entry.id}`}
+                    className="font-medium text-studio-blue hover:underline"
+                  >
+                    {entry.title}
+                  </Link>
+                  <p className="mt-0.5 text-xs text-studio-muted">
+                    {entry.source}
+                    {entry.text_type && ` · ${entry.text_type}`}
+                    {entry.text_date &&
+                      ` · ${new Date(entry.text_date).toLocaleDateString("fr-FR")}`}
+                    {entry.effective_date &&
+                      ` · en vigueur le ${new Date(entry.effective_date).toLocaleDateString("fr-FR")}`}
+                  </p>
+                </div>
+                <Badge tone={getMonitoringStatusTone(entry.status)}>
+                  {getMonitoringStatusLabel(entry.status)}
+                </Badge>
+              </div>
+              {entry.summary && <p className="mt-2 text-sm text-studio-navy">{entry.summary}</p>}
+              {entry.impact && (
+                <p className="mt-1 text-xs text-studio-muted">
+                  Impact : <span className="italic">{entry.impact}</span>
+                </p>
+              )}
+              {entry.link && (
+                <a
+                  href={entry.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-1 block text-xs text-studio-blue hover:underline"
+                >
+                  Source d&apos;origine ↗
+                </a>
+              )}
+            </Card>
+          ))}
+        </div>
+      )}
+    </main>
+  );
+}

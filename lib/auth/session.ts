@@ -36,10 +36,15 @@ export async function requireSession(): Promise<Session> {
     throw new AuthError("Authentification requise", 401);
   }
 
-  // Sans types Supabase generes, le client infere les relations embarquees
-  // comme des tableaux meme pour une FK to-one (profiles.company_id ->
-  // companies.id) : on ne garde que la premiere entree.
-  const company = (row.companies as { offer_tier: number }[] | null)?.[0] ?? null;
+  // Correctif (28/09/2026) : profiles.company_id -> companies.id est une FK
+  // to-one -- sans types Supabase generes, TypeScript type statiquement
+  // l'embed comme un tableau par prudence, mais PostgREST renvoie bien un
+  // objet unique a l'execution (verifie en reel via une vraie session
+  // role=client). Le code precedent indexait `[0]` en le croyant vrai aussi
+  // a l'execution : offer_tier n'a donc jamais ete resolu pour aucune
+  // session client reelle jusqu'ici, simplement jamais observe faute
+  // d'ecran cote client qui le consulte.
+  const company = (row.companies as unknown as { offer_tier: number } | null) ?? null;
 
   const profile: Profile = {
     id: row.id,
@@ -69,4 +74,8 @@ export async function requireRole(roles: UserRole[]): Promise<Session> {
 
 export async function requireAdmin(): Promise<Session> {
   return requireRole(["admin"]);
+}
+
+export async function requireClient(): Promise<Session> {
+  return requireRole(["client"]);
 }

@@ -3,6 +3,88 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* STU-DESIGN-01 : port 1:1 de lib/design-tokens.ts (lui-même porté du
+     vrai prototype LBP_V6_Studio.html) — ne pas ajouter de couleur ici
+     sans l'ajouter d'abord côté lib/design-tokens.ts. */
+  --studio-navy: #14304f;
+  --studio-navy2: #1c3f63;
+  --studio-navy-muted: #a9c0d9;
+  --studio-blue: #2e5b87;
+  --studio-blue-soft: #e9f0fa;
+  --studio-bg: #e9eff8;
+  --studio-card: #ffffff;
+  --studio-line: #d3deec;
+  --studio-muted: #6b7c93;
+  --studio-green: #6e9b6e;
+  --studio-green-bg: #eaf2ea;
+  --studio-amber: #d4a32e;
+  --studio-amber-bg: #fbf3de;
+  --studio-red: #c4544f;
+  --studio-red-bg: #faeae9;
+  --studio-violet: #8c6fa8;
+  --studio-violet-bg: #f2ecf7;
+
+  /* Couche sémantique consommée par ui-kit/ (Button, Card, Badge, Field) —
+     un seul jeu de composants partagé entre Studio et LBP Client
+     (ARCHITECTURE.md §4, STU-DESIGN-02), chaque route group choisit sa
+     palette en redéfinissant ces variables plutôt qu'en dupliquant les
+     composants. Valeurs par défaut = alias exact des `--studio-*`
+     ci-dessus (aucun changement visuel pour les écrans Studio déjà
+     vérifiés) ; `.theme-client` les redéfinit plus bas avec la vraie
+     palette du prototype LBP Client. */
+  --color-primary: var(--studio-blue);
+  --color-primary-hover: var(--studio-navy2);
+  --color-primary-soft: var(--studio-blue-soft);
+  --color-surface: var(--studio-card);
+  --color-page-bg: var(--studio-bg);
+  --color-border: var(--studio-line);
+  --color-ink: var(--studio-navy);
+  --color-muted: var(--studio-muted);
+  --color-success: var(--studio-green);
+  --color-success-bg: var(--studio-green-bg);
+  --color-warning: var(--studio-amber);
+  --color-warning-bg: var(--studio-amber-bg);
+  --color-danger: var(--studio-red);
+  --color-danger-bg: var(--studio-red-bg);
+}
+
+/* STU-CLIENT / LBP-CLIENT-16 : charte G2S V37 (framboise · carbone ·
+   minéral), port 1:1 du bloc de fin de feuille de LBP_V9.9_Studio.html
+   ("COUCHE CHARTE G2S — alignée sur le site vitrine V37", placé en fin de
+   fichier pour primer sur les styles historiques — c'est donc cette
+   cascade finale, pas les règles plus haut dans le fichier, qui fait foi).
+   Remplace la palette sage/encre/crème (LBP_V2-20.html) portée avant que
+   cette mise à jour n'existe. Appliquée en scope sur
+   app/(client)/layout.tsx uniquement.
+   --color-primary = framboise (--framboise:#670626) : boutons ET
+   .eyebrow/.section-title (même teinte dans le vrai CSS, pas une couleur
+   "hover" différente — Eyebrow.tsx et SectionTitle.tsx consomment donc
+   `text-primary`, jamais `text-primary-hover`, qui reste réservé au vrai
+   état :hover des boutons, `--framboise-dark:#3E0417`).
+   --color-success/-bg = "statuts" du prototype (--st-green/-bg, un vert
+   d'eau/teal, pas un vert classique) ; --color-danger/-bg = --st-red/-bg
+   (distinct de --framboise, qui est la couleur de marque, pas un état
+   d'erreur) ; --color-warning/-bg = --st-amber/-bg (le prototype précédent
+   n'en définissait aucun côté client, cette version en a un réel). */
+.theme-client {
+  --color-primary: #670626;
+  --color-primary-hover: #3e0417;
+  --color-primary-soft: #eaecef;
+  --color-surface: #ffffff;
+  --color-page-bg: #faf9f7;
+  --color-border: #ded9db;
+  --color-ink: #445068;
+  --color-muted: #6b656b;
+  --color-success: #0e8a87;
+  --color-success-bg: #eaf7f6;
+  --color-warning: #b8860b;
+  --color-warning-bg: #fdf8e8;
+  --color-danger: #c0343c;
+  --color-danger-bg: #fdeeef;
+
+  font-family: var(--font-archivo), sans-serif;
+  --font-mono: var(--font-plex-mono-client);
 }
 
 @theme inline {
@@ -10,6 +92,46 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* LBP Client uniquement (voir .theme-client) — jamais utilisé côté
+     Studio, qui n'a pas cette variable définie et retomberait sur
+     --font-sans (Geist) si jamais appliqué par erreur. Devenu redondant
+     avec --font-sans côté client depuis la charte V37 (Archivo partout,
+     plus de split police corps/titres) -- conservé pour ne pas devoir
+     changer Eyebrow/SectionTitle, qui consomment déjà `font-display`. */
+  --font-display: var(--font-archivo);
+
+  --color-studio-navy: var(--studio-navy);
+  --color-studio-navy2: var(--studio-navy2);
+  --color-studio-navy-muted: var(--studio-navy-muted);
+  --color-studio-blue: var(--studio-blue);
+  --color-studio-blue-soft: var(--studio-blue-soft);
+  --color-studio-bg: var(--studio-bg);
+  --color-studio-card: var(--studio-card);
+  --color-studio-line: var(--studio-line);
+  --color-studio-muted: var(--studio-muted);
+  --color-studio-green: var(--studio-green);
+  --color-studio-green-bg: var(--studio-green-bg);
+  --color-studio-amber: var(--studio-amber);
+  --color-studio-amber-bg: var(--studio-amber-bg);
+  --color-studio-red: var(--studio-red);
+  --color-studio-red-bg: var(--studio-red-bg);
+  --color-studio-violet: var(--studio-violet);
+  --color-studio-violet-bg: var(--studio-violet-bg);
+
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-soft: var(--color-primary-soft);
+  --color-surface: var(--color-surface);
+  --color-page-bg: var(--color-page-bg);
+  --color-border: var(--color-border);
+  --color-ink: var(--color-ink);
+  --color-muted: var(--color-muted);
+  --color-success: var(--color-success);
+  --color-success-bg: var(--color-success-bg);
+  --color-warning: var(--color-warning);
+  --color-warning-bg: var(--color-warning-bg);
+  --color-danger: var(--color-danger);
+  --color-danger-bg: var(--color-danger-bg);
 }
 
 @media (prefers-color-scheme: dark) {
