@@ -33,7 +33,7 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
   { href: "/mon-entreprise", label: "Mon entreprise", Icon: Users },
   { href: "/calendrier-rh", label: "Calendrier RH", Icon: Calendar },
   { href: "/bibliotheque", label: "La bibliothèque", Icon: BookOpen },
-  { href: "/actu", label: "Actu", Icon: Newspaper },
+  { href: "/actu", label: "Actu-Veille . Décrypt RH&PAIE", Icon: Newspaper },
   { href: "/chiffres-paie", label: "Chiffres Paie", Icon: LineChart },
   { href: "/dictionnaire", label: "Dictionnaire", Icon: BookMarked },
   { href: "/mes-quiz", label: "Quizz", Icon: Trophy },
