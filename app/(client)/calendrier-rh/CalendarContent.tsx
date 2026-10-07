@@ -253,13 +253,18 @@ export default async function CalendarContent({
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Votre année RH</Eyebrow>
       <SectionTitle>Calendrier RH</SectionTitle>
-      <p className="-mt-3 max-w-[720px] text-sm text-muted">
+      {/* Correctif fidélité (06/10/2026, getComputedStyle sur la maquette) :
+          chapô sans marge négative (margin 0 0 18px), jours numérotés sur
+          deux chiffres ("01", `.calf-dnum`), compteur "N échéance(s) ce
+          mois" (libellé réel de `.calf-count`), en-têtes `padding:9px 8px`,
+          légende : pastille 9px + `margin-right:6px` + gap 4px. */}
+      <p className="mb-[18px] max-w-[720px] text-[14px] leading-[21px] text-muted">
         Toutes les dates clés de l&apos;année : obligations de paie et déclaratives, temps forts
         nationaux, actions RH à anticiper. Cliquez sur une journée pour consulter le détail ou
         ajouter votre propre échéance.
       </p>
 
-      <div className="mt-4">
+      <div>
         <CalendarFiltersRh
           action={`${linkPrefix}/calendrier-rh`}
           year={year}
@@ -283,7 +288,7 @@ export default async function CalendarContent({
         >
           ‹
         </Link>
-        <p className="min-w-[190px] text-xl font-extrabold text-ink capitalize">
+        <p className="min-w-[190px] text-[20px] leading-[30px] font-extrabold text-ink capitalize">
           {MONTH_NAMES[month - 1]} {year}
         </p>
         <Link
@@ -299,8 +304,8 @@ export default async function CalendarContent({
         >
           »
         </Link>
-        <span className="ml-auto text-[12.5px] text-muted">
-          {monthCount} échéance{monthCount > 1 ? "s" : ""} ce mois
+        <span className="ml-auto text-[12.5px] leading-[18.75px] text-muted">
+          {monthCount} échéance(s) ce mois
         </span>
       </div>
 
@@ -308,7 +313,7 @@ export default async function CalendarContent({
         {WEEKDAY_NAMES.map((w, i) => (
           <div
             key={w}
-            className="bg-[#F5F0EC] py-[9px] text-center text-[11px] font-extrabold tracking-[0.03em] text-muted uppercase"
+            className="bg-[#F5F0EC] px-2 py-[9px] text-center text-[11px] font-extrabold tracking-[0.03em] text-muted uppercase"
           >
             <span className="hidden sm:inline">{w}</span>
             <span className="sm:hidden">{WEEKDAY_SHORT[i]}</span>
@@ -332,8 +337,8 @@ export default async function CalendarContent({
                   !inMonth ? "text-[#C6BFC3]" : isToday ? "text-primary" : "text-ink"
                 }`}
               >
-                <span className="text-[15px]">{date.getDate()}</span>
-                <span className="text-[10px] font-semibold text-muted lowercase">
+                <span className="text-[15px] leading-[22.5px]">{pad2(date.getDate())}</span>
+                <span className="text-[10px] leading-[15px] font-semibold text-muted lowercase">
                   {WEEKDAY_SHORT[(date.getDay() || 7) - 1]}
                 </span>
               </span>
@@ -357,11 +362,11 @@ export default async function CalendarContent({
         })}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted">
+      <div className="mt-3 flex flex-wrap items-center gap-4 text-[12px] leading-[18px] text-muted">
         {(Object.keys(EVENT_TYPE_LABEL) as CalendarEventType[]).map((t) => (
-          <span key={t} className="flex items-center gap-1.5">
+          <span key={t} className="flex items-center gap-1">
             <span
-              className="h-[9px] w-[9px] rounded-full"
+              className="mr-1.5 h-[9px] w-[9px] rounded-full"
               style={{ background: EVENT_TYPE_COLOR[t] }}
             />
             {EVENT_TYPE_LABEL[t]}

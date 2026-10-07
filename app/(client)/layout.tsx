@@ -8,6 +8,7 @@ import MobileNav from "./_components/MobileNav";
 import AccountBadge from "./_components/AccountBadge";
 import AssistanceButton from "./_components/AssistanceButton";
 import PageBackdrop from "./_components/PageBackdrop";
+import BackBar from "./_components/BackBar";
 
 // Fondations LBP Client (ARCHITECTURE.md §4 : app/(client)/ + app/(admin)/
 // dans le même projet Next.js, même base Supabase — jamais deux applis
@@ -82,27 +83,37 @@ import PageBackdrop from "./_components/PageBackdrop";
 //    slot `trailing`, rendu sur la même ligne que "Prise en main"
 //    (rangée secondaire), poussé à droite via `justify-between` -- plus
 //    de ligne dédiée à la recherche.
+// Correctif fidélité (06/10/2026, mesures getComputedStyle de `header.top`
+// sur la V9.9) : bandeau ramené aux vraies dimensions -- padding 18px 30px,
+// badge logo 52px (radius 14, padding 6, filet --ligne), ligne du haut gap
+// 22px, cloche nue 19px, pilules de nav 13px/600 (800 active), padding
+// 8px 16px, gap 7px, pictogrammes 17px, marge haute 14px. Revient sur le
+// resserrage du 1f57401 ("bandeau plus compact") au profit de la maquette.
+// La recherche reste sur la rangée de « Prise en main », poussée à droite
+// (choix de Pauline, voir plus haut) -- c'est d'ailleurs la position du
+// second champ `.nav-search` de la maquette (`margin-left:auto`).
 export default function ClientLayout({ children }: { children: ReactNode }) {
   return (
     <div className="theme-client min-h-screen">
       <PageBackdrop />
-      <header className="sticky top-0 z-50 bg-primary px-6 py-2.5 text-white">
-        <div className="flex flex-wrap items-center gap-3">
+      <header className="sticky top-0 z-50 bg-primary px-[30px] py-[18px] text-white">
+        <div className="flex flex-wrap items-center gap-[22px]">
           <Link href="/accueil" className="flex shrink-0 items-center gap-[13px]">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-white p-1">
+            <span className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-[14px] border border-border bg-white p-1.5">
               <Image
                 src="/g2s-logo.png"
                 alt="G2S"
-                width={28}
-                height={28}
+                width={38}
+                height={38}
+                priority
                 className="h-full w-full object-contain"
               />
             </span>
             <span className="hidden border-l-[3px] border-white/55 pl-[13px] leading-[1.1] sm:block">
-              <span className="block text-[20px] font-extrabold tracking-[0.14em] text-white">
+              <span className="block text-[20px] leading-[1.1] font-extrabold tracking-[0.14em] text-white">
                 LBP
               </span>
-              <span className="block text-[9.5px] font-medium tracking-[0.14em] text-white/85 uppercase">
+              <span className="mt-1 block text-[9.5px] leading-[1.1] font-medium tracking-[0.14em] text-white/85 uppercase">
                 Référentiel Paie · by G2S
               </span>
             </span>
@@ -113,9 +124,9 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           <Link
             href="/notifications"
             aria-label="Notifications"
-            className="rounded-full border border-white/25 bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+            className="rounded-md px-1.5 py-1 text-white transition-colors hover:bg-white/10"
           >
-            <Bell className="h-4 w-4" />
+            <Bell className="h-[19px] w-[19px]" />
           </Link>
 
           <div className="hidden items-center gap-3 md:flex">
@@ -134,14 +145,14 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           <MobileNav />
         </div>
 
-        <div className="hidden md:mt-2 md:block">
+        <div className="hidden md:mt-[14px] md:block">
           <ClientNav
             trailing={
               <form
                 action="/recherche"
-                className="flex w-full max-w-[240px] shrink-0 items-center gap-1.5 rounded-full border border-border bg-white px-3.5 py-1.5"
+                className="ml-auto flex w-full max-w-[240px] shrink-0 items-center gap-2 rounded-full border border-border bg-white px-3.5 py-[7px]"
               >
-                <Search className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden="true" />
+                <Search className="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
                 <label className="sr-only" htmlFor="gq">
                   Recherche globale dans le LBP
                 </label>
@@ -158,6 +169,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
         </div>
       </header>
 
+      <BackBar />
       {children}
 
       <AssistanceButton />

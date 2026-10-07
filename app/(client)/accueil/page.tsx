@@ -25,7 +25,7 @@ export default async function AccueilPage({
   return (
     <AccueilContent
       companyId={session.profile.company_id}
-      greetingName={session.profile.full_name}
+      greetingName={session.profile.full_name.split(" ")[0]}
       offerTier={session.profile.offer_tier}
       linkPrefix=""
       userId={session.userId}

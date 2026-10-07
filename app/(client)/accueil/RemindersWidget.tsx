@@ -58,22 +58,24 @@ export default function RemindersWidget({ tasks }: { tasks: TaskRow[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4">
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-[15px] font-bold text-ink">✅ Vos rappels de la semaine</h2>
+    <div className="rounded-2xl border border-border bg-surface px-5 py-[18px] shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)]">
+      <div className="mb-2.5 flex items-center justify-between gap-2.5">
+        <h2 className="text-sm leading-[1.5] font-extrabold text-ink">
+          ✅ Vos rappels de la semaine
+        </h2>
         <button
           type="button"
           onClick={() => {
             setAdding((v) => !v);
             setEditingId(null);
           }}
-          className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-ink hover:border-primary"
+          className="flex items-center gap-[7px] rounded-lg border border-primary bg-white px-[11px] py-[5px] text-xs font-bold text-primary hover:bg-primary hover:text-white"
         >
           + Ajouter
         </button>
       </div>
 
-      <div className="mt-3 flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         {tasks.length === 0 && !adding && (
           <p className="py-1.5 text-[13px] text-muted italic">
             Aucun rappel cette semaine. Cliquez sur « + Ajouter ».
@@ -106,22 +108,26 @@ function TaskRowView({ task, onEdit }: { task: TaskRow; onEdit: () => void }) {
   const meta = STATUS_META[task.status];
 
   return (
-    <div className={`rounded-[10px] border border-border border-l-4 bg-white p-2.5 ${meta.border}`}>
+    <div
+      className={`rounded-[10px] border border-border border-l-4 bg-white px-3 py-2.5 ${meta.border}`}
+    >
       <div className="flex items-center gap-2">
-        <span className="text-sm">{meta.emoji}</span>
+        <span className="text-sm leading-[1.5]">{meta.emoji}</span>
         <span
-          className={`flex-1 text-[13.5px] font-bold ${task.status === "done" ? "text-muted line-through" : "text-ink"}`}
+          className={`flex-1 text-[13.5px] leading-[1.5] font-bold ${task.status === "done" ? "text-muted line-through" : "text-ink"}`}
         >
           {task.title}
         </span>
         {task.due_date && (
-          <span className="text-[11px] text-muted capitalize">{shortDate(task.due_date)}</span>
+          <span className="text-[11px] leading-[1.5] text-muted capitalize">
+            {shortDate(task.due_date)}
+          </span>
         )}
         <button
           type="button"
           onClick={onEdit}
           aria-label="Modifier"
-          className="text-muted hover:text-ink"
+          className="text-xs leading-[1.5] text-ink opacity-60 hover:opacity-100"
         >
           ✎
         </button>
@@ -132,19 +138,19 @@ function TaskRowView({ task, onEdit }: { task: TaskRow; onEdit: () => void }) {
               startTransition(() => deleteTask(task.id));
           }}
           aria-label="Supprimer"
-          className="text-muted hover:text-danger"
+          className="text-xs leading-[1.5] text-ink opacity-60 hover:text-danger hover:opacity-100"
         >
           🗑
         </button>
       </div>
-      {task.note && <p className="mt-1 ml-[22px] text-xs text-muted">{task.note}</p>}
+      {task.note && <p className="mt-1 ml-[22px] text-xs leading-[1.5] text-muted">{task.note}</p>}
       <div className="mt-2 flex flex-wrap gap-1.5">
         {STATUS_ORDER.map((s) => (
           <button
             key={s}
             type="button"
             onClick={() => startTransition(() => setTaskStatus(task.id, s))}
-            className={`rounded-full border px-2.5 py-0.5 text-[10.5px] font-bold ${
+            className={`rounded-[20px] border px-[9px] py-[3px] text-[10.5px] font-bold ${
               task.status === s
                 ? STATUS_META[s].chipActive
                 : "border-border bg-white text-muted hover:bg-page-bg"

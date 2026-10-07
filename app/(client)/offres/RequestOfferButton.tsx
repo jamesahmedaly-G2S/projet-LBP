@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { requestOfferChange } from "./actions";
-import { Button } from "@/ui-kit/Button";
+import { btnPrimaryClass } from "./offer-styles";
 
 // Texte de confirmation repris du vrai requestUpgrade() (LBP_V6_Studio.html,
 // ligne 5087-5090) : "les droits restent inchangés" tant que G2S n'a pas
@@ -21,7 +21,7 @@ export default function RequestOfferButton({
 
   if (sent) {
     return (
-      <p className="text-xs text-success">
+      <p className="text-[11.5px] leading-[1.5] text-success">
         Votre demande a bien été transmise à G2S. Un conseiller vous recontactera — votre offre
         actuelle reste inchangée tant que le changement n&apos;est pas confirmé.
       </p>
@@ -29,11 +29,10 @@ export default function RequestOfferButton({
   }
 
   return (
-    <div className="flex flex-col items-start gap-1">
-      <Button
+    <div className="flex flex-col items-stretch gap-1">
+      <button
         type="button"
-        variant="primary"
-        className="w-full"
+        className={btnPrimaryClass}
         disabled={pending}
         onClick={() =>
           startTransition(async () => {
@@ -44,7 +43,7 @@ export default function RequestOfferButton({
         }
       >
         {pending ? "..." : (label ?? "Demander cette offre")}
-      </Button>
+      </button>
       {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );

@@ -34,10 +34,10 @@ export default function CalendarFilters({
   const submit = (e: React.ChangeEvent<HTMLSelectElement>) => e.currentTarget.form?.requestSubmit();
 
   return (
-    <form action={action} className="mt-3 flex flex-col gap-1.5">
+    <form action={action} className="mb-[14px] flex flex-col gap-1.5">
       <input type="hidden" name="cal_annee" value={year} />
       <input type="hidden" name="cal_mois" value={month} />
-      <p className="text-[11px] font-extrabold tracking-[0.04em] text-muted uppercase">
+      <p className="text-[11px] leading-[1.5] font-extrabold tracking-[0.04em] text-muted uppercase">
         Filtrer par
       </p>
       <div className="flex flex-wrap gap-1.5">

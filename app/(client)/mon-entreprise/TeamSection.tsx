@@ -7,6 +7,8 @@ import { Button } from "@/ui-kit/Button";
 import { Modal } from "@/ui-kit/Modal";
 import { fnv1aIndex } from "@/lib/hash";
 import { AVATAR_COUNT, avatarSrc } from "@/lib/client/avatars";
+import { Plus, SquarePen, Trash2 } from "lucide-react";
+import styles from "./org-tree.module.css";
 
 export interface TeamMember {
   id: string;
@@ -90,8 +92,21 @@ function orgTint(id: string): string {
   return ORG_TINTS[fnv1aIndex(id, ORG_TINTS.length)];
 }
 
+// Passe fidélité mesurée (06/10/2026, `renderEquipe()` ~L10182 +
+// `.org-tree`/`.org-card` ~L679-696) : arbre centré avec connecteurs
+// (org-tree.module.css) au lieu d'une liste indentée ; `.org-card` rayon
+// 14px, padding 12px 16px 10px, ombre --shadow-sm ; `.org-p` (poste)
+// 12px 800 carbone (pas framboise) ; actions = 3 icônes 13px
+// (modifier / ajouter un collaborateur / supprimer) révélées au survol,
+// pas des liens texte ; état vide 13.5px --ink-soft ; bouton `.btn
+// .btn-primary` avec icône `plus` 15px, mt 16px.
+type Editing = { member: TeamMember | null; managerId: string | null } | null;
+
+const orgActClass =
+  "inline-flex items-center rounded-[6px] p-1 leading-none text-[#6B656B] hover:bg-[#F5F0EC] hover:text-ink";
+
 export default function TeamSection({ members }: { members: TeamMember[] }) {
-  const [editing, setEditing] = useState<TeamMember | "new" | null>(null);
+  const [editing, setEditing] = useState<Editing>(null);
   const [, startTransition] = useTransition();
 
   const roots = members.filter((m) => !m.manager_id);
@@ -102,7 +117,7 @@ export default function TeamSection({ members }: { members: TeamMember[] }) {
     return (
       <li key={member.id}>
         <div
-          className="inline-block min-w-[150px] max-w-[200px] rounded-[14px] border border-border px-4 pt-3 pb-2.5 text-center shadow-[0_1px_3px_rgba(20,48,79,0.05)]"
+          className={`${styles.card} inline-block max-w-[200px] min-w-[150px] rounded-[14px] border border-[#DED9DB] px-4 pt-3 pb-2.5 text-center shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)]`}
           style={{ background: orgTint(member.id) }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- asset statique hors /public/next, taille fixe connue */}
@@ -111,33 +126,48 @@ export default function TeamSection({ members }: { members: TeamMember[] }) {
             alt=""
             className="mx-auto h-[58px] w-[58px] rounded-full object-cover"
           />
-          <div className="mt-1.5 text-[13.5px] font-extrabold text-ink">{member.name}</div>
-          {member.job_title && (
-            <div className="mt-0.5 text-xs font-extrabold text-primary">{member.job_title}</div>
+          <div className="mt-1.5 text-[13.5px] leading-[1.2] font-extrabold text-ink">
+            {member.name}
+          </div>
+          <div className="mt-0.5 text-xs font-extrabold text-[#445068]">
+            {member.job_title ?? ""}
+          </div>
+          {info && (
+            <div className="mt-1 text-[10.5px] leading-[1.35] break-words text-[#6B656B]">
+              {info}
+            </div>
           )}
-          {info && <div className="mt-1 text-[10.5px] break-words text-muted">{info}</div>}
-          <div className="mt-2 flex justify-center gap-3">
+          <div className={`${styles.acts} mt-2 flex justify-center gap-3`}>
             <button
               type="button"
-              className="text-xs text-primary hover:underline"
-              onClick={() => setEditing(member)}
+              aria-label="Modifier"
+              className={orgActClass}
+              onClick={() => setEditing({ member, managerId: member.manager_id })}
             >
-              Modifier
+              <SquarePen className="h-[13px] w-[13px]" aria-hidden="true" />
             </button>
             <button
               type="button"
-              className="text-xs text-danger hover:underline"
-              onClick={() => startTransition(() => deleteTeamMember(member.id))}
+              aria-label="Ajouter un collaborateur"
+              className={orgActClass}
+              onClick={() => setEditing({ member: null, managerId: member.id })}
             >
-              Supprimer
+              <Plus className="h-[13px] w-[13px]" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label="Supprimer"
+              className={orgActClass}
+              onClick={() => {
+                if (!confirm("Supprimer cette personne de l'organigramme ?")) return;
+                startTransition(() => deleteTeamMember(member.id));
+              }}
+            >
+              <Trash2 className="h-[13px] w-[13px]" aria-hidden="true" />
             </button>
           </div>
         </div>
-        {children.length > 0 && (
-          <ul className="mt-2 ml-6 flex flex-col items-start gap-2 border-l-2 border-border pl-3">
-            {children.map(renderNode)}
-          </ul>
-        )}
+        {children.length > 0 && <ul>{children.map(renderNode)}</ul>}
       </li>
     );
   }
@@ -145,25 +175,32 @@ export default function TeamSection({ members }: { members: TeamMember[] }) {
   return (
     <div>
       {roots.length === 0 ? (
-        <p className="text-sm text-muted">
+        <p className="text-[13.5px] text-[#6B656B]">
           Aucune personne pour le moment. Cliquez sur « + Ajouter une personne ».
         </p>
       ) : (
-        <ul className="flex flex-wrap gap-3">{roots.map(renderNode)}</ul>
+        <div className={styles.tree}>
+          <ul>{roots.map(renderNode)}</ul>
+        </div>
       )}
 
-      <Button type="button" variant="primary" className="mt-4" onClick={() => setEditing("new")}>
-        + Ajouter une personne
-      </Button>
+      <button
+        type="button"
+        onClick={() => setEditing({ member: null, managerId: null })}
+        className="mt-4 inline-flex items-center gap-[7px] rounded-full bg-primary px-[18px] py-[9px] text-[12.5px] leading-none font-bold whitespace-nowrap text-white transition duration-150 hover:-translate-y-px hover:bg-primary-hover"
+      >
+        <Plus className="h-[15px] w-[15px]" aria-hidden="true" /> Ajouter une personne
+      </button>
 
       <Modal
         open={editing !== null}
         onClose={() => setEditing(null)}
-        title={editing === "new" ? "Ajouter une personne" : "Modifier la personne"}
+        title={editing?.member ? "Modifier la personne" : "Ajouter une personne"}
       >
         {editing && (
           <MemberForm
-            member={editing === "new" ? null : editing}
+            member={editing.member}
+            defaultManagerId={editing.managerId}
             members={members}
             onDone={() => setEditing(null)}
           />
@@ -175,10 +212,12 @@ export default function TeamSection({ members }: { members: TeamMember[] }) {
 
 function MemberForm({
   member,
+  defaultManagerId,
   members,
   onDone,
 }: {
   member: TeamMember | null;
+  defaultManagerId: string | null;
   members: TeamMember[];
   onDone: () => void;
 }) {
@@ -255,7 +294,7 @@ function MemberForm({
       <SelectField
         label="Rattaché(e) à (responsable)"
         name="manager_id"
-        defaultValue={member?.manager_id ?? ""}
+        defaultValue={defaultManagerId ?? ""}
       >
         <option value="">— Aucun (haut de l&apos;organigramme)</option>
         {members

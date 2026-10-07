@@ -16,13 +16,13 @@ function NavPill({ href, label, Icon, active }: NavItem & { active: boolean }) {
   return (
     <Link
       href={href}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12.5px] font-semibold transition-colors ${
+      className={`inline-flex items-center rounded-full border px-4 py-2 text-[13px] leading-[1.35] transition-colors ${
         active
-          ? "border-[#efe7e1] bg-[#efe7e1] text-ink"
-          : "border-white/20 bg-white/10 text-white hover:border-white/40 hover:bg-white/20"
+          ? "border-[#efe7e1] bg-[#efe7e1] font-extrabold text-ink"
+          : "border-[rgba(245,240,236,0.22)] bg-[rgba(245,240,236,0.14)] font-semibold text-white hover:border-[rgba(245,240,236,0.45)] hover:bg-[rgba(245,240,236,0.24)]"
       }`}
     >
-      <Icon className="h-[15px] w-[15px]" />
+      <Icon className="mr-1.5 h-[17px] w-[17px]" />
       {label}
     </Link>
   );
@@ -39,20 +39,14 @@ export default function ClientNav({ trailing }: { trailing?: ReactNode }) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <nav className="hidden flex-col gap-1.5 md:flex">
-      <div className="flex flex-wrap items-center gap-1.5">
-        {MAIN_NAV_ITEMS.map((item) => (
-          <NavPill key={item.href} {...item} active={isActive(item.href)} />
-        ))}
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-1.5">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {SECONDARY_NAV_ITEMS.map((item) => (
-            <NavPill key={item.href} {...item} active={isActive(item.href)} />
-          ))}
-        </div>
-        {trailing}
-      </div>
+    // Une seule rangée flex-wrap (gap 7px) comme `.topnav` : les pilules
+    // passent à la ligne d'elles-mêmes, la recherche (`ml-auto`) se cale à
+    // droite de la dernière rangée, à hauteur de « Prise en main ».
+    <nav className="hidden flex-wrap items-center gap-[7px] md:flex">
+      {[...MAIN_NAV_ITEMS, ...SECONDARY_NAV_ITEMS].map((item) => (
+        <NavPill key={item.href} {...item} active={isActive(item.href)} />
+      ))}
+      {trailing}
     </nav>
   );
 }

@@ -33,19 +33,19 @@ export default async function OffresContent({
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Nos offres</Eyebrow>
       <SectionTitle>Les offres LBP</SectionTitle>
-      <p className="-mt-3 max-w-[670px] text-sm text-muted">
+      <p className="mb-5 max-w-[670px] text-[14px] leading-[1.5] text-muted">
         Le LBP fonctionne comme un <strong>entonnoir</strong> : on part du droit général, puis on
         ajoute vos conventions collectives, puis vos accords et usages d&apos;entreprise.{" "}
         <strong>Cliquez sur une offre</strong> pour voir le détail.
       </p>
       {pendingRequest && (
-        <p className="mt-2 text-sm text-primary">
+        <p className="-mt-2 mb-5 text-[13.5px] leading-[1.5] text-primary">
           Une demande de passage à un autre palier est en attente de traitement par votre référent
           G2S.
         </p>
       )}
 
-      <div className="mt-6">
+      <div>
         <OffersClient
           tiers={await getAllStudioOfferTiers(supabase)}
           currentTier={offerTier}

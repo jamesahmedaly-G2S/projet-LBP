@@ -5,6 +5,7 @@ import { saveSoftwareStack } from "./actions";
 import { TextField, SelectField } from "@/ui-kit/Field";
 import { Button } from "@/ui-kit/Button";
 import { Modal } from "@/ui-kit/Modal";
+import { EditButton } from "./ui";
 
 // Correctif (04/10/2026), suite au retour de l'utilisateur ("le contenu
 // et la longueur à l'intérieur ça ne match pas avec la v9") : le vrai
@@ -15,7 +16,7 @@ import { Modal } from "@/ui-kit/Modal";
 // dans un `Modal` (`#outilsEditor`, ~L12282-12289).
 function Row({ label, value }: { label: string; value: string | null }) {
   return (
-    <div className="flex items-center justify-between gap-3.5 border-b border-border py-2 text-[13.5px] last:border-b-0">
+    <div className="flex items-center justify-between gap-3.5 border-b border-[#DED9DB] py-[9px] text-[13.5px] leading-[1.5]">
       <span className="text-muted">{label}</span>
       <span className="font-bold text-ink">{value || "—"}</span>
     </div>
@@ -39,25 +40,18 @@ export default function ToolsCard({
 
   return (
     <div className="relative">
-      <button
-        type="button"
-        onClick={() => setEditing(true)}
-        aria-label="Modifier les outils"
-        className="absolute top-0 right-0 rounded-full p-1.5 text-base text-muted opacity-75 hover:bg-surface hover:opacity-100"
-      >
-        ✏️
-      </button>
+      <EditButton label="Modifier les outils" onClick={() => setEditing(true)} />
 
-      <div className="pr-7">
+      <div>
         <Row label="Logiciel de paie" value={payrollSoftware} />
         <Row label="SIRH" value={hris} />
         <Row label="GTA" value={timeManagement} />
         <Row label="Autres outils RH" value={otherTools} />
-        <div className="flex items-center justify-between gap-3.5 py-2 text-[13.5px]">
+        <div className="flex items-center justify-between gap-3.5 py-[9px] text-[13.5px] leading-[1.5]">
           <span className="text-muted">Cahier des charges du logiciel de paie</span>
           <span
-            className={`rounded-lg px-2.5 py-0.5 text-xs font-extrabold ${
-              hasSpecifications ? "bg-primary-soft text-primary" : "bg-[#DED9DB] text-[#8C2447]"
+            className={`rounded-lg px-2.5 py-0.5 text-xs leading-[1.5] font-extrabold ${
+              hasSpecifications ? "bg-[#EFE7E1] text-[#670626]" : "bg-[#DED9DB] text-[#8C2447]"
             }`}
           >
             {hasSpecifications ? "Oui" : "Non"}

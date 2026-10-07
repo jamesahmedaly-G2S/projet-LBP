@@ -1,11 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { pad2, monthWeeks } from "@/lib/client/month-grid";
-import {
-  TYPE_DOT_CLASS,
-  type CalendarEventType,
-  type CalendarEventScope,
-} from "@/lib/client/calendar-taxonomy";
+import type { CalendarEventType, CalendarEventScope } from "@/lib/client/calendar-taxonomy";
 import CalendarFilters from "./CalendarFilters";
 
 // LBP-CLIENT-01 (finitions fidélité, 01/10/2026) : widget calendrier
@@ -68,6 +64,16 @@ const MONTH_NAMES = [
   "Décembre",
 ];
 const WEEKDAY_LABELS = ["L", "M", "M", "J", "V", "S", "D"];
+
+// Couleurs réelles des types d'événement du prototype (`EVCOL`,
+// LBP_V9.9_Studio.html ~L2915) : point + liseré intérieur 2px de la
+// cellule, couleur du type prioritaire (Obligatoire > Conseil > Actualité).
+const EV_COLOR: Record<CalendarEventType, string> = {
+  mandatory: "#E48AAA",
+  advisory: "#E8C24A",
+  news: "#A98BD6",
+};
+const EV_PRIORITY: CalendarEventType[] = ["mandatory", "advisory", "news"];
 
 interface CalendarEventRow {
   id: string;
@@ -144,16 +150,16 @@ export default async function CompactCalendar({
   return (
     <div
       id="calendrier"
-      className="rounded-[18px] border border-border bg-white/60 px-5 py-[18px] shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)] backdrop-blur-[1px]"
+      className="rounded-2xl border border-border bg-white/[.62] px-5 py-[18px] shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)]"
     >
-      <div className="flex items-center justify-between">
+      <div className="mb-3 flex items-center justify-between">
         <Link
           href={buildHref({ year: prevMonth.year, month: prevMonth.month })}
           className="grid h-[26px] w-[26px] place-items-center rounded-lg bg-[#F5F0EC] text-[15px] text-ink hover:bg-[#EFE7E1]"
         >
           ‹
         </Link>
-        <p className="text-[15px] font-extrabold text-ink capitalize">
+        <p className="mb-2.5 text-[15px] leading-[1.5] font-extrabold text-ink capitalize">
           {MONTH_NAMES[month - 1]} {year}
         </p>
         <Link
@@ -173,14 +179,15 @@ export default async function CompactCalendar({
         scope={scope}
       />
 
-      <div className="mt-3 grid grid-cols-7 text-center text-[11px] font-extrabold text-muted">
+      <div className="grid grid-cols-7 gap-1">
         {WEEKDAY_LABELS.map((w, i) => (
-          <div key={i} className="py-[3px]">
+          <div
+            key={i}
+            className="py-[3px] text-center text-[11px] leading-[1.5] font-extrabold text-muted"
+          >
             {w}
           </div>
         ))}
-      </div>
-      <div className="grid grid-cols-7 gap-1">
         {weeks.flatMap((week, wi) =>
           week.map((d, di) => {
             if (d === null) return <div key={`${wi}-${di}`} />;
@@ -188,11 +195,14 @@ export default async function CompactCalendar({
             const dEvents = byDate.get(ds) ?? [];
             const isToday = ds === todayStr;
             const hasEvents = dEvents.length > 0;
+            const types = EV_PRIORITY.filter((t) => dEvents.some((e) => e.event_type === t));
+            const ring = hasEvents ? (EV_COLOR[types[0]] ?? "#ccc") : null;
             return (
               <Link
                 key={ds}
                 href={`${linkPrefix}/calendrier-rh?annee=${year}&mois=${month}&jour=${ds}`}
-                className={`relative rounded-[9px] py-[9px] pb-[15px] text-center text-[13.5px] hover:bg-[#F5F0EC] ${
+                style={ring && !isToday ? { boxShadow: `inset 0 0 0 2px ${ring}` } : undefined}
+                className={`relative rounded-[9px] pt-[9px] pb-[15px] text-center text-[13.5px] leading-[1.5] hover:bg-[#F5F0EC] ${
                   isToday
                     ? "bg-ink font-extrabold text-white"
                     : hasEvents
@@ -203,10 +213,11 @@ export default async function CompactCalendar({
                 {d}
                 {hasEvents && (
                   <span className="absolute right-0 bottom-1 left-0 flex justify-center gap-0.5">
-                    {dEvents.slice(0, 3).map((e) => (
+                    {(types.length ? types : [null]).map((t, i) => (
                       <span
-                        key={e.id}
-                        className={`h-[7px] w-[7px] rounded-full ${e.event_type ? TYPE_DOT_CLASS[e.event_type] : "bg-muted"}`}
+                        key={i}
+                        className="h-[7px] w-[7px] rounded-full"
+                        style={{ background: t ? EV_COLOR[t] : "#ccc" }}
                       />
                     ))}
                   </span>
@@ -217,25 +228,28 @@ export default async function CompactCalendar({
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-x-3.5 gap-y-1 text-[11.5px] text-muted">
-        <span className="flex items-center gap-1">
-          <span className="h-[9px] w-[9px] rounded-full bg-danger" /> Obligatoire
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="h-[9px] w-[9px] rounded-full bg-warning" /> Conseil
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="h-[9px] w-[9px] rounded-full bg-primary" /> Actualité
-        </span>
+      <div className="mt-3 flex flex-wrap items-center gap-4 text-xs leading-[1.5] text-muted">
+        {(
+          [
+            ["mandatory", "Obligatoire"],
+            ["advisory", "Conseil"],
+            ["news", "Actualité"],
+          ] as const
+        ).map(([t, label]) => (
+          <span key={t} className="flex items-center gap-1">
+            <span className="h-[7px] w-[7px] rounded-full" style={{ background: EV_COLOR[t] }} />{" "}
+            {label}
+          </span>
+        ))}
       </div>
 
-      <p className="mt-[10px] text-[11.5px] text-muted italic">
+      <p className="mt-[10px] text-[11.5px] leading-[1.5] text-muted italic">
         Cliquez sur un jour pour consulter ou ajouter un événement.
       </p>
 
       <Link
         href={`${linkPrefix}/calendrier-rh`}
-        className="mt-3 block rounded-full border border-border py-1.5 text-center text-[11.5px] font-semibold text-ink hover:border-primary"
+        className="mt-2 flex items-center justify-center gap-[7px] rounded-lg border border-primary bg-white px-[11px] py-[5px] text-xs font-bold text-primary hover:bg-primary hover:text-white"
       >
         📅 Ouvrir le calendrier RH complet →
       </Link>

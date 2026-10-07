@@ -27,13 +27,14 @@ export default async function ClientQuizPage({ params }: { params: Promise<{ id:
       {/* .back (LBP_V9.9_Studio.html ~L1151-1152, règle qui prime sur
           celle ~L178 : 13px, carbone, 700, souligné au survol seulement)
           -- texte exact de startQuizModule(). */}
-      <Link href="/mes-quiz" className="text-[13px] font-bold text-ink hover:underline">
+      <Link
+        href="/mes-quiz"
+        className="mb-2 inline-block py-1 text-[13px] font-bold text-ink hover:underline"
+      >
         ← Retour à la liste des quizz
       </Link>
 
-      <div className="mt-4">
-        <QuizPlayer quizId={quiz.id} title={quiz.title} questions={questions} />
-      </div>
+      <QuizPlayer quizId={quiz.id} title={quiz.title} questions={questions} />
     </main>
   );
 }

@@ -53,6 +53,34 @@ interface ContributionRow {
 //   spacing .06em) et carte (`.cmp-card`/`.cc-*`) recalés sur les vraies
 //   valeurs -- pas le `<Card>` générique (padding uniforme 24px, pas
 //   16px/18px) ni un `text-lg font-semibold` générique pour le titre.
+//
+// Correctif fidélité (06/10/2026, mesures getComputedStyle sur la maquette) :
+// la vraie carte (`renderChiffres()` alimenté par CHIFFRES_MASTER) n'affiche
+// ni année au-dessus des valeurs (`oy`/`ny` vides) ni sous-titre de groupe
+// (`sub:''`), et la valeur courante est `chiffreVal()` -- la valeur simple
+// ("12,31 €"), jamais le détail intra-année de `note`. Chiffres en Archivo
+// `tabular-nums` (`.mono`), jamais en police monospace. Tableaux dans un
+// `.valo` (carte blanche radius 18, `overflow:hidden`) avec en-têtes
+// `table.grid th` (fond #EAECEF, 11px 700 uppercase .04em).
+const GTITLE =
+  "mt-[26px] mb-3 text-[13px] leading-[19.5px] font-extrabold tracking-[0.06em] text-ink uppercase";
+const VALO =
+  "overflow-x-auto overflow-y-hidden rounded-[18px] border border-border bg-surface shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)]";
+const TH =
+  "border-b border-border bg-[#eaecef] px-4 py-3 text-left text-[11px] leading-[16.5px] font-bold tracking-[0.04em] text-ink uppercase";
+const TD_DECL = "border-b border-border px-4 py-3";
+const TD_COT = "border-b border-border px-2.5 py-[7px] text-[12.5px] leading-[18.75px]";
+
+function cardValue(row: KeyFigureRow): string {
+  if (!row.note) return `${row.value} ${row.unit}`;
+  const last = row.note.split(" · ").pop() ?? row.note;
+  return last.replace(/\s*\([^)]*\)\s*$/, "").trim();
+}
+
+function formatVariation(v: number): string {
+  return `${v >= 0 ? "▲ +" : "▼ "}${v.toFixed(1).replace(".", ",")} %`;
+}
+
 export default async function ChiffresPaieContent() {
   const supabase = await createClient();
 
@@ -97,9 +125,11 @@ export default async function ChiffresPaieContent() {
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Données de référence</Eyebrow>
       <SectionTitle>{settings?.title ?? "Les chiffres de la paie"}</SectionTitle>
-      {settings?.intro && <p className="mt-2 max-w-[700px] text-sm text-muted">{settings.intro}</p>}
+      {settings?.intro && (
+        <p className="mb-5 max-w-[700px] text-[14px] leading-[21px] text-muted">{settings.intro}</p>
+      )}
 
-      <div className="mt-8 flex flex-col gap-[22px]">
+      <div className="flex flex-col gap-[22px]">
         {(groups ?? []).map((group) => {
           const keys = (cardKeysByGroup.get(group.id) ?? []).sort(
             (a, b) => CARD_KEY_ORDER.indexOf(a) - CARD_KEY_ORDER.indexOf(b),
@@ -107,13 +137,8 @@ export default async function ChiffresPaieContent() {
           if (keys.length === 0) return null;
           return (
             <div key={group.id}>
-              <h2 className="mb-3 text-[13px] font-extrabold tracking-[0.06em] text-ink uppercase">
-                {group.title}{" "}
-                {group.sub && (
-                  <span className="text-[11px] font-normal tracking-normal text-muted normal-case">
-                    {group.sub}
-                  </span>
-                )}
+              <h2 className="mb-3 text-[13px] leading-[19.5px] font-extrabold tracking-[0.06em] text-ink uppercase">
+                {group.title}
               </h2>
               <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
                 {keys.map((key) => {
@@ -129,36 +154,25 @@ export default async function ChiffresPaieContent() {
                       key={key}
                       className="rounded-[18px] border border-border bg-surface px-[18px] py-4 shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)]"
                     >
-                      <p className="mb-2.5 text-[12.5px] font-bold text-muted">
+                      <p className="mb-2.5 text-[12.5px] leading-[18.75px] font-bold text-muted">
                         {keyFigureLabel(key, latest.label)}
                       </p>
                       <div className="mb-2.5 flex items-center gap-2.5">
                         {previous && (
                           <>
-                            <div className="flex flex-col gap-0.5">
-                              <span className="text-[9.5px] font-extrabold tracking-[0.06em] text-muted uppercase">
-                                {previous.year}
-                              </span>
-                              <span className="font-mono text-sm text-muted line-through">
-                                {previous.note ?? `${previous.value} ${previous.unit}`}
-                              </span>
-                            </div>
-                            <span className="text-muted">→</span>
+                            <span className="text-[14px] leading-[21px] text-muted tabular-nums line-through">
+                              {cardValue(previous)}
+                            </span>
+                            <span className="text-[14px] leading-[21px] text-muted">→</span>
                           </>
                         )}
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-[9.5px] font-extrabold tracking-[0.06em] text-muted uppercase">
-                            {latest.year}
-                          </span>
-                          <span className="font-mono text-2xl font-extrabold text-ink">
-                            {latest.note ?? `${latest.value} ${latest.unit}`}
-                          </span>
-                        </div>
+                        <span className="text-[24px] leading-[36px] font-extrabold text-ink tabular-nums">
+                          {cardValue(latest)}
+                        </span>
                       </div>
                       {variation !== null && (
-                        <span className="inline-block rounded-full bg-primary/[0.14] px-2.5 py-[3px] text-[11.5px] font-extrabold text-success">
-                          {variation >= 0 ? "▲" : "▼"} {variation >= 0 ? "+" : ""}
-                          {variation} %
+                        <span className="inline-block rounded-full bg-primary/[0.14] px-2.5 py-[3px] text-[11.5px] leading-[17.25px] font-extrabold text-success">
+                          {formatVariation(variation)}
                         </span>
                       )}
                     </div>
@@ -170,16 +184,16 @@ export default async function ChiffresPaieContent() {
         })}
       </div>
 
-      <h2 className="mt-[26px] text-[13px] font-extrabold tracking-[0.06em] text-ink uppercase">
+      <h2 className={GTITLE}>
         {settings?.plafond_title ?? "Plafond Sécurité sociale — toutes périodicités"}
       </h2>
-      <div className="mt-3 overflow-x-auto">
-        <table className="w-full max-w-lg text-sm">
+      <div className={VALO}>
+        <table className="w-full border-collapse text-[13.5px] leading-[20.25px] text-ink">
           <thead>
-            <tr className="border-b border-border text-left">
-              <th className="py-2 pr-2 font-medium text-muted">Périodicité</th>
-              <th className="px-2 py-2 text-right font-medium text-muted">2025</th>
-              <th className="px-2 py-2 text-right font-medium text-ink">2026</th>
+            <tr>
+              <th className={TH}>Périodicité</th>
+              <th className={`${TH} text-right`}>2025</th>
+              <th className={`${TH} text-right`}>2026</th>
             </tr>
           </thead>
           <tbody>
@@ -189,14 +203,12 @@ export default async function ChiffresPaieContent() {
               const v2026 = years?.get(2026);
               if (!v2025 && !v2026) return null;
               return (
-                <tr key={key} className="border-b border-border">
-                  <td className="py-1.5 pr-2 text-ink">
-                    {keyFigureLabel(key, v2026?.label ?? v2025?.label)}
-                  </td>
-                  <td className="px-2 py-1.5 text-right font-mono text-muted">
-                    {v2025?.note ?? "—"}
-                  </td>
-                  <td className="px-2 py-1.5 text-right font-mono font-medium text-ink">
+                <tr key={key} className="hover:[&>td]:bg-[#f5f0ec]">
+                  <td className={TD_DECL}>{keyFigureLabel(key, v2026?.label ?? v2025?.label)}</td>
+                  <td className={`${TD_DECL} text-right tabular-nums`}>{v2025?.note ?? "—"}</td>
+                  <td
+                    className={`${TD_DECL} text-right text-[16px] leading-[24px] font-extrabold tabular-nums`}
+                  >
                     {v2026?.note ?? "—"}
                   </td>
                 </tr>
@@ -206,33 +218,34 @@ export default async function ChiffresPaieContent() {
         </table>
       </div>
 
-      <h2 className="mt-[26px] text-[13px] font-extrabold tracking-[0.06em] text-ink uppercase">
-        {settings?.cot_title ?? "Taux de cotisations"}
-      </h2>
-      <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[560px] text-sm">
+      <h2 className={GTITLE}>{settings?.cot_title ?? "Taux de cotisations"}</h2>
+      <div className={VALO}>
+        <table className="w-full min-w-[560px] border-collapse text-[13.5px] leading-[20.25px] text-ink">
           <thead>
-            <tr className="border-b border-border text-left">
-              <th className="py-2 pr-2 font-medium text-muted">Cotisation</th>
-              <th className="px-2 py-2 font-medium text-muted">Assiette / base</th>
-              <th className="px-2 py-2 text-right font-medium text-muted">Salariale</th>
-              <th className="px-2 py-2 text-right font-medium text-muted">Patronale</th>
+            <tr>
+              <th className={TH}>Cotisation</th>
+              <th className={TH}>Assiette / base</th>
+              <th className={`${TH} text-right`}>Salariale</th>
+              <th className={`${TH} text-right`}>Patronale</th>
             </tr>
           </thead>
           <tbody>
             {(contributions ?? []).map((row) =>
               row.is_header ? (
-                <tr key={row.id} className="bg-page-bg">
-                  <td colSpan={4} className="py-1.5 pr-2 font-semibold text-ink">
+                <tr key={row.id}>
+                  <td
+                    colSpan={4}
+                    className="border-b border-border bg-[#f5f0ec] px-2.5 py-[7px] text-[11px] leading-[16.5px] font-extrabold tracking-[0.05em] uppercase"
+                  >
                     {row.label}
                   </td>
                 </tr>
               ) : (
-                <tr key={row.id} className="border-b border-border">
-                  <td className="py-1.5 pr-2 text-ink">{row.label}</td>
-                  <td className="px-2 py-1.5 text-muted">{row.base}</td>
-                  <td className="px-2 py-1.5 text-right font-mono text-ink">{row.employee_rate}</td>
-                  <td className="px-2 py-1.5 text-right font-mono text-ink">{row.employer_rate}</td>
+                <tr key={row.id} className="hover:[&>td]:bg-[#f5f0ec]">
+                  <td className={TD_COT}>{row.label}</td>
+                  <td className={`${TD_COT} text-muted`}>{row.base}</td>
+                  <td className={`${TD_COT} text-right tabular-nums`}>{row.employee_rate}</td>
+                  <td className={`${TD_COT} text-right tabular-nums`}>{row.employer_rate}</td>
                 </tr>
               ),
             )}
@@ -240,7 +253,11 @@ export default async function ChiffresPaieContent() {
         </table>
       </div>
 
-      {settings?.source && <p className="mt-6 text-xs italic text-muted">{settings.source}</p>}
+      {settings?.source && (
+        <p className="mt-[18px] bg-[#f5f0ec] px-4 py-3 text-[11.5px] leading-[17.25px] text-muted italic">
+          {settings.source}
+        </p>
+      )}
     </main>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import ArticleCover from "../ArticleCover";
 
 interface ArticleRow {
   id: string;
@@ -43,6 +44,14 @@ interface ArticleRow {
 // `articles`) et le bloc "Sources"/CTA "Poser une question à G2S" (lié
 // à Assistance, LBP-CLIENT-13, explicitement bloqué faute de service
 // tiers choisi -- jamais simulé).
+//
+// Correctif fidélité (06/10/2026), mesuré sur le rendu de la maquette
+// (openActuArticle() puis getComputedStyle) : `.back` padding 4px 0 et
+// `.art-page` collée dessous (pas de marge) ; titre en `--titre`
+// (#33405A, couche "TITRES"), pas en carbone ; sans image, l'en-tête
+// affiche la couverture G2S (`.art-hero.art-hero-cover`, ratio 16/8,
+// radius 16) au lieu de rien ; image `.art-hero` dans un cadre radius 16
+// fond crème.
 export default async function ArticleDetailContent({
   id,
   linkPrefix = "",
@@ -66,17 +75,20 @@ export default async function ArticleDetailContent({
 
   return (
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
-      <Link href={`${linkPrefix}/actu`} className="text-[13px] font-bold text-ink hover:underline">
+      <Link
+        href={`${linkPrefix}/actu`}
+        className="inline-block py-1 text-[13px] font-bold text-ink hover:underline"
+      >
         ← Retour à Actu · Veille
       </Link>
 
-      <article className="mx-auto mt-4 max-w-[780px]">
+      <article className="mx-auto max-w-[780px]">
         {(article.category || firstTag) && (
           <p className="mb-2.5 text-[11.5px] font-extrabold tracking-[0.06em] text-primary uppercase">
             {[article.category, firstTag].filter(Boolean).join(" · ")}
           </p>
         )}
-        <h1 className="mb-3.5 text-[34px] leading-[1.18] font-extrabold tracking-[-0.015em] text-ink">
+        <h1 className="mb-3.5 text-[34px] leading-[1.18] font-extrabold tracking-[-0.015em] text-[#33405A] max-[700px]:text-[26px]">
           {article.title}
         </h1>
 
@@ -93,13 +105,23 @@ export default async function ArticleDetailContent({
           </div>
         )}
 
-        {article.image_url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={article.image_url}
-            alt=""
-            className="mb-[18px] max-h-[420px] w-full rounded-2xl bg-[#F5F0EC] object-cover"
-          />
+        {article.image_url ? (
+          <div className="mb-[18px] overflow-hidden rounded-2xl bg-[#F5F0EC]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={article.image_url}
+              alt=""
+              className="block max-h-[420px] w-full object-cover"
+            />
+          </div>
+        ) : (
+          <div className="relative mb-[18px] aspect-[16/8] overflow-hidden rounded-2xl bg-[#F5F0EC]">
+            {/* .art-hero-cover .g2-cover{position:absolute;inset:0} garde son
+                aspect-ratio 16/9 : plus haut que le cadre 16/8, rogné en bas. */}
+            <div className="absolute inset-x-0 top-0">
+              <ArticleCover category={article.category} tag={firstTag} type={article.type} />
+            </div>
+          </div>
         )}
 
         <div className="mb-[22px] flex flex-wrap gap-4 border-b border-border pb-[18px] text-[12.5px] text-muted">
@@ -109,6 +131,7 @@ export default async function ArticleDetailContent({
               day: "numeric",
               month: "long",
               year: "numeric",
+              timeZone: "UTC",
             })}
           </span>
           <span>{article.type === "pdf" ? "Dossier PDF" : (article.reading_time ?? "")}</span>

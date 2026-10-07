@@ -6,6 +6,8 @@ import { TextField, CheckboxField } from "@/ui-kit/Field";
 import { Button } from "@/ui-kit/Button";
 import { Modal } from "@/ui-kit/Modal";
 import EstablishmentsSection from "./EstablishmentsSection";
+import { File } from "lucide-react";
+import { EditButton } from "./ui";
 
 interface Establishment {
   id: string;
@@ -54,16 +56,14 @@ export default function IdentityCard({
 
   return (
     <div className="relative">
-      <button
-        type="button"
-        onClick={() => setEditing(true)}
-        aria-label="Modifier l'identité"
-        className="absolute top-0 right-0 rounded-full p-1.5 text-base text-muted opacity-75 hover:bg-surface hover:opacity-100"
-      >
-        ✏️
-      </button>
+      <EditButton label="Modifier l'identité" onClick={() => setEditing(true)} />
 
-      <div className="flex items-center gap-3.5">
+      {/* Mesures maquette (#v-documents) : `.ent-head` gap 14px, mb 12px ;
+          `.ent-logo.empty` 64px, fond #F5F0EC, filet pointillé, rayon 12px,
+          icône `file` 22px + "Aucun logo" 9px ; `.ent-raison` 16px/24px 800 ;
+          `.id-row` 13.5px, padding 9px 0, filet bas sur chaque ligne ;
+          `.id-lbl` 11px/800/.04em, marge 12px 0 8px. */}
+      <div className="mb-3 flex items-center gap-3.5">
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- data URL, pas un asset Next
           <img
@@ -72,35 +72,35 @@ export default function IdentityCard({
             className="h-16 w-16 shrink-0 rounded-xl border border-border bg-white object-contain p-1"
           />
         ) : (
-          <span className="flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-dashed border-border bg-surface text-center text-[9px] text-muted">
-            <span>📄</span>
+          <span className="flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-[3px] rounded-xl border border-dashed border-[#DED9DB] bg-[#F5F0EC] text-center text-[9px] leading-[1.5] text-[#6B656B]">
+            <File className="h-[22px] w-[22px]" aria-hidden="true" />
             <span>Aucun logo</span>
           </span>
         )}
         <div>
-          <div className="text-base font-extrabold text-ink">{companyName}</div>
-          {cba && <div className="text-sm text-muted">{cba}</div>}
+          <div className="text-base leading-[1.5] font-extrabold text-ink">{companyName}</div>
+          {cba && <div className="text-sm leading-[1.5] text-[#6B656B]">{cba}</div>}
         </div>
       </div>
 
-      <dl className="mt-3 flex flex-col text-[13.5px]">
+      <dl className="flex flex-col text-[13.5px] leading-[1.5]">
         {siret && (
-          <div className="flex items-center justify-between gap-3.5 border-b border-border py-2">
+          <div className="flex items-center justify-between gap-3.5 border-b border-[#DED9DB] py-[9px]">
             <dt className="text-muted">SIRET</dt>
             <dd className="font-bold text-ink">{siret}</dd>
           </div>
         )}
-        <div className="flex items-center justify-between gap-3.5 border-b border-border py-2">
+        <div className="flex items-center justify-between gap-3.5 border-b border-[#DED9DB] py-[9px]">
           <dt className="text-muted">Forme</dt>
           <dd className="font-bold text-ink">{legalForm || "—"}</dd>
         </div>
-        <div className="flex items-center justify-between gap-3.5 py-2">
+        <div className="flex items-center justify-between gap-3.5 border-b border-[#DED9DB] py-[9px]">
           <dt className="text-muted">Effectif global</dt>
           <dd className="font-bold text-ink">{headcount || "—"}</dd>
         </div>
       </dl>
 
-      <div className="mt-3 mb-2 text-[11px] font-extrabold tracking-[0.04em] text-muted uppercase">
+      <div className="mt-3 mb-2 text-[11px] leading-[1.5] font-extrabold tracking-[0.04em] text-[#6B656B] uppercase">
         Établissements ({establishments.length})
       </div>
       <div className="flex flex-col gap-2">
@@ -110,12 +110,12 @@ export default function IdentityCard({
           establishments.map((e) => (
             <div
               key={e.id}
-              className="flex items-start gap-2.5 rounded-[10px] bg-[#F5F0EC] px-3 py-2.5 text-[13px]"
+              className="flex items-start gap-2.5 rounded-[10px] bg-[#F5F0EC] px-3 py-2.5 text-[13px] leading-[1.5]"
             >
               <span aria-hidden="true">🏢</span>
               <div>
                 <b className="font-bold text-ink">{e.name}</b>
-                {e.address && <div className="text-[11.5px] text-muted">{e.address}</div>}
+                {e.address && <div className="text-[11.5px] text-[#6B656B]">{e.address}</div>}
               </div>
             </div>
           ))

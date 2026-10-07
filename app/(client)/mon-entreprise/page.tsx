@@ -1,6 +1,6 @@
 import { requireClient } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { Card } from "@/ui-kit/Card";
+import { File, Users, Settings } from "lucide-react";
 import { Eyebrow } from "../_components/Eyebrow";
 import { SectionTitle } from "../_components/SectionTitle";
 import TeamSection, { type TeamMember } from "./TeamSection";
@@ -9,6 +9,7 @@ import PayrollCard from "./PayrollCard";
 import ToolsCard from "./ToolsCard";
 import DocumentsSection from "./DocumentsSection";
 import type { CompanyDocument } from "@/lib/client/company-documents";
+import { dashCardClass, secTitleClass } from "./ui";
 
 // LBP-CLIENT-02 : "Mon équipe" [§1.3, p.9 du cahier des charges réel —
 // vérifié verbatim "1.3 Mon équipe" dans le PDF]. Identité (1.3.1),
@@ -33,8 +34,15 @@ import type { CompanyDocument } from "@/lib/client/company-documents";
 // jamais remarqué jusqu'ici, approximées en emoji comme pour
 // AccueilContent.tsx (même convention : pas de jeu d'icônes SVG du
 // prototype à notre disposition).
-const sectionHeadingClass =
-  "mt-[6px] mb-3 flex items-baseline gap-[10px] text-[23px] font-extrabold tracking-[-0.015em] text-[#33405A]";
+//
+// Passe fidélité mesurée (06/10/2026, getComputedStyle sur #v-documents) :
+// icônes de titre = vrais SVG `ico('file'|'users'|'settings')` 18px
+// (Lucide File/Users/Settings), plus d'emoji ; cartes = `.dash-card`
+// (padding 18px 20px, ombre --shadow-sm) au lieu de `ui-kit/Card` (p-6,
+// ombre Studio) ; grille `.dash-2col` gap 16px, 2e rangée margin-top
+// 22px ; "Vos documents" margin 22px 0 12px. Le paragraphe d'intro sous
+// le titre n'existe pas dans la maquette : retiré.
+const sectionIcon = "h-[18px] w-[18px] shrink-0";
 
 // Correctif fidélité (04/10/2026), suite à un nouveau retour de
 // l'utilisateur ("compare mot pour mot") : "Effectif" -> "Effectif
@@ -144,14 +152,13 @@ export default async function MonEntreprisePage() {
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Mon espace</Eyebrow>
       <SectionTitle>Mon entreprise</SectionTitle>
-      <p className="-mt-3 text-sm text-muted">
-        Votre société, votre organisation et vos outils RH.
-      </p>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-x-4 gap-y-[22px] sm:grid-cols-2">
         <div>
-          <h2 className={sectionHeadingClass}>📄 Identité</h2>
-          <Card>
+          <h2 className={secTitleClass}>
+            <File className={sectionIcon} aria-hidden="true" /> Identité
+          </h2>
+          <div className={dashCardClass}>
             <IdentityCard
               identity={{
                 companyName: company?.company_name ?? "",
@@ -163,29 +170,35 @@ export default async function MonEntreprisePage() {
               }}
               establishments={establishments ?? []}
             />
-          </Card>
+          </div>
         </div>
 
         <div>
-          <h2 className={sectionHeadingClass}>👥 Organisation</h2>
-          <Card>
+          <h2 className={secTitleClass}>
+            <Users className={sectionIcon} aria-hidden="true" /> Organisation
+          </h2>
+          <div className={dashCardClass}>
             <TeamSection members={members ?? []} />
-          </Card>
+          </div>
         </div>
 
         <div>
-          <h2 className={sectionHeadingClass}>⚙️ Organisation de la paie</h2>
-          <Card>
+          <h2 className={secTitleClass}>
+            <Settings className={sectionIcon} aria-hidden="true" /> Organisation de la paie
+          </h2>
+          <div className={dashCardClass}>
             <PayrollCard
               operatingMode={payrollOrg?.operating_mode ?? null}
               providerName={payrollOrg?.provider_name ?? null}
             />
-          </Card>
+          </div>
         </div>
 
         <div>
-          <h2 className={sectionHeadingClass}>⚙️ Outils</h2>
-          <Card>
+          <h2 className={secTitleClass}>
+            <Settings className={sectionIcon} aria-hidden="true" /> Outils
+          </h2>
+          <div className={dashCardClass}>
             <ToolsCard
               payrollSoftware={softwareStack?.payroll_software ?? null}
               hris={softwareStack?.hris ?? null}
@@ -193,11 +206,11 @@ export default async function MonEntreprisePage() {
               otherTools={softwareStack?.other_tools ?? null}
               hasSpecifications={softwareStack?.has_specifications ?? false}
             />
-          </Card>
+          </div>
         </div>
       </div>
 
-      <h2 className={sectionHeadingClass + " mt-[22px]"}>📁 Vos documents</h2>
+      <h2 className={secTitleClass + " mt-[22px]! mb-3!"}>📁 Vos documents</h2>
       <DocumentsSection documents={documents ?? []} />
     </main>
   );

@@ -23,7 +23,7 @@ const VARIANT_TITLE: Record<FamilyVariant, string> = {
 const VARIANT_TEXT: Record<FamilyVariant, string> = {
   ta: "text-[#8c2447]",
   tb: "text-ink",
-  tc: "text-primary",
+  tc: "text-[#8c2447]",
 };
 
 export default function FamilyCard({
@@ -44,17 +44,17 @@ export default function FamilyCard({
   return (
     <Link href={href}>
       <div
-        className={`flex h-full min-h-[150px] flex-col rounded-2xl p-5 transition-transform hover:-translate-y-0.5 ${VARIANT_BG[variant]}`}
+        className={`flex h-full min-h-[150px] flex-col rounded-2xl p-5 transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-26px_rgba(68,80,104,0.28)] ${VARIANT_BG[variant]}`}
       >
-        <p className={`text-[17px] font-extrabold ${VARIANT_TITLE[variant]}`}>
+        <p
+          className={`mb-1.5 flex items-center gap-2 text-[17px] leading-[1.5] font-extrabold ${VARIANT_TITLE[variant]}`}
+        >
           {icon} {name}
         </p>
         {example && (
-          <p className={`mt-1.5 flex-1 text-xs leading-relaxed ${VARIANT_TEXT[variant]}`}>
-            {example}
-          </p>
+          <p className={`flex-1 text-[12.5px] leading-[1.5] ${VARIANT_TEXT[variant]}`}>{example}</p>
         )}
-        <p className={`mt-2.5 text-xs font-bold ${VARIANT_TITLE[variant]}`}>
+        <p className={`mt-2.5 text-xs leading-[1.5] font-bold ${VARIANT_TITLE[variant]}`}>
           {themeCount} thématiques →
         </p>
       </div>

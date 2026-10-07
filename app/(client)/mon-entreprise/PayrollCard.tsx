@@ -5,6 +5,7 @@ import { savePayrollOrg } from "./actions";
 import { TextField, SelectField } from "@/ui-kit/Field";
 import { Button } from "@/ui-kit/Button";
 import { Modal } from "@/ui-kit/Modal";
+import { EditButton } from "./ui";
 
 // Correctif (04/10/2026), suite au retour de l'utilisateur ("le contenu
 // et la longueur à l'intérieur ça ne match pas avec la v9") : le vrai
@@ -33,25 +34,20 @@ export default function PayrollCard({
 
   return (
     <div className="relative">
-      <button
-        type="button"
-        onClick={() => setEditing(true)}
-        aria-label="Modifier l'organisation de la paie"
-        className="absolute top-0 right-0 rounded-full p-1.5 text-base text-muted opacity-75 hover:bg-surface hover:opacity-100"
-      >
-        ✏️
-      </button>
+      <EditButton label="Modifier l'organisation de la paie" onClick={() => setEditing(true)} />
 
-      <div className="pr-7 text-xl font-extrabold text-[#445068]">
+      {/* `.paie-mode` mesuré : 20px/30px 800 carbone, mb 10px ;
+          `.paie-opts` : 11.5px italique --ink-soft, mt 10px. */}
+      <div className="mb-[10px] text-xl leading-[1.5] font-extrabold text-[#445068]">
         {operatingMode || <span className="text-base font-normal text-muted">À renseigner</span>}
       </div>
       {providerName && (
-        <div className="flex items-center justify-between gap-3.5 border-b border-border py-2 pr-7 text-[13.5px]">
+        <div className="flex items-center justify-between gap-3.5 border-b border-[#DED9DB] py-[9px] text-[13.5px] leading-[1.5]">
           <span className="text-muted">Prestataire de paie</span>
           <span className="font-bold text-ink">{providerName}</span>
         </div>
       )}
-      <p className="mt-2.5 text-[11.5px] text-muted italic">
+      <p className="mt-2.5 text-[11.5px] leading-[1.5] text-[#6B656B] italic">
         Options possibles : internalisée · semi-internalisée · externalisée · prestataire de paie
       </p>
 

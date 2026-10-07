@@ -23,11 +23,12 @@ const VARIANT_CLASSES: Record<KpiVariant, string> = {
   kd: "bg-[#efe7e1] text-ink",
 };
 
+// `.kc-sub{opacity:.85}` -- le libellé (`.kc-lab`) reste à pleine opacité.
 const VARIANT_SUBTLE: Record<KpiVariant, string> = {
   ka: "text-white/85",
   kb: "text-white/85",
   kc: "text-white/85",
-  kd: "text-ink/70",
+  kd: "text-ink/85",
 };
 
 const VARIANT_DIVIDER: Record<KpiVariant, string> = {
@@ -51,16 +52,18 @@ export default function ChiffreCard({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className={`rounded-2xl px-[18px] py-4 ${VARIANT_CLASSES[variant]}`}>
+    <div
+      className={`cursor-pointer rounded-2xl px-[18px] py-4 transition-[transform,box-shadow] duration-[140ms] hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-26px_rgba(68,80,104,0.28)] ${VARIANT_CLASSES[variant]}`}
+    >
       <button type="button" className="w-full text-left" onClick={() => setOpen((o) => !o)}>
-        <p
-          className={`text-[11px] font-semibold tracking-wide uppercase ${VARIANT_SUBTLE[variant]}`}
-        >
+        <p className="text-[11.5px] leading-[1.5] font-semibold tracking-[0.04em] uppercase">
           {label}
         </p>
-        <p className="mt-1.5 font-mono text-xl font-extrabold">{currentNote}</p>
-        <p className={`mt-1 text-[11px] ${VARIANT_SUBTLE[variant]}`}>
-          {open ? "Masquer l'historique" : "Historique →"}
+        <p className="mt-1.5 mb-0.5 text-[23px] leading-[1.5] font-extrabold tabular-nums">
+          {currentNote}
+        </p>
+        <p className={`text-[11.5px] leading-[1.5] ${VARIANT_SUBTLE[variant]}`}>
+          {open ? "masquer l'historique" : "historique →"}
         </p>
       </button>
       {open && (
@@ -69,7 +72,7 @@ export default function ChiffreCard({
             {history.map((h) => (
               <tr key={h.year} className={`border-t ${VARIANT_DIVIDER[variant]}`}>
                 <td className={`py-1 ${VARIANT_SUBTLE[variant]}`}>{h.year}</td>
-                <td className="py-1 text-right font-mono">{h.note}</td>
+                <td className="py-1 text-right tabular-nums">{h.note}</td>
               </tr>
             ))}
           </tbody>

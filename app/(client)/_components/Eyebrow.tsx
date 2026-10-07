@@ -9,7 +9,7 @@ import type { ReactNode } from "react";
 // réservé au vrai état :hover des boutons, LBP-CLIENT-16).
 export function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <p className="font-display mb-1 text-[11.5px] font-extrabold tracking-[0.14em] text-primary uppercase">
+    <p className="font-display mt-1.5 mb-1 text-[11.5px] leading-[1.5] font-extrabold tracking-[0.14em] text-primary uppercase">
       {children}
     </p>
   );

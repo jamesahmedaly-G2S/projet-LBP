@@ -4,12 +4,13 @@ import { requireClient } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getSheetLayersForClient } from "@/lib/client/sheet-content";
 import { getCompanyAffectations } from "@/lib/studio/affectations";
-import { SHEET_CONTENT_FIELDS, type SheetContent } from "@/lib/studio/placeholder-content";
-import { Card } from "@/ui-kit/Card";
+import { Eyebrow } from "../../_components/Eyebrow";
+import { SectionTitle } from "../../_components/SectionTitle";
+import FicheRubriques from "./FicheRubriques";
 
 const LAYER_LABEL: Record<string, string> = {
-  ccn: "Complément conventionnel",
-  ent: "Contenu spécifique entreprise",
+  ccn: "La convention collective",
+  ent: "Les accords d'entreprise",
   proc: "Procédure interne",
 };
 
@@ -47,12 +48,18 @@ export default async function BibliothequeFichePage({
 
   const { data: sheet } = await supabase
     .from("master_sheets")
-    .select("id, title, status")
+    .select("id, title, status, theme_id")
     .eq("id", sheetId)
     .eq("status", "published")
     .single();
 
   if (!sheet) notFound();
+
+  const { data: theme } = await supabase
+    .from("master_themes")
+    .select("name, family_id")
+    .eq("id", sheet.theme_id)
+    .maybeSingle<{ name: string; family_id: string }>();
 
   const affectations = await getCompanyAffectations(supabase, companyId);
   const removed = affectations.find((a) => a.masterSheetId === sheetId)?.removedManually;
@@ -76,58 +83,35 @@ export default async function BibliothequeFichePage({
     .eq("published", true)
     .maybeSingle<AssociatedQuiz>();
 
+  // Correctif fidélité (06/10/2026), mesuré sur `#v-fiche` du prototype
+  // (openFiche()/selLevel(), LBP_V9.9_Studio.html ~L11140-11160) : lien
+  // `.back` "← Retour à « thème »" (13px/700 carbone), surtitre "thème ›
+  // fiche", `.section-title`, puis les 6 cartes de rubrique et le bloc de
+  // la rubrique sélectionnée (FicheRubriques.tsx) -- plus de cartes
+  // empilées par couche : les couches CCN/entreprise/procédure sont
+  // présentées en niveaux numérotés à l'intérieur de chaque rubrique.
   return (
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
-      <Link href="/bibliotheque" className="text-sm text-primary hover:underline">
-        ← Retour à la bibliothèque
-      </Link>
-      <h1 className="mt-2 text-2xl font-semibold text-ink">{sheet.title}</h1>
+      <div className="mb-1.5 flex items-center gap-3">
+        <Link
+          href={theme ? `/bibliotheque?famille=${theme.family_id}` : "/bibliotheque"}
+          className="py-1 text-[13px] font-bold text-ink hover:underline"
+        >
+          ← Retour à « {theme?.name ?? "la bibliothèque"} »
+        </Link>
+      </div>
+      <Eyebrow>{theme ? `${theme.name} › fiche` : "Fiche"}</Eyebrow>
+      <SectionTitle>{sheet.title}</SectionTitle>
 
-      {rg && (
-        <Card className="mt-6">
-          <ContentFields content={rg.content} />
-        </Card>
-      )}
-
-      {overlays.map((layer) => (
-        <Card key={layer.id} className="mt-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-primary">
-            {LAYER_LABEL[layer.layerKind]}
-            {layer.ccnName ? ` — ${layer.ccnName}` : ""}
-          </h2>
-          <ContentFields content={layer.content} />
-        </Card>
-      ))}
-
-      {quiz && (
-        <Card className="mt-6">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-sm font-semibold text-ink">Testez vos connaissances</h2>
-              <p className="text-sm text-muted">{quiz.title}</p>
-            </div>
-            <Link
-              href={`/mes-quiz/${quiz.id}`}
-              className="shrink-0 rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
-            >
-              Faire le quiz →
-            </Link>
-          </div>
-        </Card>
-      )}
+      <FicheRubriques
+        rg={rg?.content ?? null}
+        overlays={overlays.map((layer) => ({
+          id: layer.id,
+          label: `${LAYER_LABEL[layer.layerKind]}${layer.ccnName ? ` — ${layer.ccnName}` : ""}`,
+          content: layer.content,
+        }))}
+        quiz={quiz ?? null}
+      />
     </main>
-  );
-}
-
-function ContentFields({ content }: { content: SheetContent }) {
-  return (
-    <div className="flex flex-col gap-4">
-      {SHEET_CONTENT_FIELDS.map(({ key, label }) => (
-        <div key={key}>
-          <h3 className="mb-1 text-sm font-semibold text-ink">{label}</h3>
-          <p className="text-sm leading-relaxed text-ink">{content[key]}</p>
-        </div>
-      ))}
-    </div>
   );
 }

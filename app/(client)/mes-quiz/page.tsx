@@ -41,6 +41,17 @@ const cardClass =
 // (fiches embarquées vs quizz autonomes, "brouillon"/"quizz G2S"/"fiche")
 // -- notre schéma n'a qu'une seule table `quizzes`, badge unique
 // "Quizz G2S".
+//
+// Correctif fidélité (06/10/2026), mesuré sur le rendu de la maquette
+// (goView('quiz') puis getComputedStyle) : l'en-tête statique de
+// `<div id="v-quiz">` (~L2710-2713) -- eyebrow "Évaluation", titre
+// "Testez vos connaissances", intro 14px max-width 640 -- précède TOUJOURS
+// le bloc rendu par renderQuizModule() ("Vos quizz, {prénom} 🏆", qui
+// n'apparaît que s'il y a des quizz ; sinon un simple `.ov-panel`).
+// Le précédent correctif l'avait retiré à tort comme "inventé".
+// Valeur des jauges lh 1.1 ; libellé "N quizz — cliquez pour les faire"
+// = `.eyebrow` (11.5px/800/.14em, margin-top 4px) ; bouton
+// `.btn-primary` 12.5px/700, padding 9px 18px.
 export default async function ClientQuizListPage() {
   const session = await requireClient();
   const supabase = await createClient();
@@ -78,7 +89,11 @@ export default async function ClientQuizListPage() {
   return (
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Évaluation</Eyebrow>
-      <SectionTitle>Vos quizz, {firstName} 🏆</SectionTitle>
+      <SectionTitle>Testez vos connaissances</SectionTitle>
+      <p className="mb-[18px] max-w-[640px] text-sm text-muted">
+        Les quizz de vos fiches, à faire directement ici. Chaque quizz corrige vos réponses, vous
+        donne une note, et vous permet de demander une formation ciblée.
+      </p>
 
       {rows.length === 0 ? (
         <div className={`${cardClass} p-[18px]`}>
@@ -86,26 +101,32 @@ export default async function ClientQuizListPage() {
         </div>
       ) : (
         <>
+          <Eyebrow>Évaluation</Eyebrow>
+          <SectionTitle>Vos quizz, {firstName} 🏆</SectionTitle>
           <div className="mb-[18px] grid grid-cols-4 gap-[14px]">
             <div className={`${cardClass} border-t-[3px] border-t-ink px-[18px] py-4`}>
               <p className="text-[10.5px] font-bold tracking-[0.07em] text-muted uppercase">
                 Quizz disponibles
               </p>
-              <p className="mt-[5px] text-[28px] font-extrabold text-ink">{rows.length}</p>
+              <p className="mt-[5px] text-[28px] leading-[1.1] font-extrabold text-ink">
+                {rows.length}
+              </p>
               <p className="mt-[5px] text-[11px] text-muted">tous thèmes confondus</p>
             </div>
             <div className={`${cardClass} border-t-[3px] border-t-ink px-[18px] py-4`}>
               <p className="text-[10.5px] font-bold tracking-[0.07em] text-muted uppercase">
                 Quizz réalisés
               </p>
-              <p className="mt-[5px] text-[28px] font-extrabold text-ink">{doneCount}</p>
+              <p className="mt-[5px] text-[28px] leading-[1.1] font-extrabold text-ink">
+                {doneCount}
+              </p>
               <p className="mt-[5px] text-[11px] text-muted">sur {rows.length}</p>
             </div>
             <div className={`${cardClass} border-t-[3px] border-t-primary px-[18px] py-4`}>
               <p className="text-[10.5px] font-bold tracking-[0.07em] text-muted uppercase">
                 Score moyen
               </p>
-              <p className="mt-[5px] text-[28px] font-extrabold text-primary">
+              <p className="mt-[5px] text-[28px] leading-[1.1] font-extrabold text-primary">
                 {doneCount ? `${avgScore} %` : "—"}
               </p>
               <p className="mt-[5px] text-[11px] text-muted">
@@ -116,7 +137,9 @@ export default async function ClientQuizListPage() {
               <p className="text-[10.5px] font-bold tracking-[0.07em] text-muted uppercase">
                 À retravailler
               </p>
-              <p className="mt-[5px] text-[28px] font-extrabold text-primary">{weakCount}</p>
+              <p className="mt-[5px] text-[28px] leading-[1.1] font-extrabold text-primary">
+                {weakCount}
+              </p>
               <p className="mt-[5px] text-[11px] text-muted">score &lt; 70 %</p>
             </div>
           </div>
@@ -143,7 +166,7 @@ export default async function ClientQuizListPage() {
             </div>
           </div>
 
-          <p className="mt-1 mb-3 text-[11px] font-bold tracking-[0.16em] text-primary uppercase">
+          <p className="mt-1 mb-1 text-[11.5px] font-extrabold tracking-[0.14em] text-primary uppercase">
             {rows.length} quizz — cliquez pour les faire
           </p>
 
@@ -172,7 +195,7 @@ export default async function ClientQuizListPage() {
                   </div>
                   <Link
                     href={`/mes-quiz/${quiz.id}`}
-                    className="shrink-0 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
+                    className="inline-flex shrink-0 items-center gap-[7px] rounded-full bg-primary px-[18px] py-[9px] text-[12.5px] leading-none font-bold whitespace-nowrap text-white transition hover:-translate-y-px hover:bg-primary-hover"
                   >
                     {lastScore !== undefined ? "Refaire" : "Commencer"}
                   </Link>

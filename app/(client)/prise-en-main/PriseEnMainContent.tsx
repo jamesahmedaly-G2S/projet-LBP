@@ -45,14 +45,14 @@ export default async function PriseEnMainContent() {
   const cardClass =
     "rounded-2xl border border-border bg-surface px-5 py-[18px] shadow-[0_10px_26px_-20px_rgba(68,80,104,0.22)]";
   const cardHeadingClass =
-    "mb-3 border-b-2 border-[#F5F0EC] pb-2 text-base font-extrabold text-ink";
+    "mb-3 border-b-2 border-[#F5F0EC] pb-2 text-[15px] leading-[1.5] font-extrabold text-ink";
 
   return (
     <main className="mx-auto max-w-[1240px] px-[30px] pt-6 pb-[90px]">
       <Eyebrow>Aide &amp; prise en main</Eyebrow>
       <SectionTitle>{help?.title ?? "Bien démarrer avec le LBP"}</SectionTitle>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 min-[820px]:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 min-[820px]:grid-cols-2">
         <div className={cardClass}>
           <h2 className={cardHeadingClass}>🚀 L&apos;essentiel en 5 points</h2>
           <ul className="flex flex-col gap-2">

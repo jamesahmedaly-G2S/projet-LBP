@@ -1,0 +1,73 @@
+/* Organigramme en arbre centré avec connecteurs -- port 1:1 de `.org-tree`
+   (LBP_V9.9_Studio.html ~L679-695). Les traits de liaison passent par
+   ::before/::after, impossibles à exprimer proprement en utilitaires. */
+.tree {
+  overflow-x: auto;
+  padding: 6px 0 10px;
+  text-align: center;
+}
+.tree ul {
+  padding-top: 22px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  margin: 0;
+}
+.tree li {
+  text-align: center;
+  list-style: none;
+  position: relative;
+  padding: 22px 8px 0;
+  vertical-align: top;
+}
+.tree li::before,
+.tree li::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 50%;
+  border-top: 2px solid #ded9db;
+  width: 50%;
+  height: 22px;
+}
+.tree li::after {
+  right: auto;
+  left: 50%;
+  border-left: 2px solid #ded9db;
+}
+.tree li:only-child::after,
+.tree li:only-child::before {
+  display: none;
+}
+.tree li:only-child {
+  padding-top: 0;
+}
+.tree li:first-child::before,
+.tree li:last-child::after {
+  border: 0 none;
+}
+.tree li:last-child::before {
+  border-right: 2px solid #ded9db;
+  border-radius: 0 6px 0 0;
+}
+.tree li:first-child::after {
+  border-radius: 6px 0 0 0;
+}
+.tree ul ul::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  border-left: 2px solid #ded9db;
+  width: 0;
+  height: 22px;
+}
+.card .acts {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.card:hover .acts,
+.card:focus-within .acts {
+  opacity: 1;
+}

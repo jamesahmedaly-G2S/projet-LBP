@@ -1,0 +1,218 @@
+{
+  "mockup": {
+    "file": "../LBP_V9.9_Studio.html"
+  },
+  "app": {
+    "baseUrl": "http://localhost:3100",
+    "storageState": ".fidelity/auth.json"
+  },
+  "outDir": ".fidelity",
+  "locale": "fr-FR",
+  "timezone": "Europe/Paris",
+  "fonts": ["Archivo"],
+  "freeze": {
+    "date": "2026-10-06T08:20:00+02:00",
+    "disableAnimations": true,
+    "clearStorage": true
+  },
+  "thresholds": {
+    "pixel": 0.1,
+    "pageMaxDiffRatio": 0.005,
+    "componentMaxDiffRatio": 0.001,
+    "pxTolerance": 0.5
+  },
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1240,
+      "height": 900
+    }
+  ],
+  "hide": [".chat-fab", "nextjs-portal"],
+  "ignoreProps": ["cursor"],
+  "pages": [
+    {
+      "id": "client-accueil",
+      "mockup": {
+        "setup": [
+          {
+            "eval": "goView('overview')"
+          },
+          {
+            "waitFor": "#v-overview.active"
+          }
+        ]
+      },
+      "app": {
+        "path": "/accueil"
+      },
+      "components": [
+        {
+          "id": "header",
+          "mockup": "header.top"
+        },
+        {
+          "id": "nav-item-active",
+          "mockup": ".topnav button.on"
+        },
+        {
+          "id": "nav-item",
+          "mockup": ".topnav button:not(.on)"
+        }
+      ]
+    },
+    {
+      "id": "client-entreprise",
+      "mockup": {
+        "setup": [
+          {
+            "eval": "goView('documents')"
+          },
+          {
+            "waitFor": "#v-documents.active"
+          }
+        ]
+      },
+      "app": {
+        "path": "/mon-entreprise"
+      },
+      "components": []
+    },
+    {
+      "id": "client-calendrier",
+      "mockup": {
+        "setup": [
+          {
+            "eval": "goView('calendrier')"
+          },
+          {
+            "waitFor": "#v-calendrier.active"
+          }
+        ]
+      },
+      "app": {
+        "path": "/calendrier-rh"
+      },
+      "components": []
+    },
+    {
+      "id": "client-biblio",
+      "mockup": {
+        "setup": [
+          {
+            "eval": "goView('biblio')"
+          },
+          {
+            "waitFor": "#v-biblio.active"
+          }
+        ]
+      },
+      "app": {
+        "path": "/bibliotheque"
+      },
+      "components": []
+    },
+    {
+      "id": "client-actu",
+      "mockup": {
+        "setup": [
+          {
+            "eval": "goView('decrypt')"
+          },
+          {
+            "waitFor": "#v-decrypt.active"
+          }
+        ]
+      },
+      "app": {
+        "path": "/actu"
+      },
+      "components": []
+    },
+    {
+      "id": "client-chiffres",
+      "mockup": {
+        "setup": [
+          {
+            "eval": "goView('chiffres')"
+          },
+          {
+            "waitFor": "#v-chiffres.active"
+          }
+        ]
+      },
+      "app": {
+        "path": "/chiffres-paie"
+      },
+      "components": []
+    },
+    {
+      "id": "client-dico",
+      "mockup": {
+        "setup": [
+          {
+            "eval": "goView('dico')"
+          },
+          {
+            "waitFor": "#v-dico.active"
+          }
+        ]
+      },
+      "app": {
+        "path": "/dictionnaire"
+      },
+      "components": []
+    },
+    {
+      "id": "client-quiz",
+      "mockup": {
+        "setup": [
+          {
+            "eval": "goView('quiz')"
+          },
+          {
+            "waitFor": "#v-quiz.active"
+          }
+        ]
+      },
+      "app": {
+        "path": "/mes-quiz"
+      },
+      "components": []
+    },
+    {
+      "id": "client-offres",
+      "mockup": {
+        "setup": [
+          {
+            "eval": "goView('offres')"
+          },
+          {
+            "waitFor": "#v-offres.active"
+          }
+        ]
+      },
+      "app": {
+        "path": "/offres"
+      },
+      "components": []
+    },
+    {
+      "id": "client-help",
+      "mockup": {
+        "setup": [
+          {
+            "eval": "goView('help')"
+          },
+          {
+            "waitFor": "#v-help.active"
+          }
+        ]
+      },
+      "app": {
+        "path": "/prise-en-main"
+      },
+      "components": []
+    }
+  ]
+}

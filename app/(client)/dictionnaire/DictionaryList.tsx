@@ -52,14 +52,16 @@ export default function DictionaryList({ terms }: { terms: DictionaryTerm[] }) {
   return (
     <div>
       <div className="mb-3.5 flex max-w-[380px] items-center gap-2 rounded-full border border-border bg-white px-4 py-[9px]">
-        <span aria-hidden="true">🔎</span>
+        {/* `.dico-search .gs-ic` du prototype : conteneur vide (0×0, aucun
+            pictogramme rendu) -- seul l'écart `gap:8px` subsiste. */}
+        <span aria-hidden="true" />
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Rechercher un terme…"
           aria-label="Rechercher un terme"
-          className="w-full bg-transparent text-sm text-ink focus:outline-none"
+          className="w-full bg-transparent text-[13.5px] text-ink focus:outline-none"
         />
       </div>
 
@@ -102,7 +104,9 @@ export default function DictionaryList({ terms }: { terms: DictionaryTerm[] }) {
                     key={t.id}
                     className="rounded-xl border border-border bg-white px-4 py-[13px]"
                   >
-                    <p className="mb-1 text-[14.5px] font-extrabold text-ink">{t.term}</p>
+                    <p className="mb-1 text-[15.5px] leading-[1.5] font-extrabold text-[#33405A]">
+                      {t.term}
+                    </p>
                     <p className="text-[13.5px] leading-[1.65] text-ink">{t.definition}</p>
                     {t.source && (
                       <p className="mt-[5px] text-[11.5px] text-muted italic">
